@@ -12,6 +12,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPistonEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
@@ -122,6 +125,28 @@ public class ChestProtectListener implements Listener {
         for (Block b : bl) {
             if (ShopUtils.isShopMaterial(b.getType())) {
                 if (shopUtils.isShop(b.getLocation())) e.blockList().remove(b);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPistonExtend(BlockPistonExtendEvent e) {
+        for (Block b: e.getBlocks()) {
+            if (ShopUtils.isShopMaterial(b.getType())) {
+                if (shopUtils.isShop(b.getLocation())) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPistonRetract(BlockPistonRetractEvent e) {
+        for (Block b: e.getBlocks()) {
+            if (ShopUtils.isShopMaterial(b.getType())) {
+                if (shopUtils.isShop(b.getLocation())) {
+                    e.setCancelled(true);
+                }
             }
         }
     }
