@@ -10,3 +10,5 @@
 .factorypath
 
 /.vscode/
+
+*.DS_Store
