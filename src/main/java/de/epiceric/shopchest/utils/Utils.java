@@ -22,6 +22,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -31,6 +32,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockDataMeta;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -92,6 +95,20 @@ public class Utils {
 
             itemStack1 = decode(encode(itemStack1));
             itemStack2 = decode(encode(itemStack2));
+        }
+
+        if (itemMeta1 instanceof BlockStateMeta && itemMeta2 instanceof BlockStateMeta) {
+            BlockStateMeta blockMeta1 = (BlockStateMeta)itemMeta1;
+            BlockStateMeta blockMeta2 = (BlockStateMeta)itemMeta2;
+
+            if (blockMeta1.getBlockState() instanceof ShulkerBox && blockMeta2.getBlockState() instanceof ShulkerBox) {
+                ShulkerBox box1 = (ShulkerBox)blockMeta1.getBlockState();
+                ShulkerBox box2 = (ShulkerBox)blockMeta2.getBlockState();
+
+                if (!box1.getInventory().isEmpty() && !box2.getInventory().isEmpty()) {
+                    return false;
+                }
+            }
         }
 
         if (itemMeta1 instanceof EnchantmentStorageMeta && itemMeta2 instanceof EnchantmentStorageMeta) {
@@ -270,8 +287,13 @@ public class Utils {
         List<String> axes;
         if (Utils.getMajorVersion() < 13)
             axes = Arrays.asList("WOOD_AXE", "STONE_AXE", "IRON_AXE", "GOLD_AXE", "DIAMOND_AXE");
-        else 
-            axes = Arrays.asList("WOODEN_AXE", "STONE_AXE", "IRON_AXE", "GOLDEN_AXE", "DIAMOND_AXE");
+        else {
+            if (Utils.getMajorVersion() < 16) {
+                axes = Arrays.asList("WOODEN_AXE", "STONE_AXE", "IRON_AXE", "GOLDEN_AXE", "DIAMOND_AXE");
+            } else {
+                axes = Arrays.asList("WOODEN_AXE", "STONE_AXE", "IRON_AXE", "GOLDEN_AXE", "DIAMOND_AXE", "NETHERITE_AXE");
+            }
+        }
 
         ItemStack item = getItemInMainHand(p);
         if (item == null || !axes.contains(item.getType().toString())) {
