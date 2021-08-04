@@ -3,6 +3,7 @@ package de.epiceric.shopchest.command;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
@@ -437,26 +438,31 @@ class ShopCommandExecutor implements CommandExecutor {
             }
         }
 
-        double creationPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopCreationPriceNormal :Config.shopCreationPriceAdmin;
-        if (creationPrice > 0) {
-            if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < creationPrice) {
-                p.sendMessage(LanguageUtils.getMessage(Message.SHOP_CREATE_NOT_ENOUGH_MONEY, new Replacement(Placeholder.CREATION_PRICE, String.valueOf(creationPrice))));
-                plugin.debug(p.getName() + " can not pay the creation price");
-                return;
+        CompletableFuture.runAsync(() -> {
+            double creationPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopCreationPriceNormal :Config.shopCreationPriceAdmin;
+            if (creationPrice > 0) {
+                if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < creationPrice) {
+                    p.sendMessage(LanguageUtils.getMessage(Message.SHOP_CREATE_NOT_ENOUGH_MONEY, new Replacement(Placeholder.CREATION_PRICE, String.valueOf(creationPrice))));
+                    plugin.debug(p.getName() + " can not pay the creation price");
+                    return;
+                }
             }
-        }
 
-        ShopProduct product = new ShopProduct(itemStack, amount);
-        ShopPreCreateEvent event = new ShopPreCreateEvent(p, new Shop(plugin, p, product, null, buyPrice, sellPrice, shopType));
-        Bukkit.getPluginManager().callEvent(event);
+            ShopProduct product = new ShopProduct(itemStack, amount);
+            ShopPreCreateEvent event = new ShopPreCreateEvent(p, new Shop(plugin, p, product, null, buyPrice, sellPrice, shopType));
 
-        if (!event.isCancelled()) {
-            ClickType.setPlayerClickType(p, new CreateClickType(product, buyPrice, sellPrice, shopType));
-            plugin.debug(p.getName() + " can now click a chest");
-            p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_CREATE));
-        } else {
-            plugin.debug("Shop pre create event cancelled");
-        }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Bukkit.getPluginManager().callEvent(event);
+
+                if (!event.isCancelled()) {
+                    ClickType.setPlayerClickType(p, new CreateClickType(product, buyPrice, sellPrice, shopType));
+                    plugin.debug(p.getName() + " can now click a chest");
+                    p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_CREATE));
+                } else {
+                    plugin.debug("Shop pre create event cancelled");
+                }
+            });
+        });
     }
 
     /**

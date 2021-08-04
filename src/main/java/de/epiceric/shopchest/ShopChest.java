@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import com.palmergames.bukkit.towny.Towny;
+import com.plotsquared.core.PlotSquared;
 import com.wasteofplastic.askyblock.ASkyBlock;
 
 import org.bstats.bukkit.Metrics;

@@ -17,6 +17,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +35,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.BlockDataMeta;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -382,23 +384,11 @@ public class Utils {
      * @param p The player to receive the notification
      */
     public static void sendUpdateMessage(ShopChest plugin, Player p) {
-        JsonBuilder jb = new JsonBuilder(plugin);
-        Map<String, JsonBuilder.Part> hoverEvent = new HashMap<>();
-        hoverEvent.put("action", new JsonBuilder.Part("show_text"));
-        hoverEvent.put("value", new JsonBuilder.Part(LanguageUtils.getMessage(Message.UPDATE_CLICK_TO_DOWNLOAD)));
+        Component message = Component.text(LanguageUtils.getMessage(Message.UPDATE_AVAILABLE, new Replacement(Placeholder.VERSION, plugin.getLatestVersion())))
+                .hoverEvent(HoverEvent.showText(Component.text(LanguageUtils.getMessage(Message.UPDATE_CLICK_TO_DOWNLOAD))))
+                .clickEvent(ClickEvent.openUrl(plugin.getDownloadLink()));
 
-        Map<String, JsonBuilder.Part> clickEvent = new HashMap<>();
-        clickEvent.put("action", new JsonBuilder.Part("open_url"));
-        clickEvent.put("value", new JsonBuilder.Part(plugin.getDownloadLink()));
-
-        JsonBuilder.PartMap rootPart = JsonBuilder.parse(LanguageUtils.getMessage(Message.UPDATE_AVAILABLE,
-                new Replacement(Placeholder.VERSION, plugin.getLatestVersion()))).toMap();
-                
-        rootPart.setValue("hoverEvent", new JsonBuilder.PartMap(hoverEvent));
-        rootPart.setValue("clickEvent", new JsonBuilder.PartMap(clickEvent));
-        
-        jb.setRootPart(rootPart);
-        jb.sendJson(p);
+        p.sendMessage(message);
     }
 
     /**
