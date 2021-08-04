@@ -506,22 +506,28 @@ public class ShopInteractListener implements Listener {
             return;
         }
 
-        if (creationPrice > 0) {
-            EconomyResponse r = plugin.getEconomy().withdrawPlayer(executor, location.getWorld().getName(), creationPrice);
-            if (!r.transactionSuccess()) {
-                plugin.debug("Economy transaction failed: " + r.errorMessage);
-                executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r.errorMessage)));
-                return;
+        CompletableFuture.runAsync(() -> {
+
+            if (creationPrice > 0) {
+                EconomyResponse r = econ.withdrawPlayer(executor, location.getWorld().getName(), creationPrice);
+                if (!r.transactionSuccess()) {
+                    plugin.debug("Economy transaction failed: " + r.errorMessage);
+                    executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r.errorMessage)));
+                    return;
+                }
             }
-        }
 
-        shop.create(true);
+            Bukkit.getScheduler().runTask(plugin, () -> {
 
-        plugin.debug("Shop created");
-        shopUtils.addShop(shop, true);
+                shop.create(true);
 
-        Message message = shopType == ShopType.ADMIN ? Message.ADMIN_SHOP_CREATED : Message.SHOP_CREATED;
-        executor.sendMessage(LanguageUtils.getMessage(message, new Replacement(Placeholder.CREATION_PRICE, creationPrice)));
+                plugin.debug("Shop created");
+                shopUtils.addShop(shop, true);
+
+                Message message = shopType == ShopType.ADMIN ? Message.ADMIN_SHOP_CREATED : Message.SHOP_CREATED;
+                executor.sendMessage(LanguageUtils.getMessage(message, new Replacement(Placeholder.CREATION_PRICE, creationPrice)));
+            });
+        });
     }
 
     /**
@@ -549,25 +555,31 @@ public class ShopInteractListener implements Listener {
             return;
         }
 
-        double creationPrice = shop.getShopType() == ShopType.ADMIN ? Config.shopCreationPriceAdmin : Config.shopCreationPriceNormal;
-        if (creationPrice > 0 && Config.refundShopCreation && executor.getUniqueId().equals(shop.getVendor().getUniqueId())) {
-            EconomyResponse r = plugin.getEconomy().depositPlayer(executor, shop.getLocation().getWorld().getName(), creationPrice);
-            if (!r.transactionSuccess()) {
-                plugin.debug("Economy transaction failed: " + r.errorMessage);
-                executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED,
-                        new Replacement(Placeholder.ERROR, r.errorMessage)));
-                executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED_REFUND,
-                        new Replacement(Placeholder.CREATION_PRICE, 0)));
-            } else {
-                executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED_REFUND,
-                    new Replacement(Placeholder.CREATION_PRICE, creationPrice)));
-            }
-        } else {
-            executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED));
-        }
+        CompletableFuture.runAsync(() -> {
 
-        shopUtils.removeShop(shop, true);
-        plugin.debug("Removed shop (#" + shop.getID() + ")");
+            double creationPrice = shop.getShopType() == ShopType.ADMIN ? Config.shopCreationPriceAdmin : Config.shopCreationPriceNormal;
+            if (creationPrice > 0 && Config.refundShopCreation && executor.getUniqueId().equals(shop.getVendor().getUniqueId())) {
+                EconomyResponse r = econ.depositPlayer(executor, shop.getLocation().getWorld().getName(), creationPrice);
+                if (!r.transactionSuccess()) {
+                    plugin.debug("Economy transaction failed: " + r.errorMessage);
+                    executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED,
+                            new Replacement(Placeholder.ERROR, r.errorMessage)));
+                    executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED_REFUND,
+                            new Replacement(Placeholder.CREATION_PRICE, 0)));
+                } else {
+                    executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED_REFUND,
+                            new Replacement(Placeholder.CREATION_PRICE, creationPrice)));
+                }
+            } else {
+                executor.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED));
+            }
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+
+                shopUtils.removeShop(shop, true);
+                plugin.debug("Removed shop (#" + shop.getID() + ")");
+            });
+        });
     }
 
     /**
