@@ -2592,7 +2592,8 @@ public class LanguageUtils {
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_SET, langConfig.getString("message.config.set", "&6Changed &a%PROPERTY% &6to &a%VALUE%&6.")));
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_REMOVED, langConfig.getString("message.config.removed", "&6Removed &a%VALUE% &6from &a%PROPERTY%&6.")));
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_ADDED, langConfig.getString("message.config.added", "&6Added &a%VALUE% &6to &a%PROPERTY%&6.")));
-        messages.add(new LocalizedMessage(Message.VALUE_OF_ITEM, langConfig.getString("message.valueOfItem", "&6This item is sold in &a%COUNT% &6shops for an average price of &a%SELL-PRICE%&6, and bought for &a%BUY-PRICE%.")));
+        messages.add(new LocalizedMessage(Message.VALUE_OF_ITEM, langConfig.getString("message.valueOfItem", "&6This item is sold by &a%COUNT% &6players for an average price of &a%SELL-PRICE%&6, and bought for &a%BUY-PRICE%.")));
+        messages.add(new LocalizedMessage(Message.VALUE_NO_SHOPS, langConfig.getString("message.valueNoShops", "&cNo shops are currently selling this item.")));
     }
 
     /**

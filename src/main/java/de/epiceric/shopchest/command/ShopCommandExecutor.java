@@ -2,7 +2,10 @@ package de.epiceric.shopchest.command;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -537,6 +540,7 @@ class ShopCommandExecutor implements CommandExecutor {
         AtomicInteger count = new AtomicInteger();
         AtomicReference<Double> buyPrice = new AtomicReference<>(0d);
         AtomicReference<Double> sellPrice = new AtomicReference<>(0d);
+        Set<UUID> sellers = new HashSet<>();
 
         plugin.getShopUtils().getShops().forEach(shop -> {
             if (!shop.hasItem()) {
@@ -545,13 +549,22 @@ class ShopCommandExecutor implements CommandExecutor {
             if (!Utils.isItemSimilar(shop.getProduct().getItemStack(), item)) {
                 return;
             }
+            if (shop.getShopType().equals(ShopType.ADMIN)) {
+                return;
+            }
 
+            sellers.add(shop.getVendor().getUniqueId());
             count.getAndIncrement();
             buyPrice.updateAndGet(v -> v + shop.getBuyPrice());
             sellPrice.updateAndGet(v -> v + shop.getSellPrice());
         });
 
-        p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM, new Replacement(Placeholder.AMOUNT, count.get()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get())));
+        if (count.get() == 0) {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS));
+            return;
+        }
+
+        p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get() / (double)count.get()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double)count.get())));
     }
 
     private boolean changeConfig(CommandSender sender, String[] args) {
