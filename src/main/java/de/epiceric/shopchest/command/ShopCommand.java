@@ -155,6 +155,17 @@ public class ShopCommand {
             }
         });
 
+        addSubCommand(new ShopSubCommand("value", true, executor, tabCompleter) {
+            @Override
+            public String getHelpMessage(CommandSender sender) {
+                if (sender.hasPermission(Permissions.CONFIG)) {
+                    return LanguageUtils.getMessage(Message.COMMAND_DESC_VALUE, cmdReplacement);
+                } else {
+                    return "";
+                }
+            }
+        });
+
         register();
         commandCreated = true;
     }

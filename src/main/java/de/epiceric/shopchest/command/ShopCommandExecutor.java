@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -134,6 +137,8 @@ class ShopCommandExecutor implements CommandExecutor {
                                 new Replacement(Placeholder.AMOUNT, String.valueOf(shopUtils.getShopAmount(p)))));
                     } else if (subCommand.getName().equalsIgnoreCase("open")) {
                         open(p);
+                    } else if (subCommand.getName().equalsIgnoreCase("value")) {
+                        value(p);
                     } else {
                         return false;
                     }
@@ -520,6 +525,33 @@ class ShopCommandExecutor implements CommandExecutor {
         plugin.debug(p.getName() + " can now click a chest");
         p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_OPEN));
         ClickType.setPlayerClickType(p, new ClickType(ClickType.EnumClickType.OPEN));
+    }
+
+    private void value(final Player p) {
+        ItemStack item = p.getInventory().getItemInMainHand();
+
+        if (item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR || item.getType() == Material.VOID_AIR) {
+            return;
+        }
+
+        AtomicInteger count = new AtomicInteger();
+        AtomicReference<Double> buyPrice = new AtomicReference<>(0d);
+        AtomicReference<Double> sellPrice = new AtomicReference<>(0d);
+
+        plugin.getShopUtils().getShops().forEach(shop -> {
+            if (!shop.hasItem()) {
+                return;
+            }
+            if (!Utils.isItemSimilar(shop.getProduct().getItemStack(), item)) {
+                return;
+            }
+
+            count.getAndIncrement();
+            buyPrice.updateAndGet(v -> v + shop.getBuyPrice());
+            sellPrice.updateAndGet(v -> v + shop.getSellPrice());
+        });
+
+        p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM, new Replacement(Placeholder.AMOUNT, count.get()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get())));
     }
 
     private boolean changeConfig(CommandSender sender, String[] args) {

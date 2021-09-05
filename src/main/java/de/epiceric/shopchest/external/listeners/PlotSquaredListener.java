@@ -63,8 +63,8 @@ public class PlotSquaredListener implements Listener {
 
     private void removeShopsFromPlot(Plot plot) {
         Set<CuboidRegion> regions = plot.getRegions();
-        for (Shop shop : plugin.getShopUtils().getShops()) {
-            for (CuboidRegion region : regions) {
+        for (Shop shop: plugin.getShopUtils().getShops()) {
+            for (CuboidRegion region: regions) {
                 org.bukkit.Location loc = shop.getLocation();
                 if (!region.contains(BlockVector3.at(loc.getX(), loc.getY(), loc.getZ()))) {
                     continue;
