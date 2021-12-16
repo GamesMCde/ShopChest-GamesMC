@@ -537,7 +537,8 @@ class ShopCommandExecutor implements CommandExecutor {
             return;
         }
 
-        AtomicInteger count = new AtomicInteger();
+        AtomicInteger buyCount = new AtomicInteger();
+        AtomicInteger sellCount = new AtomicInteger();
         AtomicReference<Double> buyPrice = new AtomicReference<>(0d);
         AtomicReference<Double> sellPrice = new AtomicReference<>(0d);
         Set<UUID> sellers = new HashSet<>();
@@ -554,17 +555,27 @@ class ShopCommandExecutor implements CommandExecutor {
             }
 
             sellers.add(shop.getVendor().getUniqueId());
-            count.getAndIncrement();
-            buyPrice.updateAndGet(v -> v + shop.getBuyPrice());
-            sellPrice.updateAndGet(v -> v + shop.getSellPrice());
+            if (shop.getBuyPrice() != 0) {
+                buyPrice.updateAndGet(v -> v + shop.getBuyPrice());
+                buyCount.getAndIncrement();
+            }
+            if (shop.getSellPrice() != 0) {
+                sellPrice.updateAndGet(v -> v + shop.getSellPrice());
+                sellCount.getAndIncrement();
+            }
         });
 
-        if (count.get() == 0) {
-            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS));
-            return;
+        if (buyCount.get() == 0) {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS_BUY));
+        } else {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_BUY, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get() / (double) buyCount.get())));
+        }
+        if (sellCount.get() == 0) {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS_SELL));
+        } else {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_SELL, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double) buyCount.get())));
         }
 
-        p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get() / (double)count.get()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double)count.get())));
     }
 
     private boolean changeConfig(CommandSender sender, String[] args) {

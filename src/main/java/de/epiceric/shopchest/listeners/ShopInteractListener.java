@@ -822,6 +822,7 @@ public class ShopInteractListener implements Listener {
 
                         ShopProduct newProduct = new ShopProduct(product, newAmount);
                         double newPrice = (finalPrice / finalAmount) * newAmount;
+                        double tax = Config.shopTaxes.getOrDefault(itemStack.getType().toString(), Config.shopTaxes.get("default"));
 
                         if (freeSpace >= newAmount) {
                             plugin.debug(executor.getName() + " has enough inventory space for " + freeSpace + " items (#" + shop.getID() + ")");
@@ -829,7 +830,7 @@ public class ShopInteractListener implements Listener {
                             EconomyResponse r = econ.withdrawPlayer(executor, worldName, newPrice);
 
                             if (r.transactionSuccess()) {
-                                EconomyResponse r2 = (shop.getShopType() != ShopType.ADMIN) ? econ.depositPlayer(shop.getVendor(), worldName, newPrice) : null;
+                                EconomyResponse r2 = (shop.getShopType() != ShopType.ADMIN) ? econ.depositPlayer(shop.getVendor(), worldName, newPrice * (100 - tax)) : null;
 
                                 if (r2 != null) {
                                     if (r2.transactionSuccess()) {
@@ -841,7 +842,7 @@ public class ShopInteractListener implements Listener {
 
                                             if (event.isCancelled()) {
                                                 econ.depositPlayer(executor, worldName, newPrice);
-                                                econ.withdrawPlayer(shop.getVendor(), worldName, newPrice);
+                                                econ.withdrawPlayer(shop.getVendor(), worldName, newPrice * (100 - tax));
                                                 plugin.debug("Buy event cancelled (#" + shop.getID() + ")");
                                                 return;
                                             }
@@ -867,6 +868,7 @@ public class ShopInteractListener implements Listener {
                                                     new Replacement(Placeholder.VENDOR, vendorName)));
 
                                             plugin.debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
+                                            plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
                                             if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
@@ -885,7 +887,7 @@ public class ShopInteractListener implements Listener {
                                             plugin.debug("Economy transaction failed (r2): " + r2.errorMessage + " (#" + shop.getID() + ")");
                                             executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r2.errorMessage)));
                                             econ.withdrawPlayer(shop.getVendor(), worldName, newPrice);
-                                            econ.depositPlayer(executor, worldName, newPrice);
+                                            econ.depositPlayer(executor, worldName, newPrice * (100 - tax));
                                         });
                                     }
                                 } else {
@@ -895,7 +897,7 @@ public class ShopInteractListener implements Listener {
                                         Bukkit.getPluginManager().callEvent(event);
 
                                         if (event.isCancelled()) {
-                                            econ.depositPlayer(executor, worldName, newPrice);
+                                            econ.depositPlayer(executor, worldName, newPrice * (100 - tax));
                                             plugin.debug("Buy event cancelled (#" + shop.getID() + ")");
                                             return;
                                         }
@@ -918,6 +920,7 @@ public class ShopInteractListener implements Listener {
                                                 new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice))));
 
                                         plugin.debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
+                                        plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount1, newProduct.getItemStack().toString(), "ADMIN"));
                                     });
                                 }
                             } else {
@@ -1010,6 +1013,7 @@ public class ShopInteractListener implements Listener {
 
                     ShopProduct newProduct = new ShopProduct(product, newAmount);
                     double newPrice = (finalPrice / finalAmount) * newAmount;
+                    double tax = plugin.getShopChestConfig().shopTaxes.getOrDefault(itemStack.getType().toString(), plugin.getShopChestConfig().shopTaxes.get("default"));
 
                     if (freeSpace >= newAmount || shop.getShopType() == ShopType.ADMIN) {
                         plugin.debug("Chest has enough inventory space for " + freeSpace + " items (#" + shop.getID() + ")");
@@ -1017,7 +1021,7 @@ public class ShopInteractListener implements Listener {
                         int finalNewAmount = newAmount;
                         CompletableFuture.runAsync(() -> {
 
-                            EconomyResponse r = econ.depositPlayer(executor, worldName, newPrice);
+                            EconomyResponse r = econ.depositPlayer(executor, worldName, newPrice * (100 - tax));
 
                             if (r.transactionSuccess()) {
                                 EconomyResponse r2 = (shop.getShopType() != ShopType.ADMIN) ? econ.withdrawPlayer(shop.getVendor(), worldName, newPrice) : null;
@@ -1030,7 +1034,7 @@ public class ShopInteractListener implements Listener {
 
                                             if (event.isCancelled()) {
                                                 CompletableFuture.runAsync(() -> {
-                                                    econ.withdrawPlayer(executor, worldName, newPrice);
+                                                    econ.withdrawPlayer(executor, worldName, newPrice * (100 - tax));
                                                     econ.depositPlayer(shop.getVendor(), worldName, newPrice);
                                                     plugin.debug("Sell event cancelled (#" + shop.getID() + ")");
                                                 });
@@ -1058,6 +1062,7 @@ public class ShopInteractListener implements Listener {
                                                     new Replacement(Placeholder.VENDOR, vendorName)));
 
                                             plugin.debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
+                                            plugin.getLogger().info(String.format("%s sold %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
                                             if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_SOLD, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
@@ -1075,7 +1080,7 @@ public class ShopInteractListener implements Listener {
                                         CompletableFuture.runAsync(() -> {
                                             plugin.debug("Economy transaction failed (r2): " + r2.errorMessage + " (#" + shop.getID() + ")");
                                             executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r2.errorMessage)));
-                                            econ.withdrawPlayer(executor, worldName, newPrice);
+                                            econ.withdrawPlayer(executor, worldName, newPrice * (100 - tax));
                                             econ.depositPlayer(shop.getVendor(), worldName, newPrice);
                                         });
                                     }
@@ -1086,7 +1091,7 @@ public class ShopInteractListener implements Listener {
 
                                     if (event.isCancelled()) {
                                         CompletableFuture.runAsync(() -> {
-                                            econ.withdrawPlayer(executor, worldName, newPrice);
+                                            econ.withdrawPlayer(executor, worldName, newPrice * (100 - tax));
                                             plugin.debug("Sell event cancelled (#" + shop.getID() + ")");
                                         });
                                         return;
@@ -1110,6 +1115,7 @@ public class ShopInteractListener implements Listener {
                                             new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice))));
 
                                     plugin.debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
+                                    plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), "ADMIN"));
                                 }
 
                             } else {
