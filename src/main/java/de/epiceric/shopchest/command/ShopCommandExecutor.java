@@ -547,6 +547,9 @@ class ShopCommandExecutor implements CommandExecutor {
             if (!shop.hasItem()) {
                 return;
             }
+            if (sellers.contains(shop.getVendor().getUniqueId())) {
+                return;
+            }
             if (!Utils.isItemSimilar(shop.getProduct().getItemStack(), item)) {
                 return;
             }
@@ -556,11 +559,11 @@ class ShopCommandExecutor implements CommandExecutor {
 
             sellers.add(shop.getVendor().getUniqueId());
             if (shop.getBuyPrice() != 0) {
-                buyPrice.updateAndGet(v -> v + shop.getBuyPrice());
+                buyPrice.updateAndGet(v -> v + shop.getBuyPrice() / shop.getProduct().getAmount());
                 buyCount.getAndIncrement();
             }
             if (shop.getSellPrice() != 0) {
-                sellPrice.updateAndGet(v -> v + shop.getSellPrice());
+                sellPrice.updateAndGet(v -> v + shop.getSellPrice() / shop.getProduct().getAmount());
                 sellCount.getAndIncrement();
             }
         });
@@ -573,7 +576,7 @@ class ShopCommandExecutor implements CommandExecutor {
         if (sellCount.get() == 0) {
             p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS_SELL));
         } else {
-            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_SELL, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double) buyCount.get())));
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_SELL, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double) sellCount.get())));
         }
 
     }
