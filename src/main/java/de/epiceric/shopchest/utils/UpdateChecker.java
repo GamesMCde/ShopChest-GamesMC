@@ -1,14 +1,13 @@
 package de.epiceric.shopchest.utils;
 
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import de.epiceric.shopchest.ShopChest;
+
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class UpdateChecker {
 
@@ -36,7 +35,7 @@ public class UpdateChecker {
             conn.setRequestProperty("User-Agent", "ShopChest/UpdateChecker");
 
             InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-            JsonElement element = new JsonParser().parse(reader);
+            JsonElement element = JsonParser.parseReader(reader);
 
             if (element.isJsonArray()) {
                 JsonObject result = element.getAsJsonArray().get(0).getAsJsonObject();
@@ -45,11 +44,11 @@ public class UpdateChecker {
                 link = "https://www.spigotmc.org/resources/shopchest.11431/download?version=" + id;
             } else {
                 plugin.debug("Failed to check for updates");
-                plugin.debug("Result: " + element.toString());
+                plugin.debug("Result: " + element);
                 return UpdateCheckerResult.ERROR;
             }
 
-            if (plugin.getDescription().getVersion().equals(version)) {
+            if (compareVersion(version) == -1) {
                 plugin.debug("No update found");
                 return UpdateCheckerResult.FALSE;
             } else {
@@ -62,6 +61,28 @@ public class UpdateChecker {
             plugin.debug(e);
             return UpdateCheckerResult.ERROR;
         }
+    }
+
+    private int compareVersion(String version) {
+        String[] t = plugin.getDescription().getVersion().split("\\-")[0].split("\\.");
+        String[] o = version.split("\\-")[0].split("\\.");
+        int[] t1 = new int[t.length];
+        int[] o1 = new int[o.length];
+        for (int i = 0; i < t.length; i++) {
+            t1[i] = Integer.parseInt(t[i]);
+        }
+        for (int i = 0; i < o.length; i++) {
+            o1[i] = Integer.parseInt(o[i]);
+        }
+        final int maxLength = Math.max(t1.length, o1.length);
+        for (int i = 0; i < maxLength; i++) {
+            final int left = i < t1.length ? t1[i] : 0;
+            final int right = i < o1.length ? o1[i] : 0;
+            if (left != right) {
+                return left < right ? -1 : 1;
+            }
+        }
+        return 0;
     }
 
     /**

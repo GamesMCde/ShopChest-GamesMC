@@ -115,7 +115,7 @@
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Core</artifactId>
-            <version>6.0.8-SNAPSHOT</version>
+            <version>6.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -183,11 +183,6 @@
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>5.0.0</version>
@@ -250,6 +245,9 @@
                             <shadedPattern>de.epiceric.shopchest.dependencies.reflectionhelper</shadedPattern>
                         </relocation>
                     </relocations>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+                    </transformers>
                 </configuration>
             </plugin>
             <plugin>

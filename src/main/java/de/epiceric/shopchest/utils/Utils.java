@@ -57,6 +57,7 @@ public class Utils {
     static Class<?> entityClass = nmsClassResolver.resolveSilent("world.entity.Entity");
     static Class<?> entityArmorStandClass = nmsClassResolver.resolveSilent("world.entity.decoration.EntityArmorStand");
     static Class<?> entityItemClass = nmsClassResolver.resolveSilent("world.entity.item.EntityItem");
+    static Class<?> itemEntityClass = nmsClassResolver.resolveSilent("world.entity.item.ItemEntity");
     static Class<?> dataWatcherClass = nmsClassResolver.resolveSilent("network.syncher.DataWatcher");
     static Class<?> dataWatcherObjectClass = nmsClassResolver.resolveSilent("network.syncher.DataWatcherObject");
     static Class<?> chatSerializerClass = nmsClassResolver.resolveSilent("ChatSerializer", "network.chat.IChatBaseComponent$ChatSerializer");
@@ -442,6 +443,8 @@ public class Utils {
                     dataWatcherObjectFieldNames = new String[] {"S", "AIR_TICKS", "ar", "aq", "as", "at", "ITEM", "b"};
                 } else if ("v1_17_R1".equals(version)) {
                     dataWatcherObjectFieldNames = new String[] {"Z", "aI", "aK", "aJ", "aL", "aM", "c", "bG"};
+                } else if ("v1_18_R1".equals(version)) {
+                    dataWatcherObjectFieldNames = new String[] {"aa", "aK", "aM", "aL", "aN", "aO", "c", "bH"};
                 } else {
                     return null;
                 }
@@ -452,7 +455,8 @@ public class Utils {
                 Field fCustomName = entityClass.getDeclaredField(dataWatcherObjectFieldNames[3]);
                 Field fSilent = entityClass.getDeclaredField(dataWatcherObjectFieldNames[4]);
                 Field fNoGravity = majorVersion >= 10 ? entityClass.getDeclaredField(dataWatcherObjectFieldNames[5]) : null;
-                Field fItem = entityItemClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
+                //Field fItem = entityItemClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
+                Field fItem = itemEntityClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
                 Field fArmorStandFlags = entityArmorStandClass.getDeclaredField(dataWatcherObjectFieldNames[7]);
 
                 fEntityFlags.setAccessible(true);
@@ -498,7 +502,7 @@ public class Utils {
     }
 
     /**
-     * Get a free entity ID for use in {@link #createPacketSpawnEntity(ShopChest, int, UUID, Location, Vector, EntityType)}
+     * Get a free entity ID for use in {@link #createPacketSpawnEntity(ShopChest, int, UUID, Location, EntityType)}
      * 
      * @return The id or {@code -1} if a free entity ID could not be retrieved.
      */
@@ -612,6 +616,10 @@ public class Utils {
      * @return {@code true} if the packet was sent, or {@code false} if an exception was thrown
      */
     public static boolean sendPacket(ShopChest plugin, Object packet, Player player) {
+        if (player.getClass().getName().contains("citizensnpcs")) {
+            return false;
+        }
+
         try {
             if (packet == null) {
                 plugin.debug("Failed to send packet: Packet is null");

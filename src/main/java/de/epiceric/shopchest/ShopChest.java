@@ -1,37 +1,8 @@
 package de.epiceric.shopchest;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
 import com.palmergames.bukkit.towny.Towny;
 import com.plotsquared.core.PlotSquared;
 import com.wasteofplastic.askyblock.ASkyBlock;
-
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.AdvancedPie;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.codemc.worldguardwrapper.WorldGuardWrapper;
-
 import de.epiceric.shopchest.command.ShopCommand;
 import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.HologramFormat;
@@ -57,8 +28,6 @@ import de.epiceric.shopchest.listeners.ShopInteractListener;
 import de.epiceric.shopchest.listeners.ShopItemListener;
 import de.epiceric.shopchest.listeners.ShopUpdateListener;
 import de.epiceric.shopchest.listeners.WorldGuardListener;
-import de.epiceric.shopchest.shop.Shop;
-import de.epiceric.shopchest.shop.Shop.ShopType;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
@@ -74,9 +43,32 @@ import fr.xephi.authme.AuthMe;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.wiefferink.areashop.AreaShop;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import pl.islandworld.IslandWorld;
 import us.talabrek.ultimateskyblock.api.uSkyBlockAPI;
 import world.bentobox.bentobox.BentoBox;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class ShopChest extends JavaPlugin {
 
@@ -214,7 +206,6 @@ public class ShopChest extends JavaPlugin {
                 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         
         loadExternalPlugins();
-        loadMetrics();
         initDatabase();
         checkForUpdates();
         registerListeners();
@@ -338,30 +329,6 @@ public class ShopChest extends JavaPlugin {
         if (hasBentoBox()) {
             BentoBoxShopFlag.register(this);
         }
-    }
-
-    private void loadMetrics() {
-        debug("Initializing Metrics...");
-
-        Metrics metrics = new Metrics(this, 1726);
-        metrics.addCustomChart(new SimplePie("creative_setting", () -> Config.creativeSelectItem ? "Enabled" : "Disabled"));
-        metrics.addCustomChart(new SimplePie("database_type", () -> Config.databaseType.toString()));
-        metrics.addCustomChart(new AdvancedPie("shop_type", () -> {
-                int normal = 0;
-                int admin = 0;
-
-                for (Shop shop : shopUtils.getShops()) {
-                    if (shop.getShopType() == ShopType.NORMAL) normal++;
-                    else if (shop.getShopType() == ShopType.ADMIN) admin++;
-                }
-
-                Map<String, Integer> result = new HashMap<>();
-
-                result.put("Admin", admin);
-                result.put("Normal", normal);
-
-                return result;
-        }));
     }
 
     private void initDatabase() {

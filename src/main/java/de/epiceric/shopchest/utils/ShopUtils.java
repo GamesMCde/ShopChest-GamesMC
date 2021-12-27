@@ -283,7 +283,7 @@ public class ShopUtils {
     /**
      * Get the amount of shops of a player
      * @param p Player, whose shops should be counted
-     * @return The amount of a shops a player has (if {@link Config#excludeAdminShops} is true, admin shops won't be counted)
+     * @return The amount of a shops a player has
      */
     public int getShopAmount(OfflinePlayer p) {
         return playerShopAmount.getOrDefault(p.getUniqueId(), new Counter()).get();
