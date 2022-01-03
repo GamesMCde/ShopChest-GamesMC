@@ -48,7 +48,7 @@ public class UpdateChecker {
                 return UpdateCheckerResult.ERROR;
             }
 
-            if (compareVersion(version) == -1) {
+            if (compareVersion(version) == 1) {
                 plugin.debug("No update found");
                 return UpdateCheckerResult.FALSE;
             } else {

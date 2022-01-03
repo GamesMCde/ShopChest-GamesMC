@@ -57,7 +57,6 @@ public class Utils {
     static Class<?> entityClass = nmsClassResolver.resolveSilent("world.entity.Entity");
     static Class<?> entityArmorStandClass = nmsClassResolver.resolveSilent("world.entity.decoration.EntityArmorStand");
     static Class<?> entityItemClass = nmsClassResolver.resolveSilent("world.entity.item.EntityItem");
-    static Class<?> itemEntityClass = nmsClassResolver.resolveSilent("world.entity.item.ItemEntity");
     static Class<?> dataWatcherClass = nmsClassResolver.resolveSilent("network.syncher.DataWatcher");
     static Class<?> dataWatcherObjectClass = nmsClassResolver.resolveSilent("network.syncher.DataWatcherObject");
     static Class<?> chatSerializerClass = nmsClassResolver.resolveSilent("ChatSerializer", "network.chat.IChatBaseComponent$ChatSerializer");
@@ -418,7 +417,12 @@ public class Utils {
                 a.invoke(dataWatcher, 4, (byte) 1); // silent
                 a.invoke(dataWatcher, 10, nmsItemStack == null ? armorStandFlags : nmsItemStack); // item / armor stand flags
             } else {
-                Method register = dataWatcherClass.getMethod("register", dataWatcherObjectClass, Object.class);
+                Method register;
+                if (majorVersion < 18) {
+                    register = dataWatcherClass.getMethod("register", dataWatcherObjectClass, Object.class);
+                } else {
+                    register = dataWatcherClass.getMethod("a",dataWatcherObjectClass, Object.class);
+                }
                 String[] dataWatcherObjectFieldNames;
 
                 if ("v1_9_R1".equals(version)) {
@@ -456,7 +460,7 @@ public class Utils {
                 Field fSilent = entityClass.getDeclaredField(dataWatcherObjectFieldNames[4]);
                 Field fNoGravity = majorVersion >= 10 ? entityClass.getDeclaredField(dataWatcherObjectFieldNames[5]) : null;
                 //Field fItem = entityItemClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
-                Field fItem = itemEntityClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
+                Field fItem = entityItemClass.getDeclaredField(dataWatcherObjectFieldNames[6]);
                 Field fArmorStandFlags = entityArmorStandClass.getDeclaredField(dataWatcherObjectFieldNames[7]);
 
                 fEntityFlags.setAccessible(true);
@@ -636,7 +640,11 @@ public class Utils {
             Field fConnection = (new FieldResolver(nmsPlayer.getClass())).resolve("playerConnection", "b");
             Object playerConnection = fConnection.get(nmsPlayer);
 
-            playerConnection.getClass().getMethod("sendPacket", packetClass).invoke(playerConnection, packet);
+            if (getMajorVersion() < 18) {
+                playerConnection.getClass().getMethod("sendPacket", packetClass).invoke(playerConnection, packet);
+            } else {
+
+            }
 
             return true;
         } catch (NoSuchMethodException | NoSuchFieldException | IllegalAccessException | InvocationTargetException e) {
