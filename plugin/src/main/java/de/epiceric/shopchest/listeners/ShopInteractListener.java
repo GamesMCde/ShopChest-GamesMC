@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -781,7 +782,7 @@ public class ShopInteractListener implements Listener {
                                                     new Replacement(Placeholder.VENDOR, vendorName)));
 
                                             plugin.debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
-                                            plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
+                                            plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
                                             if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
@@ -833,7 +834,7 @@ public class ShopInteractListener implements Listener {
                                                 new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice))));
 
                                         plugin.debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
-                                        plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount1, newProduct.getItemStack().toString(), "ADMIN"));
+                                        plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.getName(), finalNewAmount1, newProduct.getItemStack().toString(), "ADMIN"));
                                     });
                                 }
                             } else {
@@ -975,7 +976,7 @@ public class ShopInteractListener implements Listener {
                                                     new Replacement(Placeholder.VENDOR, vendorName)));
 
                                             plugin.debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
-                                            plugin.getLogger().info(String.format("%s sold %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
+                                            plugin.getLogger().info(String.format("%s sold %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
                                             if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_SOLD, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
@@ -1028,7 +1029,7 @@ public class ShopInteractListener implements Listener {
                                             new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice))));
 
                                     plugin.debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
-                                    plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.name(), finalNewAmount, newProduct.getItemStack().toString(), "ADMIN"));
+                                    plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), "ADMIN"));
                                 }
 
                             } else {

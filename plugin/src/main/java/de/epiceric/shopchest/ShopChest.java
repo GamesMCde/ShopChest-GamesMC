@@ -195,17 +195,8 @@ public class ShopChest extends JavaPlugin {
             case "v1_16_R1":
             case "v1_16_R2":
             case "v1_16_R3":
-                platform = new PlatformImpl(new ShopChestDebug(getLogger(), this::debug, this::debug));
-                break;
             case "v1_17_R1":
-                // Need to have an implementation for 1.17.1 and 1.17 -> Change in the name of EntityDestroyPacket
-                // TODO Check CraftMagicNumbers (And create a dedicated class to load Platform)
-                if(Bukkit.getBukkitVersion().equals("1.17.1-R0.1-SNAPSHOT")){
-                    platform = new de.epiceric.shopchest.nms.v1_17_1_R1.PlatformImpl();
-                }
-                else {
-                    platform = new de.epiceric.shopchest.nms.v1_17_R1.PlatformImpl();
-                }
+                platform = new PlatformImpl(new ShopChestDebug(getLogger(), this::debug, this::debug));
                 break;
             case "v1_18_R1":
                 platform = new de.epiceric.shopchest.nms.v1_18_R1.PlatformImpl();

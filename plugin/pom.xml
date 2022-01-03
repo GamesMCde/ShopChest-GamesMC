@@ -15,6 +15,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
+            <version>1.18.1-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
@@ -87,14 +88,6 @@
         <dependency>
             <groupId>de.epiceric</groupId>
             <artifactId>shopchest-nms-reflection</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.epiceric</groupId>
-            <artifactId>shopchest-nms-v1_17_R1</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.epiceric</groupId>
-            <artifactId>shopchest-nms-v1_17_1_R1</artifactId>
         </dependency>
         <dependency>
             <groupId>de.epiceric</groupId>
