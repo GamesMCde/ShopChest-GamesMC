@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ShopChest-parent</artifactId>
         <groupId>de.epiceric</groupId>
-        <version>1.14.0-SNAPSHOT</version>
+        <version>1.14.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,10 +42,6 @@
             <artifactId>GriefPrevention</artifactId>
         </dependency>
         <dependency>
-            <groupId>me.wiefferink</groupId>
-            <artifactId>areashop</artifactId>
-        </dependency>
-        <dependency>
             <groupId>world.bentobox</groupId>
             <artifactId>bentobox</artifactId>
         </dependency>
@@ -56,10 +52,6 @@
         <dependency>
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>Towny</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>pl.gnacik.islandworld</groupId>
-            <artifactId>IslandWorld</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -80,6 +72,12 @@
         <dependency>
             <groupId>org.inventivetalent</groupId>
             <artifactId>reflectionhelper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.epiceric</groupId>

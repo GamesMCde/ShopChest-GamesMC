@@ -5,13 +5,23 @@
     <parent>
         <artifactId>ShopChest-parent</artifactId>
         <groupId>de.epiceric</groupId>
-        <version>1.14.0-SNAPSHOT</version>
+        <version>1.14.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>shopchest-nms-interface</artifactId>
     <version>1.0.0</version>
+
+    <properties>
+        <!-- Encoding Properties -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+
+        <!-- JDK Version -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
 
     <dependencies>
         <dependency>

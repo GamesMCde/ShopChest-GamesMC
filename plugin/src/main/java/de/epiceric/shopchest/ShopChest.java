@@ -26,12 +26,10 @@ import de.epiceric.shopchest.external.PlotSquaredShopFlag;
 import de.epiceric.shopchest.external.WorldGuardShopFlag;
 import de.epiceric.shopchest.external.listeners.ASkyBlockListener;
 import de.epiceric.shopchest.external.listeners.GriefPreventionListener;
-import de.epiceric.shopchest.external.listeners.IslandWorldListener;
 import de.epiceric.shopchest.external.listeners.PlotSquaredListener;
 import de.epiceric.shopchest.external.listeners.TownyListener;
 import de.epiceric.shopchest.external.listeners.USkyBlockListener;
 import de.epiceric.shopchest.language.LanguageUtils;
-import de.epiceric.shopchest.listeners.AreaShopListener;
 import de.epiceric.shopchest.listeners.BentoBoxListener;
 import de.epiceric.shopchest.listeners.BlockExplodeListener;
 import de.epiceric.shopchest.listeners.ChestProtectListener;
@@ -54,18 +52,7 @@ import de.epiceric.shopchest.utils.UpdateChecker.UpdateCheckerResult;
 import de.epiceric.shopchest.utils.Utils;
 import fr.xephi.authme.AuthMe;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.wiefferink.areashop.AreaShop;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.codemc.worldguardwrapper.WorldGuardWrapper;
-import pl.islandworld.IslandWorld;
 import us.talabrek.ultimateskyblock.api.uSkyBlockAPI;
 import world.bentobox.bentobox.BentoBox;
 
@@ -103,9 +90,7 @@ public class ShopChest extends JavaPlugin {
     private AuthMe authMe;
     private uSkyBlockAPI uSkyBlock;
     private ASkyBlock aSkyBlock;
-    private IslandWorld islandWorld;
     private GriefPrevention griefPrevention;
-    private AreaShop areaShop;
     private BentoBox bentoBox;
     private ShopUpdater updater;
     private ExecutorService shopCreationThreadPool;
@@ -312,19 +297,9 @@ public class ShopChest extends JavaPlugin {
             aSkyBlock = (ASkyBlock) aSkyBlockPlugin;
         }
 
-        Plugin islandWorldPlugin = Bukkit.getServer().getPluginManager().getPlugin("IslandWorld");
-        if (islandWorldPlugin instanceof IslandWorld) {
-            islandWorld = (IslandWorld) islandWorldPlugin;
-        }
-
         Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention");
         if (griefPreventionPlugin instanceof GriefPrevention) {
             griefPrevention = (GriefPrevention) griefPreventionPlugin;
-        }
-
-        Plugin areaShopPlugin = Bukkit.getServer().getPluginManager().getPlugin("AreaShop");
-        if (areaShopPlugin instanceof AreaShop) {
-            areaShop = (AreaShop) areaShopPlugin;
         }
 
         Plugin bentoBoxPlugin = getServer().getPluginManager().getPlugin("BentoBox");
@@ -428,10 +403,6 @@ public class ShopChest extends JavaPlugin {
 
         if (hasWorldGuard()) {
             getServer().getPluginManager().registerEvents(new WorldGuardListener(this), this);
-
-            if (hasAreaShop()) {
-                getServer().getPluginManager().registerEvents(new AreaShopListener(this), this);
-            }
         }
 
         if (hasBentoBox()) {
@@ -444,8 +415,6 @@ public class ShopChest extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new ASkyBlockListener(this), this);
         if (hasGriefPrevention())
             getServer().getPluginManager().registerEvents(new GriefPreventionListener(this), this);
-        if (hasIslandWorld())
-            getServer().getPluginManager().registerEvents(new IslandWorldListener(this), this);
         if (hasPlotSquared()) {
             PlotSquaredListener psListener = new PlotSquaredListener(this);
             getServer().getPluginManager().registerEvents(psListener, this);
@@ -568,13 +537,6 @@ public class ShopChest extends JavaPlugin {
     }
 
     /**
-     * @return Whether the plugin 'AreaShop' is enabled
-     */
-    public boolean hasAreaShop() {
-        return Config.enableAreaShopIntegration && areaShop != null && areaShop.isEnabled();
-    }
-
-    /**
      * @return Whether the plugin 'GriefPrevention' is enabled
      */
     public boolean hasGriefPrevention() {
@@ -588,12 +550,6 @@ public class ShopChest extends JavaPlugin {
         return griefPrevention;
     }
 
-    /**
-     * @return Whether the plugin 'IslandWorld' is enabled
-     */
-    public boolean hasIslandWorld() {
-        return Config.enableIslandWorldIntegration && islandWorld != null && islandWorld.isEnabled();
-    }
     /**
      * @return Whether the plugin 'ASkyBlock' is enabled
      */

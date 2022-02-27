@@ -1,20 +1,15 @@
 package de.epiceric.shopchest.config;
 
+import de.epiceric.shopchest.ShopChest;
+import de.epiceric.shopchest.utils.Operator;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.utils.Operator;
 
 public class HologramFormat {
 
@@ -30,9 +25,6 @@ public class HologramFormat {
 
     // e.g.: "STONE" == "DIAMOND_SWORD"
     private static final Pattern SIMPLE_STRING_CONDITION = Pattern.compile("^\"([^\"]*)\" ([=!]=) \"([^\"]*)\"$");
-
-    private ScriptEngineManager manager = new ScriptEngineManager();
-    private ScriptEngine engine = manager.getEngineByName("JavaScript");
 
     private ShopChest plugin;
     private File configFile;
@@ -55,24 +47,8 @@ public class HologramFormat {
     public String getFormat(int line, Map<Requirement, Object> reqMap, Map<Placeholder, Object> plaMap) {
         ConfigurationSection options = config.getConfigurationSection("lines." + line + ".options");
 
-        optionLoop:
         for (String key : options.getKeys(false)) {
-            ConfigurationSection option = options.getConfigurationSection(key);
-            List<String> requirements = option.getStringList("requirements");
-
-            String format = option.getString("format");
-
-            for (String sReq : requirements) {
-                for (Requirement req : reqMap.keySet()) {
-                    if (sReq.contains(req.toString())) {
-                        if (!evalRequirement(sReq, reqMap)) {
-                            continue optionLoop;
-                        }
-                    }
-                }
-            }
-
-            return evalPlaceholder(format, plaMap);
+            return evalPlaceholder(options.getConfigurationSection(key).getString("format"), plaMap);
         }
 
         return "";
@@ -190,15 +166,7 @@ public class HologramFormat {
                     }
                 }
             }
-
-            // complex comparison
-            try {
-                return (boolean) engine.eval(cond);
-            } catch (ScriptException e) {
-                plugin.debug("Failed to eval condition: " + condition);
-                plugin.debug(e);
-                return false;
-            }
+            return true;
         }
     }
 
@@ -209,35 +177,26 @@ public class HologramFormat {
      * @return Result of the condition
      */
     public String evalPlaceholder(String string, Map<Placeholder, Object> values) {
-        try {
-            Matcher matcher = Pattern.compile("\\{([^}]+)}").matcher(string);
-            String newString = string;
+        Matcher matcher = Pattern.compile("\\{([^}]+)}").matcher(string);
 
-            while (matcher.find()) {
-                String withBrackets = matcher.group();
-                String script = withBrackets.substring(1, withBrackets.length() - 1);
+        while (matcher.find()) {
+            String withBrackets = matcher.group();
+            String replaced = withBrackets.substring(1, withBrackets.length() - 1);
 
-                for (Placeholder placeholder : values.keySet()) {
-                    if (script.contains(placeholder.toString())) {
-                        Object val = values.get(placeholder);
-                        String sVal = String.valueOf(val);
+            for (Placeholder placeholder : values.keySet()) {
+                if (replaced.contains(placeholder.toString())) {
+                    Object val = values.get(placeholder);
+                    String sVal = String.valueOf(val);
 
-                        if (val instanceof String && !(sVal.startsWith("\"") && sVal.endsWith("\""))) {
-                            sVal = String.format("\"%s\"", sVal);
-                        }
-
-                        script = script.replace(placeholder.toString(), sVal);
+                    if (val instanceof String && !(sVal.startsWith("\"") && sVal.endsWith("\""))) {
+                        sVal = String.format("\"%s\"", sVal);
                     }
-                }
 
-                String result = String.valueOf(engine.eval(script));
-                newString = newString.replace(withBrackets, result);
+                    replaced = replaced.replace(placeholder.toString(), sVal);
+                }
             }
 
-            return newString;
-        } catch (ScriptException e) {
-            plugin.debug("Failed to eval placeholder script in string: " + string);
-            plugin.debug(e);
+            string = string.replace(withBrackets, replaced);
         }
 
         return string;

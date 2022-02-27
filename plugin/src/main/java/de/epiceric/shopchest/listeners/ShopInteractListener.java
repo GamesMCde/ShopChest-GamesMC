@@ -24,8 +24,6 @@ import de.epiceric.shopchest.utils.Permissions;
 import de.epiceric.shopchest.utils.ShopUtils;
 import de.epiceric.shopchest.utils.Utils;
 import fr.xephi.authme.api.v3.AuthMeApi;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -41,6 +39,7 @@ import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -66,7 +65,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 
 public class ShopInteractListener implements Listener {
 
@@ -99,6 +97,7 @@ public class ShopInteractListener implements Listener {
             loc = ((DoubleChest) chestInv.getHolder()).getLocation();
         }
 
+        if (loc == null) return;
         final Shop shop = plugin.getShopUtils().getShop(loc);
         if (shop == null) return;
 
@@ -130,7 +129,7 @@ public class ShopInteractListener implements Listener {
         if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(p))
             return;
 
-        if (e.isCancelled() && !p.hasPermission(Permissions.CREATE_PROTECTED)) {
+        if (e.useInteractedBlock() == Event.Result.DENY && !p.hasPermission(Permissions.CREATE_PROTECTED)) {
             p.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
             plugin.debug(p.getName() + " is not allowed to create a shop on the selected chest");
         } else if (shopUtils.isShop(b.getLocation())) {
@@ -166,7 +165,7 @@ public class ShopInteractListener implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
 
-        if (!ShopUtils.isShopMaterial(b.getType()))
+        if (b == null || !ShopUtils.isShopMaterial(b.getType()))
             return;
         
         ClickType clickType = ClickType.getPlayerClickType(p);
@@ -523,7 +522,7 @@ public class ShopInteractListener implements Listener {
                 Message message = shopType == ShopType.ADMIN ? Message.ADMIN_SHOP_CREATED : Message.SHOP_CREATED;
                 executor.sendMessage(LanguageUtils.getMessage(message, new Replacement(Placeholder.CREATION_PRICE, creationPrice)));
             });
-        });
+        }, plugin.getShopCreationThreadPool());
     }
 
     /**
@@ -575,7 +574,7 @@ public class ShopInteractListener implements Listener {
                 shopUtils.removeShop(shop, true);
                 plugin.debug("Removed shop (#" + shop.getID() + ")");
             });
-        });
+        }, plugin.getShopCreationThreadPool());
     }
 
     /**
@@ -802,7 +801,7 @@ public class ShopInteractListener implements Listener {
                                             executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r2.errorMessage)));
                                             econ.withdrawPlayer(shop.getVendor(), worldName, newPrice);
                                             econ.depositPlayer(executor, worldName, newPrice * (100d - tax) / 100d);
-                                        });
+                                        }, plugin.getShopCreationThreadPool());
                                     }
                                 } else {
                                     int finalNewAmount1 = newAmount;
@@ -842,17 +841,17 @@ public class ShopInteractListener implements Listener {
                                     plugin.debug("Economy transaction failed (r): " + r.errorMessage + " (#" + shop.getID() + ")");
                                     executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r.errorMessage)));
                                     econ.depositPlayer(executor, worldName, newPrice);
-                                });
+                                }, plugin.getShopCreationThreadPool());
                             }
                         } else {
                             executor.sendMessage(LanguageUtils.getMessage(Message.NOT_ENOUGH_INVENTORY_SPACE));
                         }
-                    });
+                    }, plugin.getShopCreationThreadPool());
                 });
             } else {
                 executor.sendMessage(LanguageUtils.getMessage(Message.NOT_ENOUGH_MONEY));
             }
-        });
+        }, plugin.getShopCreationThreadPool());
     }
 
     /**
@@ -951,7 +950,7 @@ public class ShopInteractListener implements Listener {
                                                     econ.withdrawPlayer(executor, worldName, newPrice * (100d - tax) / 100d);
                                                     econ.depositPlayer(shop.getVendor(), worldName, newPrice);
                                                     plugin.debug("Sell event cancelled (#" + shop.getID() + ")");
-                                                });
+                                                }, plugin.getShopCreationThreadPool());
                                                 return;
                                             }
 
@@ -996,7 +995,7 @@ public class ShopInteractListener implements Listener {
                                             executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r2.errorMessage)));
                                             econ.withdrawPlayer(executor, worldName, newPrice * (100d - tax) / 100d);
                                             econ.depositPlayer(shop.getVendor(), worldName, newPrice);
-                                        });
+                                        }, plugin.getShopCreationThreadPool());
                                     }
 
                                 } else {
@@ -1007,7 +1006,7 @@ public class ShopInteractListener implements Listener {
                                         CompletableFuture.runAsync(() -> {
                                             econ.withdrawPlayer(executor, worldName, newPrice * (100d - tax) / 100d);
                                             plugin.debug("Sell event cancelled (#" + shop.getID() + ")");
-                                        });
+                                        }, plugin.getShopCreationThreadPool());
                                         return;
                                     }
 
@@ -1037,9 +1036,9 @@ public class ShopInteractListener implements Listener {
                                     plugin.debug("Economy transaction failed (r): " + r.errorMessage + " (#" + shop.getID() + ")");
                                     executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r.errorMessage)));
                                     econ.withdrawPlayer(executor, worldName, newPrice);
-                                });
+                                }, plugin.getShopCreationThreadPool());
                             }
-                        });
+                        }, plugin.getShopCreationThreadPool());
 
                     } else {
                         executor.sendMessage(LanguageUtils.getMessage(Message.CHEST_NOT_ENOUGH_INVENTORY_SPACE));
@@ -1048,7 +1047,7 @@ public class ShopInteractListener implements Listener {
             } else {
                 executor.sendMessage(LanguageUtils.getMessage(Message.VENDOR_NOT_ENOUGH_MONEY));
             }
-        });
+        }, plugin.getShopCreationThreadPool());
     }
 
     /**
