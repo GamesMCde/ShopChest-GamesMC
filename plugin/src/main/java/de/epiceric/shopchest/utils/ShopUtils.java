@@ -11,10 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
@@ -107,7 +104,7 @@ public class ShopUtils {
             shopLocation.put(r.getLocation(), shop);
             shopLocation.put(l.getLocation(), shop);
         } else {
-            plugin.debug("Added shop as single chest. (#" + shop.getID() + ")");
+            plugin.debug("Added shop as single container. (#" + shop.getID() + ")");
 
             shopLocation.put(shop.getLocation(), shop);
         }
@@ -318,6 +315,33 @@ public class ShopUtils {
                 if (callback != null) callback.onError(throwable);
             }
         });
+    }
+
+    /*
+     * Tells if the material given is a shop material
+     * @param material The material to test
+     */
+    public static boolean isShopMaterial(Material material) {
+        return material.equals(Material.CHEST) ||
+                material.equals(Material.TRAPPED_CHEST) ||
+                material.equals(Material.BARREL) ||
+                material.equals(Material.SHULKER_BOX) ||
+                material.equals(Material.BLACK_SHULKER_BOX) ||
+                material.equals(Material.BLUE_SHULKER_BOX) ||
+                material.equals(Material.BROWN_SHULKER_BOX) ||
+                material.equals(Material.CYAN_SHULKER_BOX) ||
+                material.equals(Material.GRAY_SHULKER_BOX) ||
+                material.equals(Material.GREEN_SHULKER_BOX) ||
+                material.equals(Material.LIGHT_BLUE_SHULKER_BOX) ||
+                material.equals(Material.LIGHT_GRAY_SHULKER_BOX) ||
+                material.equals(Material.LIME_SHULKER_BOX) ||
+                material.equals(Material.MAGENTA_SHULKER_BOX) ||
+                material.equals(Material.ORANGE_SHULKER_BOX) ||
+                material.equals(Material.PINK_SHULKER_BOX) ||
+                material.equals(Material.PURPLE_SHULKER_BOX) ||
+                material.equals(Material.RED_SHULKER_BOX) ||
+                material.equals(Material.WHITE_SHULKER_BOX) ||
+                material.equals(Material.YELLOW_SHULKER_BOX);
     }
 
     /**

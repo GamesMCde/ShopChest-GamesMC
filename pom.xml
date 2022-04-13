@@ -57,12 +57,19 @@
         <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 
         <!-- JDK Version -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <!-- Default Spigot version for nms implementation. Must be overridden  -->
         <spigot.version>defaultVersion</spigot.version>
     </properties>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <repositories>
         <!-- Spigot repo (Spigot API) -->
@@ -120,7 +127,7 @@
             <dependency>
                 <groupId>com.plotsquared</groupId>
                 <artifactId>PlotSquared-Core</artifactId>
-                <version>6.5.0</version>
+                <version>6.5.1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -272,11 +279,6 @@
                 <version>1.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.bstats</groupId>
-                <artifactId>bstats-bukkit</artifactId>
-                <version>2.2.1</version>
-            </dependency>
-            <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>5.0.0</version>
@@ -289,7 +291,7 @@
             <dependency>
                 <groupId>org.inventivetalent</groupId>
                 <artifactId>reflectionhelper</artifactId>
-                <version>1.18.4-SNAPSHOT</version>
+                <version>1.18.7-SNAPSHOT</version>
             </dependency>
 
             <!-- Internal nms shaded dependencies -->
@@ -332,7 +334,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.2</version>
+                    <version>3.3.1-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <phase>package</phase>
@@ -344,10 +346,6 @@
                     <configuration>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                         <relocations>
-                            <relocation>
-                                <pattern>org.bstats</pattern>
-                                <shadedPattern>de.epiceric.shopchest.dependencies.bstats</shadedPattern>
-                            </relocation>
                             <relocation>
                                 <pattern>org.codemc.worldguardwrapper</pattern>
                                 <shadedPattern>de.epiceric.shopchest.dependencies.worldguardwrapper</shadedPattern>
@@ -363,6 +361,32 @@
                             <relocation>
                                 <pattern>org.inventivetalent.reflection</pattern>
                                 <shadedPattern>de.epiceric.shopchest.dependencies.reflectionhelper</shadedPattern>
+                            </relocation>
+                            <!-- TODO Inspect this -->
+                            <!-- Do we really need all of this ? -->
+                            <relocation>
+                                <pattern>com.google.common</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.google-common</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.errorprone</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.google-errorprone</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.gson</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.google-gson</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.j2objc</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.google-j2objc</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.thirdparty</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.google-thirdparty</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>javax.annotation</pattern>
+                                <shadedPattern>de.epiceric.shopchest.dependencies.javax-annotation</shadedPattern>
                             </relocation>
                         </relocations>
                         <filters>

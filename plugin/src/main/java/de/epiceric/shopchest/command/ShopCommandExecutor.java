@@ -2,12 +2,19 @@ package de.epiceric.shopchest.command;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -133,6 +140,8 @@ class ShopCommandExecutor implements CommandExecutor {
                                 new Replacement(Placeholder.AMOUNT, String.valueOf(shopUtils.getShopAmount(p)))));
                     } else if (subCommand.getName().equalsIgnoreCase("open")) {
                         open(p);
+                    } else if (subCommand.getName().equalsIgnoreCase("value")) {
+                        value(p);
                     } else {
                         return false;
                     }
@@ -437,26 +446,31 @@ class ShopCommandExecutor implements CommandExecutor {
             }
         }
 
-        double creationPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopCreationPriceNormal :Config.shopCreationPriceAdmin;
-        if (creationPrice > 0) {
-            if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < creationPrice) {
-                p.sendMessage(LanguageUtils.getMessage(Message.SHOP_CREATE_NOT_ENOUGH_MONEY, new Replacement(Placeholder.CREATION_PRICE, String.valueOf(creationPrice))));
-                plugin.debug(p.getName() + " can not pay the creation price");
-                return;
+        CompletableFuture.runAsync(() -> {
+            double creationPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopCreationPriceNormal :Config.shopCreationPriceAdmin;
+            if (creationPrice > 0) {
+                if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < creationPrice) {
+                    p.sendMessage(LanguageUtils.getMessage(Message.SHOP_CREATE_NOT_ENOUGH_MONEY, new Replacement(Placeholder.CREATION_PRICE, String.valueOf(creationPrice))));
+                    plugin.debug(p.getName() + " can not pay the creation price");
+                    return;
+                }
             }
-        }
 
-        ShopProduct product = new ShopProduct(itemStack, amount);
-        ShopPreCreateEvent event = new ShopPreCreateEvent(p, new Shop(plugin, p, product, null, buyPrice, sellPrice, shopType));
-        Bukkit.getPluginManager().callEvent(event);
+            ShopProduct product = new ShopProduct(itemStack, amount);
+            ShopPreCreateEvent event = new ShopPreCreateEvent(p, new Shop(plugin, p, product, null, buyPrice, sellPrice, shopType));
 
-        if (!event.isCancelled()) {
-            ClickType.setPlayerClickType(p, new CreateClickType(product, buyPrice, sellPrice, shopType));
-            plugin.debug(p.getName() + " can now click a chest");
-            p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_CREATE));
-        } else {
-            plugin.debug("Shop pre create event cancelled");
-        }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Bukkit.getPluginManager().callEvent(event);
+
+                if (!event.isCancelled()) {
+                    ClickType.setPlayerClickType(p, new CreateClickType(product, buyPrice, sellPrice, shopType));
+                    plugin.debug(p.getName() + " can now click a chest");
+                    p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_CREATE));
+                } else {
+                    plugin.debug("Shop pre create event cancelled");
+                }
+            });
+        });
     }
 
     /**
@@ -514,6 +528,57 @@ class ShopCommandExecutor implements CommandExecutor {
         plugin.debug(p.getName() + " can now click a chest");
         p.sendMessage(LanguageUtils.getMessage(Message.CLICK_CHEST_OPEN));
         ClickType.setPlayerClickType(p, new ClickType(ClickType.EnumClickType.OPEN));
+    }
+
+    private void value(final Player p) {
+        ItemStack item = p.getInventory().getItemInMainHand();
+
+        if (item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR || item.getType() == Material.VOID_AIR) {
+            return;
+        }
+
+        AtomicInteger buyCount = new AtomicInteger();
+        AtomicInteger sellCount = new AtomicInteger();
+        AtomicReference<Double> buyPrice = new AtomicReference<>(0d);
+        AtomicReference<Double> sellPrice = new AtomicReference<>(0d);
+        Set<UUID> sellers = new HashSet<>();
+
+        plugin.getShopUtils().getShops().forEach(shop -> {
+            if (!shop.hasItem()) {
+                return;
+            }
+            if (sellers.contains(shop.getVendor().getUniqueId())) {
+                return;
+            }
+            if (!Utils.isItemSimilar(shop.getProduct().getItemStack(), item)) {
+                return;
+            }
+            if (shop.getShopType().equals(ShopType.ADMIN)) {
+                return;
+            }
+
+            sellers.add(shop.getVendor().getUniqueId());
+            if (shop.getBuyPrice() != 0) {
+                buyPrice.updateAndGet(v -> v + shop.getBuyPrice() / shop.getProduct().getAmount());
+                buyCount.getAndIncrement();
+            }
+            if (shop.getSellPrice() != 0) {
+                sellPrice.updateAndGet(v -> v + shop.getSellPrice() / shop.getProduct().getAmount());
+                sellCount.getAndIncrement();
+            }
+        });
+
+        if (buyCount.get() == 0) {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS_BUY));
+        } else {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_BUY, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.BUY_PRICE, buyPrice.get() / (double) buyCount.get())));
+        }
+        if (sellCount.get() == 0) {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_NO_SHOPS_SELL));
+        } else {
+            p.sendMessage(LanguageUtils.getMessage(Message.VALUE_OF_ITEM_SELL, new Replacement(Placeholder.AMOUNT, sellers.size()), new Replacement(Placeholder.SELL_PRICE, sellPrice.get() / (double) sellCount.get())));
+        }
+
     }
 
     private boolean changeConfig(CommandSender sender, String[] args) {

@@ -1,24 +1,29 @@
 package de.epiceric.shopchest.external.listeners;
 
-import java.util.Set;
-
+import com.google.common.eventbus.Subscribe;
+import com.plotsquared.core.events.PlotClearEvent;
+import com.plotsquared.core.events.PlotDeleteEvent;
 import com.plotsquared.core.location.Location;
 import com.plotsquared.core.plot.Plot;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import de.epiceric.shopchest.ShopChest;
 import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.event.ShopCreateEvent;
 import de.epiceric.shopchest.event.ShopExtendEvent;
 import de.epiceric.shopchest.external.PlotSquaredOldShopFlag;
 import de.epiceric.shopchest.external.PlotSquaredShopFlag;
+import de.epiceric.shopchest.shop.Shop;
 import de.epiceric.shopchest.utils.Utils;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
+import java.util.Set;
+
+@SuppressWarnings("UnstableApiUsage")
 public class PlotSquaredListener implements Listener {
     private final ShopChest plugin;
 
@@ -44,6 +49,30 @@ public class PlotSquaredListener implements Listener {
             return;
 
         handleForLocation(e.getPlayer(), e.getNewChestLocation(), e);
+    }
+
+    @Subscribe
+    public void onDeletePlot(PlotDeleteEvent event) {
+        removeShopsFromPlot(event.getPlot());
+    }
+
+    @Subscribe
+    public void onClearPlot(PlotClearEvent event) {
+        removeShopsFromPlot(event.getPlot());
+    }
+
+    private void removeShopsFromPlot(Plot plot) {
+        Set<CuboidRegion> regions = plot.getRegions();
+        for (Shop shop: plugin.getShopUtils().getShops()) {
+            for (CuboidRegion region: regions) {
+                org.bukkit.Location loc = shop.getLocation();
+                if (!region.contains(BlockVector3.at(loc.getX(), loc.getY(), loc.getZ()))) {
+                    continue;
+                }
+
+                plugin.getShopUtils().removeShop(shop, true);
+            }
+        }
     }
 
     // TODO: Outsource shop use external permission

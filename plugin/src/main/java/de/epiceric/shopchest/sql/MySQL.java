@@ -21,7 +21,9 @@ public class MySQL extends Database {
     @Override
     HikariDataSource getDataSource() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s?autoReconnect=true&useSSL=false&serverTimezone=UTC",
+        // TODO Inspect this
+        //  Why mariadb instead of my sql dani ?
+        config.setJdbcUrl(String.format("jdbc:mariadb://%s:%d/%s",
                 Config.databaseMySqlHost, Config.databaseMySqlPort, Config.databaseMySqlDatabase));
         config.setUsername(Config.databaseMySqlUsername);
         config.setPassword(Config.databaseMySqlPassword);

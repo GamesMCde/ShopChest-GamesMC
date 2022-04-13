@@ -69,10 +69,6 @@
             <artifactId>worldguardwrapper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
@@ -83,6 +79,12 @@
         <dependency>
             <groupId>org.inventivetalent</groupId>
             <artifactId>reflectionhelper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.epiceric</groupId>

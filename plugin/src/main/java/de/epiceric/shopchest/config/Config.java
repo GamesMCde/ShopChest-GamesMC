@@ -8,7 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.inventory.ItemStack;
@@ -60,6 +62,8 @@ public class Config {
      * The events of AreaShop when shops in that region should be removed
      **/
     public static List<String> areashopRemoveShopEvents;
+
+    public static Map<String, Double> shopTaxes;
 
     /**
      * The hostname used in ShopChest's MySQL database
@@ -468,6 +472,7 @@ public class Config {
         databaseType = Database.DatabaseType.valueOf(plugin.getConfig().getString("database.type"));
         minimumPrices = (plugin.getConfig().getConfigurationSection("minimum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("minimum-prices").getKeys(true);
         maximumPrices = (plugin.getConfig().getConfigurationSection("maximum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("maximum-prices").getKeys(true);
+        shopTaxes = (plugin.getConfig().getConfigurationSection("shop-taxes") == null ? Map.of("default", 0d) : plugin.getConfig().getConfigurationSection("shop-taxes").getKeys(true).stream().collect(Collectors.toMap(i -> i, i -> plugin.getConfig().getConfigurationSection("shop-taxes").getDouble(i))));
         allowDecimalsInPrice = plugin.getConfig().getBoolean("allow-decimals-in-price");
         allowBrokenItems = plugin.getConfig().getBoolean("allow-broken-items");
         autoCalculateItemAmount = (allowDecimalsInPrice && plugin.getConfig().getBoolean("auto-calculate-item-amount"));

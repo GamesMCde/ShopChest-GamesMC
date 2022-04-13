@@ -2588,9 +2588,14 @@ public class LanguageUtils {
         messages.add(new LocalizedMessage(Message.COMMAND_DESC_LIMITS, langConfig.getString("message.commandDescription.limits", "&a/%COMMAND% limits - View shop limits.")));
         messages.add(new LocalizedMessage(Message.COMMAND_DESC_OPEN, langConfig.getString("message.commandDescription.open", "&a/%COMMAND% open - Open a shop.")));
         messages.add(new LocalizedMessage(Message.COMMAND_DESC_CONFIG, langConfig.getString("message.commandDescription.config", "&a/%COMMAND% config <set|add|remove> <property> <value> - Change configuration values.")));
+        messages.add(new LocalizedMessage(Message.COMMAND_DESC_VALUE, langConfig.getString("message.commandDescription.value", "&a/%COMMAND% value - Get the average price of an item.")));
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_SET, langConfig.getString("message.config.set", "&6Changed &a%PROPERTY% &6to &a%VALUE%&6.")));
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_REMOVED, langConfig.getString("message.config.removed", "&6Removed &a%VALUE% &6from &a%PROPERTY%&6.")));
         messages.add(new LocalizedMessage(Message.CHANGED_CONFIG_ADDED, langConfig.getString("message.config.added", "&6Added &a%VALUE% &6to &a%PROPERTY%&6.")));
+        messages.add(new LocalizedMessage(Message.VALUE_OF_ITEM_BUY, langConfig.getString("message.valueOfItemBuy", "&6This item can be bought at &a%AMOUNT% &6players for an average price of &a%BUY-PRICE%&6.")));
+        messages.add(new LocalizedMessage(Message.VALUE_OF_ITEM_SELL, langConfig.getString("message.valueOfItemSell", "&6This item can be sold at &a%AMOUNT% &6players for an average price of &a%SELL-PRICE%&6.")));
+        messages.add(new LocalizedMessage(Message.VALUE_NO_SHOPS_BUY, langConfig.getString("message.valueNoShopsBuy", "&cNo shops are currently letting you buy this item.")));
+        messages.add(new LocalizedMessage(Message.VALUE_NO_SHOPS_SELL, langConfig.getString("message.valueNoShopsSell", "&cNo shops are currently letting you sell this item.")));
     }
 
     /**
