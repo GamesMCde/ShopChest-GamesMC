@@ -1,4 +1,4 @@
-package de.epiceric.shopchest.external;
+package de.epiceric.shopchest.external.flags;
 
 import com.github.intellectualsites.plotsquared.plot.flag.Flag;
 import com.github.intellectualsites.plotsquared.plot.flag.Flags;

@@ -13,7 +13,7 @@ import de.epiceric.shopchest.ShopChest;
 import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.event.ShopCreateEvent;
 import de.epiceric.shopchest.event.ShopExtendEvent;
-import de.epiceric.shopchest.external.BentoBoxShopFlag;
+import de.epiceric.shopchest.external.flags.BentoBoxShopFlag;
 import de.epiceric.shopchest.utils.Utils;
 import world.bentobox.bentobox.api.flags.FlagListener;
 

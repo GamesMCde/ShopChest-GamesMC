@@ -17,6 +17,7 @@
         <module>nms/v1_17_1_R1</module>
         <module>nms/v1_18_R1</module>
         <module>nms/v1_18_R2</module>
+        <module>external</module>
     </modules>
 
     <name>ShopChest</name>
@@ -294,7 +295,8 @@
                 <version>1.18.7-SNAPSHOT</version>
             </dependency>
 
-            <!-- Internal nms shaded dependencies -->
+            <!-- Internal shaded dependencies -->
+            <!-- NMS -->
             <dependency>
                 <groupId>de.epiceric</groupId>
                 <artifactId>shopchest-nms-interface</artifactId>
@@ -323,6 +325,12 @@
             <dependency>
                 <groupId>de.epiceric</groupId>
                 <artifactId>shopchest-nms-v1_18_R2</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <!-- External plugins -->
+            <dependency>
+                <groupId>de.epiceric</groupId>
+                <artifactId>shopchest-external</artifactId>
                 <version>1.0.0</version>
             </dependency>
         </dependencies>

@@ -1,4 +1,4 @@
-package de.epiceric.shopchest.external;
+package de.epiceric.shopchest.external.flags;
 
 import java.util.Optional;
 

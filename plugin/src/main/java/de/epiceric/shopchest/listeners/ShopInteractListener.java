@@ -8,8 +8,8 @@ import de.epiceric.shopchest.event.ShopCreateEvent;
 import de.epiceric.shopchest.event.ShopInfoEvent;
 import de.epiceric.shopchest.event.ShopOpenEvent;
 import de.epiceric.shopchest.event.ShopRemoveEvent;
-import de.epiceric.shopchest.external.PlotSquaredOldShopFlag;
-import de.epiceric.shopchest.external.PlotSquaredShopFlag;
+//import de.epiceric.shopchest.external.PlotSquaredOldShopFlag;
+//import de.epiceric.shopchest.external.PlotSquaredShopFlag;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
 import de.epiceric.shopchest.language.Replacement;
@@ -23,7 +23,7 @@ import de.epiceric.shopchest.utils.ItemUtils;
 import de.epiceric.shopchest.utils.Permissions;
 import de.epiceric.shopchest.utils.ShopUtils;
 import de.epiceric.shopchest.utils.Utils;
-import fr.xephi.authme.api.v3.AuthMeApi;
+//import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -51,9 +51,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.codemc.worldguardwrapper.WorldGuardWrapper;
-import org.codemc.worldguardwrapper.flag.IWrappedFlag;
-import org.codemc.worldguardwrapper.flag.WrappedState;
+//import org.codemc.worldguardwrapper.WorldGuardWrapper;
+//import org.codemc.worldguardwrapper.flag.IWrappedFlag;
+//import org.codemc.worldguardwrapper.flag.WrappedState;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -126,8 +126,10 @@ public class ShopInteractListener implements Listener {
         if (ClickType.getPlayerClickType(p).getClickType() != ClickType.EnumClickType.CREATE)
             return;
 
+        // TODO EXTERNAL : Check AUTH
+        /*
         if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(p))
-            return;
+            return;*/
 
         if (e.useInteractedBlock() == Event.Result.DENY && !p.hasPermission(Permissions.CREATE_PROTECTED)) {
             p.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
@@ -255,6 +257,8 @@ public class ShopInteractListener implements Listener {
                             // TODO: Outsource shop use external permission
                             boolean externalPluginsAllowed = true;
 
+                            // TODO EXTERNAL : Check USE
+                            /*
                             if (plugin.hasPlotSquared() && Config.enablePlotsquaredIntegration) {
                                 try {
                                     Class.forName("com.plotsquared.core.PlotSquared");
@@ -277,7 +281,7 @@ public class ShopInteractListener implements Listener {
                                 if (!flag.isPresent()) plugin.debug("WorldGuard flag '" + flagName + "' is not present!");
                                 WrappedState state = flag.map(f -> wgWrapper.queryFlag(p, b.getLocation(), f).orElse(WrappedState.DENY)).orElse(WrappedState.DENY);
                                 externalPluginsAllowed = state == WrappedState.ALLOW;
-                            }
+                            }*/
                             
                             if (shop.getShopType() == ShopType.ADMIN) {
                                 if (externalPluginsAllowed || p.hasPermission(Permissions.BYPASS_EXTERNAL_PLUGIN)) {
@@ -380,6 +384,8 @@ public class ShopInteractListener implements Listener {
                             // TODO: Outsource shop use external permission
                             boolean externalPluginsAllowed = true;
 
+                            // TODO EXTERNAL : Check USE
+                            /*
                             if (plugin.hasPlotSquared() && Config.enablePlotsquaredIntegration) {
                                 try {
                                     Class.forName("com.plotsquared.core.PlotSquared");
@@ -402,7 +408,7 @@ public class ShopInteractListener implements Listener {
                                 if (!flag.isPresent()) plugin.debug("WorldGuard flag '" + flagName + "' is not present!");
                                 WrappedState state = flag.map(f -> wgWrapper.queryFlag(p, b.getLocation(), f).orElse(WrappedState.DENY)).orElse(WrappedState.DENY);
                                 externalPluginsAllowed = state == WrappedState.ALLOW;
-                            }
+                            }*/
 
                             ItemStack itemStack = shop.getProduct().getItemStack();
 
@@ -467,7 +473,8 @@ public class ShopInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(e.getPlayer())) return;
+        // TODO EXTERNAL : Check AUTH
+        //if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(e.getPlayer())) return;
         handleInteractEvent(e);
     }
 
