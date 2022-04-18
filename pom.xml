@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.epiceric</groupId>
-    <artifactId>ShopChest-parent</artifactId>
-    <version>1.14.0-SNAPSHOT</version>
+    <artifactId>shopchest-parent</artifactId>
+    <version>1.15.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -61,6 +61,9 @@
         <!-- JDK Version -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- Name of the plugin for the final jar -->
+        <buildName>ShopChest</buildName>
 
         <!-- Default Spigot version for nms implementation. Must be overridden  -->
         <spigot.version>defaultVersion</spigot.version>
@@ -359,6 +362,7 @@
                         </execution>
                     </executions>
                     <configuration>
+                        <finalName>${buildName}-${project.version}</finalName>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                         <relocations>
                             <relocation>
@@ -408,7 +412,7 @@
                         </relocations>
                         <filters>
                             <filter>
-                                <artifact>de.epiceric:ShopChest</artifact>
+                                <artifact>de.epiceric:shopchest-plugin</artifact>
                                 <excludeDefaults>false</excludeDefaults>
                                 <includes>
                                     <include>META-INF/**</include>
