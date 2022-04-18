@@ -92,19 +92,19 @@ public class ShopUtils {
      */
     public void addShop(Shop shop, boolean addToDatabase, Callback<Integer> callback) {
         InventoryHolder ih = shop.getInventoryHolder();
-        plugin.debug("Adding shop... (#" + shop.getID() + ")");
+        plugin.getDebugLogger().debug("Adding shop... (#" + shop.getID() + ")");
 
         if (ih instanceof DoubleChest) {
             DoubleChest dc = (DoubleChest) ih;
             Chest r = (Chest) dc.getRightSide();
             Chest l = (Chest) dc.getLeftSide();
 
-            plugin.debug("Added shop as double chest. (#" + shop.getID() + ")");
+            plugin.getDebugLogger().debug("Added shop as double chest. (#" + shop.getID() + ")");
 
             shopLocation.put(r.getLocation(), shop);
             shopLocation.put(l.getLocation(), shop);
         } else {
-            plugin.debug("Added shop as single container. (#" + shop.getID() + ")");
+            plugin.getDebugLogger().debug("Added shop as single container. (#" + shop.getID() + ")");
 
             shopLocation.put(shop.getLocation(), shop);
         }
@@ -136,7 +136,7 @@ public class ShopUtils {
         shopLocation.forEach((location, shop) -> {
             if (!shop.isCreated()) return;
 
-            plugin.debug("Removing shop " + shop.getID());
+            plugin.getDebugLogger().debug("Removing shop " + shop.getID());
             shop.removeItem();
             shop.removeHologram();
         });
@@ -150,7 +150,7 @@ public class ShopUtils {
      * @see ShopUtils#removeShopById(int, boolean, Callback)
      */
     public void removeShop(Shop shop, boolean removeFromDatabase, Callback<Void> callback) {
-        plugin.debug("Removing shop (#" + shop.getID() + ")");
+        plugin.getDebugLogger().debug("Removing shop (#" + shop.getID() + ")");
 
         if (shop.isCreated()) {
             InventoryHolder ih = shop.getInventoryHolder();
@@ -201,7 +201,7 @@ public class ShopUtils {
                 .filter(e -> e.getValue().getID() == shopId)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        plugin.debug(String.format("Removing %d shop(s) with ID %d", toRemove.size(), shopId));
+        plugin.getDebugLogger().debug(String.format("Removing %d shop(s) with ID %d", toRemove.size(), shopId));
 
         if (toRemove.isEmpty()) {
             if (callback != null) callback.callSyncResult(null);

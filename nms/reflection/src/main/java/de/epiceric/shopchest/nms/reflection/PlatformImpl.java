@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.FakeArmorStand;
 import de.epiceric.shopchest.nms.FakeItem;
 import de.epiceric.shopchest.nms.Platform;
@@ -7,12 +8,11 @@ import de.epiceric.shopchest.nms.TextComponentHelper;
 
 public class PlatformImpl implements Platform {
 
-    private final ShopChestDebug debug;
+    private final DebugLogger debug;
 
-    public PlatformImpl(ShopChestDebug debug) {
+    public PlatformImpl(DebugLogger debug) {
         this.debug = debug;
     }
-
 
     @Override
     public FakeArmorStand createFakeArmorStand() {

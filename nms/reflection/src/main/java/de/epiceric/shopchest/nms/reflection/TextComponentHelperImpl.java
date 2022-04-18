@@ -1,6 +1,7 @@
 package de.epiceric.shopchest.nms.reflection;
 
 import com.google.gson.JsonPrimitive;
+import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.TextComponentHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,9 +19,9 @@ public class TextComponentHelperImpl implements TextComponentHelper {
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile(".*([§]([a-fA-F0-9]))");
     private static final Pattern FORMAT_CODE_PATTERN = Pattern.compile(".*([§]([l-oL-OkK]))");
 
-    private final ShopChestDebug debug;
+    private final DebugLogger debug;
 
-    public TextComponentHelperImpl(ShopChestDebug debug) {
+    public TextComponentHelperImpl(DebugLogger debug) {
         this.debug = debug;
     }
 

@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.inventivetalent.reflection.resolver.FieldResolver;
@@ -106,7 +107,7 @@ public class JsonBuilder {
     private static final Pattern HEX_PATTERN = Pattern.compile("(§[a-fA-F0-9]){6}");
 
     private Part rootPart;
-    private ShopChestDebug debug;
+    private DebugLogger debug;
 
     private final NMSClassResolver nmsClassResolver = new NMSClassResolver();
     private Class<?> iChatBaseComponentClass = nmsClassResolver.resolveSilent("network.chat.IChatBaseComponent");
@@ -114,7 +115,7 @@ public class JsonBuilder {
     private Class<?> chatSerializerClass = nmsClassResolver.resolveSilent("ChatSerializer", "network.chat.IChatBaseComponent$ChatSerializer");
     private Class<?> chatMessageTypeClass;
 
-    public JsonBuilder(ShopChestDebug debug) {
+    public JsonBuilder(DebugLogger debug) {
         this.debug = debug;
 
         if (ReflectionUtils.getMajorVersion() >= 16) {

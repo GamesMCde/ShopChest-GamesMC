@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.FakeArmorStand;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -12,7 +13,7 @@ public class FakeArmorStandImpl extends FakeEntityImpl implements FakeArmorStand
 
     private final Class<?> packetPlayOutEntityTeleportClass = nmsClassResolver.resolveSilent("network.protocol.game.PacketPlayOutEntityTeleport");
 
-    public FakeArmorStandImpl(ShopChestDebug debug) {
+    public FakeArmorStandImpl(DebugLogger debug) {
         super(debug);
     }
 

@@ -28,7 +28,7 @@ public class UpdateChecker {
      */
     public UpdateCheckerResult check() {
         try {
-            plugin.debug("Checking for updates...");
+            plugin.getDebugLogger().debug("Checking for updates...");
 
             URL url = new URL("https://api.spiget.org/v2/resources/11431/versions?size=1&page=1&sort=-releaseDate");
             URLConnection conn = url.openConnection();
@@ -43,22 +43,22 @@ public class UpdateChecker {
                 version = result.get("name").getAsString();
                 link = "https://www.spigotmc.org/resources/shopchest.11431/download?version=" + id;
             } else {
-                plugin.debug("Failed to check for updates");
-                plugin.debug("Result: " + element);
+                plugin.getDebugLogger().debug("Failed to check for updates");
+                plugin.getDebugLogger().debug("Result: " + element);
                 return UpdateCheckerResult.ERROR;
             }
 
             if (compareVersion(version) == 1) {
-                plugin.debug("No update found");
+                plugin.getDebugLogger().debug("No update found");
                 return UpdateCheckerResult.FALSE;
             } else {
-                plugin.debug("Update found: " + version);
+                plugin.getDebugLogger().debug("Update found: " + version);
                 return UpdateCheckerResult.TRUE;
             }
 
         } catch (Exception e) {
-            plugin.debug("Failed to check for updates");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to check for updates");
+            plugin.getDebugLogger().debug(e);
             return UpdateCheckerResult.ERROR;
         }
     }

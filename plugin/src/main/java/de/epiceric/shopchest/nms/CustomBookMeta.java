@@ -25,7 +25,7 @@ public class CustomBookMeta {
             Class<?> craftItemStackClass = obcClassResolver.resolveSilent("inventory.CraftItemStack");	
 	
             if (craftItemStackClass == null) {	
-                ShopChest.getInstance().debug("Failed to get NBTGeneration: Could not find CraftItemStack class");	
+                ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTGeneration: Could not find CraftItemStack class");	
                 return null;	
             }	
 	
@@ -33,13 +33,13 @@ public class CustomBookMeta {
 	
             Object nbtTagCompound = nmsStack.getClass().getMethod("getTag").invoke(nmsStack);	
             if (nbtTagCompound == null) {	
-                ShopChest.getInstance().debug("Failed to get NBTGeneration: getTag returned null");	
+                ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTGeneration: getTag returned null");	
                 return null;	
             }	
 	
             Object generationObject = nbtTagCompound.getClass().getMethod("getInt", String.class).invoke(nbtTagCompound, "generation");	
             if (generationObject == null) {	
-                ShopChest.getInstance().debug("Failed to get NBTGeneration: getInt returned null");	
+                ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTGeneration: getInt returned null");	
                 return null;	
             }	
 	
@@ -53,8 +53,8 @@ public class CustomBookMeta {
 	
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {	
             ShopChest.getInstance().getLogger().severe("Failed to get NBTEntityID with reflection");	
-            ShopChest.getInstance().debug("Failed to get NBTEntityID with reflection");	
-            ShopChest.getInstance().debug(e);	
+            ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTEntityID with reflection");	
+            ShopChest.getInstance().getDebugLogger().debug(e);	
         }	
 	
         return null;	
@@ -65,7 +65,7 @@ public class CustomBookMeta {
             Class<?> craftItemStackClass = obcClassResolver.resolveSilent("inventory.CraftItemStack");	
 	
             if (craftItemStackClass == null) {	
-                ShopChest.getInstance().debug("Failed to get NBTGeneration: Could not find CraftItemStack class");	
+                ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTGeneration: Could not find CraftItemStack class");	
                 return;	
             }	
 	
@@ -73,7 +73,7 @@ public class CustomBookMeta {
 	
             Object nbtTagCompound = nmsStack.getClass().getMethod("getTag").invoke(nmsStack);	
             if (nbtTagCompound == null) {	
-                ShopChest.getInstance().debug("Failed to get NBTGeneration: getTag returned null");	
+                ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTGeneration: getTag returned null");	
                 return;	
             }	
 	
@@ -84,8 +84,8 @@ public class CustomBookMeta {
 	
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {	
             ShopChest.getInstance().getLogger().severe("Failed to get NBTEntityID with reflection");	
-            ShopChest.getInstance().debug("Failed to get NBTEntityID with reflection");	
-            ShopChest.getInstance().debug(e);	
+            ShopChest.getInstance().getDebugLogger().debug("Failed to get NBTEntityID with reflection");	
+            ShopChest.getInstance().getDebugLogger().debug(e);	
         }	
     }	
 	

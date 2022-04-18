@@ -24,8 +24,8 @@ public class SQLite extends Database {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
             plugin.getLogger().severe("Failed to initialize SQLite driver");
-            plugin.debug("Failed to initialize SQLite driver");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to initialize SQLite driver");
+            plugin.getDebugLogger().debug(e);
             return null;
         }
 
@@ -37,8 +37,8 @@ public class SQLite extends Database {
                 dbFile.createNewFile();
             } catch (IOException ex) {
                 plugin.getLogger().severe("Failed to create database file");
-                plugin.debug("Failed to create database file");
-                plugin.debug(ex);
+                plugin.getDebugLogger().debug("Failed to create database file");
+                plugin.getDebugLogger().debug(ex);
                 return null;
             }
         }
@@ -58,11 +58,11 @@ public class SQLite extends Database {
                 Statement s = con.createStatement()) {
             s.executeUpdate("VACUUM");
 
-            plugin.debug("Vacuumed SQLite database");
+            plugin.getDebugLogger().debug("Vacuumed SQLite database");
         } catch (final SQLException ex) {
             plugin.getLogger().warning("Failed to vacuum database");
-            plugin.debug("Failed to vacuum database");
-            plugin.debug(ex);
+            plugin.getDebugLogger().debug("Failed to vacuum database");
+            plugin.getDebugLogger().debug(ex);
         }
     }
 

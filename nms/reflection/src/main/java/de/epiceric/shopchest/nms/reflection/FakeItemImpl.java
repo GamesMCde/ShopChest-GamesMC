@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.FakeItem;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -16,7 +17,7 @@ public class FakeItemImpl extends FakeEntityImpl implements FakeItem {
     private final Class<?> vec3dClass = nmsClassResolver.resolveSilent("world.phys.Vec3D");
     private final Class<?> craftItemStackClass = obcClassResolver.resolveSilent("inventory.CraftItemStack");
 
-    public FakeItemImpl(ShopChestDebug debug) {
+    public FakeItemImpl(DebugLogger debug) {
         super(debug);
 
         Class<?> nmsItemStackClass = nmsClassResolver.resolveSilent("world.item.ItemStack");

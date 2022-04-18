@@ -41,11 +41,11 @@ public class MySQL extends Database {
             public void run() {
                 try (Connection con = dataSource.getConnection();
                         Statement s = con.createStatement()) {
-                    plugin.debug("Pinging to MySQL server...");
+                    plugin.getDebugLogger().debug("Pinging to MySQL server...");
                     s.execute("/* ping */ SELECT 1");
                 } catch (SQLException ex) {
                     plugin.getLogger().severe("Failed to ping to MySQL server. Trying to reconnect...");
-                    plugin.debug("Failed to ping to MySQL server. Trying to reconnect...");
+                    plugin.getDebugLogger().debug("Failed to ping to MySQL server. Trying to reconnect...");
                     connect(null);
                 }
             }

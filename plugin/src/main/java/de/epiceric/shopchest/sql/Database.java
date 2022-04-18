@@ -173,8 +173,8 @@ public abstract class Database {
                         try {
                             time = dateFormat.parse(timestamp).getTime();
                         } catch (ParseException e) {
-                            plugin.debug("Failed to parse timestamp '" + timestamp + "': Time is set to 0");
-                            plugin.debug(e);
+                            plugin.getDebugLogger().debug("Failed to parse timestamp '" + timestamp + "': Time is set to 0");
+                            plugin.getDebugLogger().debug(e);
                         }
 
                         String player = rs.getString("executor");
@@ -263,14 +263,14 @@ public abstract class Database {
                     dataSource = getDataSource();
                 } catch (Exception e) {
                     callback.onError(e);
-                    plugin.debug(e);
+                    plugin.getDebugLogger().debug(e);
                     return;
                 }
 
                 if (dataSource == null) {
                     Exception e = new IllegalStateException("Data source is null");
                     callback.onError(e);
-                    plugin.debug(e);
+                    plugin.getDebugLogger().debug(e);
                     return;
                 }
 
@@ -312,7 +312,7 @@ public abstract class Database {
                             int count = rs.getInt(1);
                             initialized = true;
                             
-                            plugin.debug("Initialized database with " + count + " entries");
+                            plugin.getDebugLogger().debug("Initialized database with " + count + " entries");
 
                             if (callback != null) {
                                 callback.callSyncResult(count);
@@ -327,8 +327,8 @@ public abstract class Database {
                     }
                     
                     plugin.getLogger().severe("Failed to initialize or connect to database");
-                    plugin.debug("Failed to initialize or connect to database");
-                    plugin.debug(e);
+                    plugin.getDebugLogger().debug("Failed to initialize or connect to database");
+                    plugin.getDebugLogger().debug(e);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -349,7 +349,7 @@ public abstract class Database {
                     ps.setInt(1, shop.getID());
                     ps.executeUpdate();
 
-                    plugin.debug("Removing shop from database (#" + shop.getID() + ")");
+                    plugin.getDebugLogger().debug("Removing shop from database (#" + shop.getID() + ")");
 
                     if (callback != null) {
                         callback.callSyncResult(null);
@@ -360,8 +360,8 @@ public abstract class Database {
                     }
 
                     plugin.getLogger().severe("Failed to remove shop from database");
-                    plugin.debug("Failed to remove shop from database (#" + shop.getID() + ")");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to remove shop from database (#" + shop.getID() + ")");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -380,7 +380,7 @@ public abstract class Database {
                         Statement s = con.createStatement()) {
                     ResultSet rs = s.executeQuery("SELECT vendor, COUNT(*) AS count FROM " + tableShops + " WHERE shoptype = 'NORMAL' GROUP BY vendor");
 
-                    plugin.debug("Getting shop amounts from database");
+                    plugin.getDebugLogger().debug("Getting shop amounts from database");
 
                     Map<UUID, Integer> result = new HashMap<>();
                     while (rs.next()) {
@@ -397,8 +397,8 @@ public abstract class Database {
                     }
 
                     plugin.getLogger().severe("Failed to get shop amounts from database");
-                    plugin.debug("Failed to get shop amounts from database");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to get shop amounts from database");
+                    plugin.getDebugLogger().debug(ex);
                 }        
             }
         }.runTaskAsynchronously(plugin);
@@ -418,13 +418,13 @@ public abstract class Database {
                     ps.setString(1, playerUuid.toString());
                     ResultSet rs = ps.executeQuery();
 
-                    plugin.debug("Getting a player's shops from database");
+                    plugin.getDebugLogger().debug("Getting a player's shops from database");
 
                     Set<Shop> result = new HashSet<>();
                     while (rs.next()) {
                         int id = rs.getInt("id");
 
-                        plugin.debug("Getting Shop... (#" + id + ")");
+                        plugin.getDebugLogger().debug("Getting Shop... (#" + id + ")");
 
                         int x = rs.getInt("x");
                         int y = rs.getInt("y");
@@ -440,7 +440,7 @@ public abstract class Database {
                         double sellPrice = rs.getDouble("sellprice");
                         ShopType shopType = ShopType.valueOf(rs.getString("shoptype"));
 
-                        plugin.debug("Initializing new shop... (#" + id + ")");
+                        plugin.getDebugLogger().debug("Initializing new shop... (#" + id + ")");
 
                         result.add(new Shop(id, plugin, vendor, product, location, buyPrice, sellPrice, shopType));
                     }
@@ -454,8 +454,8 @@ public abstract class Database {
                     }
 
                     plugin.getLogger().severe("Failed to get player's shops from database");
-                    plugin.debug("Failed to get player's shops from database");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to get player's shops from database");
+                    plugin.getDebugLogger().debug(ex);
                 }        
             }
         }.runTaskAsynchronously(plugin);
@@ -527,7 +527,7 @@ public abstract class Database {
                         while (rs.next()) {
                             int id = rs.getInt("id");
     
-                            plugin.debug("Getting Shop... (#" + id + ")");
+                            plugin.getDebugLogger().debug("Getting Shop... (#" + id + ")");
     
                             int x = rs.getInt("x");
                             int y = rs.getInt("y");
@@ -543,7 +543,7 @@ public abstract class Database {
                             double sellPrice = rs.getDouble("sellprice");
                             ShopType shopType = ShopType.valueOf(rs.getString("shoptype"));
     
-                            plugin.debug("Initializing new shop... (#" + id + ")");
+                            plugin.getDebugLogger().debug("Initializing new shop... (#" + id + ")");
     
                             shops.add(new Shop(id, plugin, vendor, product, location, buyPrice, sellPrice, shopType));
                         }
@@ -553,8 +553,8 @@ public abstract class Database {
                         }
     
                         plugin.getLogger().severe("Failed to get shops from database");
-                        plugin.debug("Failed to get shops");
-                        plugin.debug(ex);
+                        plugin.getDebugLogger().debug("Failed to get shops");
+                        plugin.getDebugLogger().debug(ex);
 
                         return;
                     }
@@ -617,15 +617,15 @@ public abstract class Database {
                         callback.callSyncResult(shop.getID());
                     }
 
-                    plugin.debug("Adding shop to database (#" + shop.getID() + ")");
+                    plugin.getDebugLogger().debug("Adding shop to database (#" + shop.getID() + ")");
                 } catch (SQLException ex) {
                     if (callback != null) {
                         callback.callSyncError(ex);
                     }
 
                     plugin.getLogger().severe("Failed to add shop to database");
-                    plugin.debug("Failed to add shop to database (#" + shop.getID() + ")");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to add shop to database (#" + shop.getID() + ")");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -677,15 +677,15 @@ public abstract class Database {
                             callback.callSyncResult(null);
                         }
 
-                        plugin.debug("Logged economy transaction to database");
+                        plugin.getDebugLogger().debug("Logged economy transaction to database");
                     } catch (SQLException ex) {
                         if (callback != null) {
                             callback.callSyncError(ex);
                         }
 
                         plugin.getLogger().severe("Failed to log economy transaction to database");
-                        plugin.debug("Failed to log economy transaction to database");
-                        plugin.debug(ex);
+                        plugin.getDebugLogger().debug("Failed to log economy transaction to database");
+                        plugin.getDebugLogger().debug(ex);
                     }
                 }
             }.runTaskAsynchronously(plugin);
@@ -716,11 +716,11 @@ public abstract class Database {
                     s2.executeUpdate(queryCleanUpPlayers);
 
                     plugin.getLogger().info("Cleaned up economy log");
-                    plugin.debug("Cleaned up economy log");
+                    plugin.getDebugLogger().debug("Cleaned up economy log");
                 } catch (SQLException ex) {
                     plugin.getLogger().severe("Failed to clean up economy log");
-                    plugin.debug("Failed to clean up economy log");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to clean up economy log");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         };
@@ -774,8 +774,8 @@ public abstract class Database {
                     }
 
                     plugin.getLogger().severe("Failed to get revenue from database");
-                    plugin.debug("Failed to get revenue from player \"" + player.getUniqueId().toString() + "\"");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to get revenue from player \"" + player.getUniqueId().toString() + "\"");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -801,15 +801,15 @@ public abstract class Database {
                         callback.callSyncResult(null);
                     }
 
-                    plugin.debug("Logged logout to database");
+                    plugin.getDebugLogger().debug("Logged logout to database");
                 } catch (final SQLException ex) {
                     if (callback != null) {
                         callback.callSyncError(ex);
                     }
 
                     plugin.getLogger().severe("Failed to log last logout to database");
-                    plugin.debug("Failed to log logout to database");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to log logout to database");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -847,8 +847,8 @@ public abstract class Database {
                     }
 
                     plugin.getLogger().severe("Failed to get last logout from database");
-                    plugin.debug("Failed to get last logout from player \"" + player.getName() + "\"");
-                    plugin.debug(ex);
+                    plugin.getDebugLogger().debug("Failed to get last logout from player \"" + player.getName() + "\"");
+                    plugin.getDebugLogger().debug(ex);
                 }
             }
         }.runTaskAsynchronously(plugin);

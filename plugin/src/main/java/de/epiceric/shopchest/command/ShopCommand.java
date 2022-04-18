@@ -45,7 +45,7 @@ public class ShopCommand {
     public ShopCommand(final ShopChest plugin) {
         if (commandCreated) {
             IllegalStateException e = new IllegalStateException("Command has already been registered");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug(e);
             throw e;
         }
 
@@ -183,7 +183,7 @@ public class ShopCommand {
     }
 
     private PluginCommand createPluginCommand() {
-        plugin.debug("Creating plugin command");
+        plugin.getDebugLogger().debug("Creating plugin command");
         try {
             Constructor<PluginCommand> c = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
             c.setAccessible(true);
@@ -197,15 +197,15 @@ public class ShopCommand {
             return cmd;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             plugin.getLogger().severe("Failed to create command");
-            plugin.debug("Failed to create plugin command");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to create plugin command");
+            plugin.getDebugLogger().debug(e);
         }
 
         return null;
     }
 
     public void addSubCommand(ShopSubCommand subCommand) {
-        plugin.debug("Adding sub command \"" + subCommand.getName() + "\"");
+        plugin.getDebugLogger().debug("Adding sub command \"" + subCommand.getName() + "\"");
         this.subCommands.add(subCommand);
     }
 
@@ -216,7 +216,7 @@ public class ShopCommand {
     private void register() {
         if (pluginCommand == null) return;
 
-        plugin.debug("Registering command " + name);
+        plugin.getDebugLogger().debug("Registering command " + name);
 
         try {
             Field fCommandMap = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
@@ -229,15 +229,15 @@ public class ShopCommand {
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             plugin.getLogger().severe("Failed to register command");
-            plugin.debug("Failed to register plugin command");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to register plugin command");
+            plugin.getDebugLogger().debug(e);
         }
     }
 
     public void unregister() {
         if (pluginCommand == null) return;
 
-        plugin.debug("Unregistering command " + name);
+        plugin.getDebugLogger().debug("Unregistering command " + name);
 
         try {
             Field fCommandMap = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
@@ -262,8 +262,8 @@ public class ShopCommand {
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             plugin.getLogger().severe("Failed to unregister command");
-            plugin.debug("Failed to unregister plugin command");
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to unregister plugin command");
+            plugin.getDebugLogger().debug(e);
         }
     }
 
@@ -273,7 +273,7 @@ public class ShopCommand {
      * @param sender {@link CommandSender} who will receive the message
      */
     private void sendBasicHelpMessage(CommandSender sender) {
-        plugin.debug("Sending basic help message to " + sender.getName());
+        plugin.getDebugLogger().debug("Sending basic help message to " + sender.getName());
 
         sender.sendMessage(" ");
         String header = LanguageUtils.getMessage(Message.COMMAND_DESC_HEADER,

@@ -56,8 +56,8 @@ public class LanguageConfiguration extends FileConfiguration {
                 if (showMessages)
                     plugin.getLogger().info("Missing translation for \"" + path + "\" has been added as \"" + def + "\" to the selected language file.");
             } catch (IOException e) {
-                plugin.debug("Failed to add language entry");
-                plugin.debug(e);
+                plugin.getDebugLogger().debug("Failed to add language entry");
+                plugin.getDebugLogger().debug(e);
                 if (showMessages)
                     plugin.getLogger().severe("Failed to add missing translation for \"" + path + "\" to the selected langauge file.");
             }

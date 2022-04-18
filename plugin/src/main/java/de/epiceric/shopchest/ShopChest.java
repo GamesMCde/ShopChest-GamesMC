@@ -6,6 +6,8 @@ package de.epiceric.shopchest;
 import de.epiceric.shopchest.command.ShopCommand;
 import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.hologram.HologramFormat;
+import de.epiceric.shopchest.debug.DebugLogger;
+import de.epiceric.shopchest.debug.NullDebugLogger;
 import de.epiceric.shopchest.event.ShopInitializedEvent;
 //import de.epiceric.shopchest.external.BentoBoxShopFlag;
 //import de.epiceric.shopchest.external.PlotSquaredOldShopFlag;
@@ -18,7 +20,6 @@ import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.listeners.*;
 import de.epiceric.shopchest.nms.Platform;
 import de.epiceric.shopchest.nms.reflection.PlatformImpl;
-import de.epiceric.shopchest.nms.reflection.ShopChestDebug;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
@@ -42,11 +43,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 //import world.bentobox.bentobox.BentoBox;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +65,7 @@ public class ShopChest extends JavaPlugin {
     private String latestVersion = "";
     private String downloadLink = "";
     private ShopUtils shopUtils;
-    private FileWriter fw;
+    private DebugLogger debugLogger;
     /*
     private Plugin worldGuard;
     private Towny towny;
@@ -110,24 +106,11 @@ public class ShopChest extends JavaPlugin {
 
         config = new Config(this);
 
-        if (Config.enableDebugLog) {
-            File debugLogFile = new File(getDataFolder(), "debug.txt");
+        debugLogger = Config.enableDebugLog ?
+                DebugLogger.getLogger(new File(getDataFolder(), "debug.txt"), getLogger())
+                : new NullDebugLogger(getLogger());
 
-            try {
-                if (!debugLogFile.exists()) {
-                    debugLogFile.createNewFile();
-                }
-
-                new PrintWriter(debugLogFile).close();
-
-                fw = new FileWriter(debugLogFile, true);
-            } catch (IOException e) {
-                getLogger().info("Failed to instantiate FileWriter");
-                e.printStackTrace();
-            }
-        }
-
-        debug("Loading ShopChest version " + getDescription().getVersion());
+        debugLogger.debug("Loading ShopChest version " + getDescription().getVersion());
 
         // TODO EXTERNAL : Register WorldGuard Flags
 
@@ -140,17 +123,17 @@ public class ShopChest extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        debug("Enabling ShopChest version " + getDescription().getVersion());
+        debugLogger.debug("Enabling ShopChest version " + getDescription().getVersion());
 
         if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
-            debug("Could not find plugin \"Vault\"");
+            debugLogger.debug("Could not find plugin \"Vault\"");
             getLogger().severe("Could not find plugin \"Vault\"");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
         if (!setupEconomy()) {
-            debug("Could not find any Vault economy dependency!");
+            debugLogger.debug("Could not find any Vault economy dependency!");
             getLogger().severe("Could not find any Vault economy dependency!");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -172,7 +155,7 @@ public class ShopChest extends JavaPlugin {
             case "v1_16_R1":
             case "v1_16_R2":
             case "v1_16_R3":
-                platform = new PlatformImpl(new ShopChestDebug(getLogger(), this::debug, this::debug));
+                platform = new PlatformImpl(debugLogger);
                 break;
             case "v1_17_R1":
                 // Need to have an implementation for 1.17.1 and 1.17 -> Change in the name of EntityDestroyPacket
@@ -191,7 +174,7 @@ public class ShopChest extends JavaPlugin {
                 platform = new de.epiceric.shopchest.nms.v1_18_R2.PlatformImpl();
                 break;
             default:
-                debug("Server version not officially supported: " + Utils.getServerVersion() + "!");
+                debugLogger.debug("Server version not officially supported: " + Utils.getServerVersion() + "!");
                 //debug("Plugin may still work, but more errors are expected!");
                 getLogger().warning("Server version not officially supported: " + Utils.getServerVersion() + "!");
                 //getLogger().warning("Plugin may still work, but more errors are expected!");
@@ -231,19 +214,12 @@ public class ShopChest extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        debug("Disabling ShopChest...");
+        debugLogger.debug("Disabling ShopChest...");
 
         if (shopUtils == null) {
             // Plugin has not been fully enabled (probably due to errors),
             // so only close file writer.
-            if (fw != null && Config.enableDebugLog) {
-                try {
-                    fw.close();
-                } catch (IOException e) {
-                    getLogger().severe("Failed to close FileWriter");
-                    e.printStackTrace();
-                }
-            }
+            debugLogger.close();
             return;
         }
 
@@ -254,7 +230,7 @@ public class ShopChest extends JavaPlugin {
         ClickType.clear();
 
         if (updater != null) {
-            debug("Stopping updater");
+            debugLogger.debug("Stopping updater");
             updater.stop();
         }
 
@@ -263,7 +239,7 @@ public class ShopChest extends JavaPlugin {
         }
 
         shopUtils.removeShops();
-        debug("Removed shops");
+        debugLogger.debug("Removed shops");
 
         if (database != null && database.isInitialized()) {
             if (database instanceof SQLite) {
@@ -273,14 +249,7 @@ public class ShopChest extends JavaPlugin {
             database.disconnect();
         }
 
-        if (fw != null && Config.enableDebugLog) {
-            try {
-                fw.close();
-            } catch (IOException e) {
-                getLogger().severe("Failed to close FileWriter");
-                e.printStackTrace();
-            }
-        }
+        debugLogger.close();
     }
 
     private void loadExternalPlugins() {
@@ -351,11 +320,11 @@ public class ShopChest extends JavaPlugin {
 
     private void initDatabase() {
         if (Config.databaseType == Database.DatabaseType.SQLite) {
-            debug("Using database type: SQLite");
+            debugLogger.debug("Using database type: SQLite");
             getLogger().info("Using SQLite");
             database = new SQLite(this);
         } else {
-            debug("Using database type: MySQL");
+            debugLogger.debug("Using database type: MySQL");
             getLogger().info("Using MySQL");
             database = new MySQL(this);
             if (Config.databaseMySqlPingInterval > 0) {
@@ -413,7 +382,7 @@ public class ShopChest extends JavaPlugin {
     }
 
     private void registerListeners() {
-        debug("Registering listeners...");
+        debugLogger.debug("Registering listeners...");
         getServer().getPluginManager().registerEvents(new ShopUpdateListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopItemListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopInteractListener(this), this);
@@ -479,7 +448,7 @@ public class ShopChest extends JavaPlugin {
                     @Override
                     public void onResult(Map<UUID, Integer> result) {
                         getLogger().info("Loaded shop amounts");
-                        debug("Loaded shop amounts");
+                        debugLogger.debug("Loaded shop amounts");
                     }
                     
                     @Override
@@ -494,7 +463,7 @@ public class ShopChest extends JavaPlugin {
                     public void onResult(Integer result) {
                         getServer().getPluginManager().callEvent(new ShopInitializedEvent(result));
                         getLogger().info("Loaded " + result + " shops in already loaded chunks");
-                        debug("Loaded " + result + " shops in already loaded chunks");
+                        debugLogger.debug("Loaded " + result + " shops in already loaded chunks");
                     }
 
                     @Override
@@ -516,33 +485,10 @@ public class ShopChest extends JavaPlugin {
     }
 
     /**
-     * Print a message to the <i>/plugins/ShopChest/debug.txt</i> file
-     * @param message Message to print
+     * @return The {@link DebugLogger} instance
      */
-    public void debug(String message) {
-        if (Config.enableDebugLog && fw != null) {
-            try {
-                Calendar c = Calendar.getInstance();
-                String timestamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(c.getTime());
-                fw.write(String.format("[%s] %s\r\n", timestamp, message));
-                fw.flush();
-            } catch (IOException e) {
-                getLogger().severe("Failed to print debug message.");
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Print a {@link Throwable}'s stacktrace to the <i>/plugins/ShopChest/debug.txt</i> file
-     * @param throwable {@link Throwable} whose stacktrace will be printed
-     */
-    public void debug(Throwable throwable) {
-        if (Config.enableDebugLog && fw != null) {
-            PrintWriter pw = new PrintWriter(fw);
-            throwable.printStackTrace(pw);
-            pw.flush();
-        }
+    public DebugLogger getDebugLogger() {
+        return debugLogger;
     }
 
     /**

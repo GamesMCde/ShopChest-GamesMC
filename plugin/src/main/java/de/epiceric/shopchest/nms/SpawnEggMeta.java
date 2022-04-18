@@ -17,7 +17,7 @@ public class SpawnEggMeta {
             Class<?> craftItemStackClass = obcClassResolver.resolveSilent("inventory.CraftItemStack");	
 	
             if (craftItemStackClass == null) {	
-                plugin.debug("Failed to get NBTEntityID: Could not find CraftItemStack class");	
+                plugin.getDebugLogger().debug("Failed to get NBTEntityID: Could not find CraftItemStack class");	
                 return null;	
             }	
 	
@@ -34,8 +34,8 @@ public class SpawnEggMeta {
 	
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {	
             plugin.getLogger().severe("Failed to get NBTEntityID with reflection");	
-            plugin.debug("Failed to get NBTEntityID with reflection");	
-            plugin.debug(e);	
+            plugin.getDebugLogger().debug("Failed to get NBTEntityID with reflection");	
+            plugin.getDebugLogger().debug(e);	
         }	
 	
         return null;	

@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -31,7 +32,7 @@ public class ReflectionUtils {
      * @param customName Custom Name of the entity or {@code null}
      * @param nmsItemStack NMS ItemStack or {@code null} if armor stand
      */
-    public static Object createDataWatcher(ShopChestDebug debug, String customName, Object nmsItemStack) {
+    public static Object createDataWatcher(DebugLogger debug, String customName, Object nmsItemStack) {
         String version = getServerVersion();
         int majorVersion = getMajorVersion();
 
@@ -130,7 +131,7 @@ public class ReflectionUtils {
     }
 
     /**
-     * Get a free entity ID for use in {@link #createPacketSpawnEntity(ShopChestDebug, int, UUID, Location, EntityType)}
+     * Get a free entity ID for use in {@link #createPacketSpawnEntity(DebugLogger, int, UUID, Location, EntityType)}
      * 
      * @return The id or {@code -1} if a free entity ID could not be retrieved.
      */
@@ -156,7 +157,7 @@ public class ReflectionUtils {
      * Create a {@code PacketPlayOutSpawnEntity} object.
      * Only {@link EntityType#ARMOR_STAND} and {@link EntityType#DROPPED_ITEM} are supported! 
      */
-    public static Object createPacketSpawnEntity(ShopChestDebug debug, int id, UUID uuid, Location loc, EntityType type) {
+    public static Object createPacketSpawnEntity(DebugLogger debug, int id, UUID uuid, Location loc, EntityType type) {
         try {
             Class<?> packetPlayOutSpawnEntityClass = nmsClassResolver.resolveSilent("network.protocol.game.PacketPlayOutSpawnEntity");
             Class<?> entityTypesClass = nmsClassResolver.resolveSilent("world.entity.EntityTypes");
@@ -226,12 +227,12 @@ public class ReflectionUtils {
 
     /**
      * Send a packet to a player
-     * @param debug An instance of the {@link ShopChestDebug} debug instance
+     * @param debug The used {@link DebugLogger} instance
      * @param packet Packet to send
      * @param player Player to which the packet should be sent
      * @return {@code true} if the packet was sent, or {@code false} if an exception was thrown
      */
-    public static boolean sendPacket(ShopChestDebug debug, Object packet, Player player) {
+    public static boolean sendPacket(DebugLogger debug, Object packet, Player player) {
         try {
             if (packet == null) {
                 debug.debug("Failed to send packet: Packet is null");

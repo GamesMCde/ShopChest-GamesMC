@@ -527,8 +527,8 @@ public class Config {
             return (Reader) plugin.getClass().getDeclaredMethod("getTextResource", String.class).invoke(plugin, file);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             if (showMessages) plugin.getLogger().severe("Failed to get file from jar: " + file);
-            plugin.debug("Failed to get file from jar: " + file);
-            plugin.debug(e);
+            plugin.getDebugLogger().debug("Failed to get file from jar: " + file);
+            plugin.getDebugLogger().debug(e);
         }
 
         return null;
@@ -564,7 +564,7 @@ public class Config {
 
                     if (r == null) {
                         if (showMessages) plugin.getLogger().warning("Using default language values");
-                        plugin.debug("Using default language values (#1)");
+                        plugin.getDebugLogger().debug("Using default language values (#1)");
                     }
 
                     BufferedReader br = new BufferedReader(r);
@@ -584,8 +584,8 @@ public class Config {
                         plugin.getLogger().warning("Using default language values");
                     }
 
-                    plugin.debug("Using default language values (#2)");
-                    plugin.debug(e);
+                    plugin.getDebugLogger().debug("Using default language values (#2)");
+                    plugin.getDebugLogger().debug(e);
                 }
             } else {
                 try {
@@ -596,8 +596,8 @@ public class Config {
                         plugin.getLogger().warning("Using default language values");
                     }
 
-                    plugin.debug("Using default language values (#3)");
-                    plugin.debug(e);
+                    plugin.getDebugLogger().debug("Using default language values (#3)");
+                    plugin.getDebugLogger().debug(e);
                 }
             }
         } else {
@@ -610,8 +610,8 @@ public class Config {
                     plugin.getLogger().warning("Using default language values");
                 }
 
-                plugin.debug("Using default language values (#4)");
-                plugin.debug(e);
+                plugin.getDebugLogger().debug("Using default language values (#4)");
+                plugin.getDebugLogger().debug(e);
             }
         }
     }

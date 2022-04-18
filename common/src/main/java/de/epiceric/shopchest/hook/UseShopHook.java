@@ -1,9 +1,9 @@
-package de.epiceric.shopchest.external;
+package de.epiceric.shopchest.hook;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-public interface UseShopIntegration {
+public interface UseShopHook {
 
     /**
      * Whether the player can use the player shop represented by this block
@@ -36,8 +36,8 @@ public interface UseShopIntegration {
      * It's the method called by the plugin
      * </p>
      * <p>
-     * By default, it calls {@link UseShopIntegration#canUsePlayerShop(Block, Player)}} and
-     * {@link UseShopIntegration#canUseAdminShop(Block, Player)}
+     * By default, it calls {@link UseShopHook#canUsePlayerShop(Block, Player)}} and
+     * {@link UseShopHook#canUseAdminShop(Block, Player)}
      * </p>
      *
      * @param block  The {@link Block} where the shop is placed

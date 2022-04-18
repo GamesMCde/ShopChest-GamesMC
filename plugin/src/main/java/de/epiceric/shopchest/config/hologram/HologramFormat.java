@@ -32,7 +32,7 @@ public class HologramFormat {
         // Get lines
         final ConfigurationSection linesSection = config.getConfigurationSection("lines");
         if (linesSection == null) {
-            plugin.debug("Can not the hologram format, there is no 'lines' section");
+            plugin.getDebugLogger().debug("Can not the hologram format, there is no 'lines' section");
             return;
         }
         // Get options
@@ -40,12 +40,12 @@ public class HologramFormat {
         for (String linesId : linesSection.getKeys(false)) {
             final ConfigurationSection lineSection = linesSection.getConfigurationSection(linesId);
             if (lineSection == null) {
-                plugin.debug("'" + linesId + "' is not a line section, skip it in hologram format");
+                plugin.getDebugLogger().debug("'" + linesId + "' is not a line section, skip it in hologram format");
                 continue;
             }
             final ConfigurationSection optionSection = lineSection.getConfigurationSection("options");
             if (optionSection == null) {
-                plugin.debug("The line '" + linesId + "' does not contain 'options' section, skip it in hologram format");
+                plugin.getDebugLogger().debug("The line '" + linesId + "' does not contain 'options' section, skip it in hologram format");
                 continue;
             }
             optionSections.put(linesId, optionSection);
@@ -70,7 +70,7 @@ public class HologramFormat {
             for (final String optionKey : optionsSection.getKeys(false)) {
                 final ConfigurationSection optionSection = optionsSection.getConfigurationSection(optionKey);
                 if (optionSection == null) {
-                    plugin.debug("'" + optionKey + "' is not an option section, skip it in hologram format");
+                    plugin.getDebugLogger().debug("'" + optionKey + "' is not an option section, skip it in hologram format");
                     continue;
                 }
                 // Get the requirements
@@ -89,8 +89,8 @@ public class HologramFormat {
                                 data.getRequirementsTypes()
                         );
                     } catch (Exception e) {
-                        plugin.debug("Failed to parse the requirement '" + requirement + "'");
-                        plugin.debug(e);
+                        plugin.getDebugLogger().debug("Failed to parse the requirement '" + requirement + "'");
+                        plugin.getDebugLogger().debug(e);
                         continue;
                     }
 
@@ -102,13 +102,13 @@ public class HologramFormat {
                         }
                         continue;
                     }
-                    plugin.debug("The requirement '" + requirement + "' does not represent a condition");
+                    plugin.getDebugLogger().debug("The requirement '" + requirement + "' does not represent a condition");
                 }
 
                 // Get the format
                 final String format = optionSection.getString("format");
                 if (format == null) {
-                    plugin.debug("The option '" + optionKey + "' does not contains format. Skip it in hologram format");
+                    plugin.getDebugLogger().debug("The option '" + optionKey + "' does not contains format. Skip it in hologram format");
                     continue;
                 }
 
@@ -132,7 +132,7 @@ public class HologramFormat {
                 }
             }
             if (options.isEmpty()) {
-                plugin.debug("The line does not contain any options, skip it in hologram format");
+                plugin.getDebugLogger().debug("The line does not contain any options, skip it in hologram format");
                 continue;
             }
 
@@ -167,8 +167,8 @@ public class HologramFormat {
                 result = parser.parse(script, data.getPlaceholders(), data.getPlaceholderTypes());
             } catch (Exception e) {
                 parsedScripts.put(withBrackets, new ParserResult<>(null, null, null, null));
-                plugin.debug("Failed to evaluate the script '" + script + "'");
-                plugin.debug(e);
+                plugin.getDebugLogger().debug("Failed to evaluate the script '" + script + "'");
+                plugin.getDebugLogger().debug(e);
                 continue;
             }
             parsedScripts.put(withBrackets, result);

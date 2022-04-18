@@ -131,15 +131,15 @@ public class ShopUpdateListener implements Listener {
                             if (result == 0) {
                                 return;
                             }
-                            plugin.debug("Loaded " + result + " shops in " + chunkCount + " chunks");
+                            plugin.getDebugLogger().debug("Loaded " + result + " shops in " + chunkCount + " chunks");
                         }
             
                         @Override
                         public void onError(Throwable throwable) {
                             // Database connection probably failed => disable plugin to prevent more errors
                             plugin.getLogger().severe("Failed to load shops in newly loaded chunks");
-                            plugin.debug("Failed to load shops in newly loaded chunks");
-                            if (throwable != null) plugin.debug(throwable);
+                            plugin.getDebugLogger().debug("Failed to load shops in newly loaded chunks");
+                            if (throwable != null) plugin.getDebugLogger().debug(throwable);
                         }
                     });
                     newLoadedChunks.clear();

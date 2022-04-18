@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
+import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.FakeEntity;
 import org.bukkit.entity.Player;
 import org.inventivetalent.reflection.resolver.minecraft.NMSClassResolver;
@@ -12,9 +13,9 @@ public abstract class FakeEntityImpl implements FakeEntity {
     protected final Class<?> dataWatcherClass = nmsClassResolver.resolveSilent("network.syncher.DataWatcher");
 
     protected final int entityId;
-    protected final ShopChestDebug debug;
+    protected final DebugLogger debug;
 
-    public FakeEntityImpl(ShopChestDebug debug) {
+    public FakeEntityImpl(DebugLogger debug) {
         this.entityId = ReflectionUtils.getFreeEntityId();
         this.debug = debug;
     }

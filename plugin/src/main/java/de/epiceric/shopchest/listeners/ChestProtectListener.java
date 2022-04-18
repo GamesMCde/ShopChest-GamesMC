@@ -68,7 +68,7 @@ public class ChestProtectListener implements Listener {
                 if (creationPrice > 0 && Config.refundShopCreation && p.getUniqueId().equals(shop.getVendor().getUniqueId())) {
                     EconomyResponse r = plugin.getEconomy().depositPlayer(p, shop.getLocation().getWorld().getName(), creationPrice);
                     if (!r.transactionSuccess()) {
-                        plugin.debug("Economy transaction failed: " + r.errorMessage);
+                        plugin.getDebugLogger().debug("Economy transaction failed: " + r.errorMessage);
                         p.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED,
                                 new Replacement(Placeholder.ERROR, r.errorMessage)));
                         p.sendMessage(LanguageUtils.getMessage(Message.SHOP_REMOVED_REFUND,
@@ -83,7 +83,7 @@ public class ChestProtectListener implements Listener {
             });
 
             shopUtils.removeShop(shop, true);
-            plugin.debug(String.format("%s broke %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
+            plugin.getDebugLogger().debug(String.format("%s broke %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
         }
     }
 
@@ -96,7 +96,7 @@ public class ChestProtectListener implements Listener {
             Player p = e.getPlayer();
 
             if (p.isSneaking() && Utils.hasAxeInHand(p)) {
-                plugin.debug(String.format("%s tries to break %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
+                plugin.getDebugLogger().debug(String.format("%s tries to break %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
 
                 if (shop.getShopType() == Shop.ShopType.ADMIN) {
                     if (p.hasPermission(Permissions.REMOVE_ADMIN)) {
@@ -219,7 +219,7 @@ public class ChestProtectListener implements Listener {
         if (shop == null)
             return;
 
-        plugin.debug(String.format("%s tries to extend %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
+        plugin.getDebugLogger().debug(String.format("%s tries to extend %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
 
         ShopExtendEvent event = new ShopExtendEvent(p, shop, b.getLocation());
         Bukkit.getPluginManager().callEvent(event);
@@ -248,7 +248,7 @@ public class ChestProtectListener implements Listener {
             public void onResult(Void result) {
                 newShop.create(true);
                 shopUtils.addShop(newShop, true);
-                plugin.debug(String.format("%s extended %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
+                plugin.getDebugLogger().debug(String.format("%s extended %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
             }
         });
     }

@@ -109,7 +109,7 @@ public class Shop {
     public boolean create(boolean showConsoleMessages) {
         if (created) return false;
 
-        plugin.debug("Creating shop (#" + id + ")");
+        plugin.getDebugLogger().debug("Creating shop (#" + id + ")");
 
         Block b = location.getBlock();
         if (!ShopUtils.isShopMaterial(b.getType())) {
@@ -117,16 +117,16 @@ public class Shop {
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
             plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
-            plugin.debug("Failed to create shop (#" + id + ")");
-            plugin.debug(ex);
+            plugin.getDebugLogger().debug("Failed to create shop (#" + id + ")");
+            plugin.getDebugLogger().debug(ex);
             return false;
         } else if ((!ItemUtils.isAir(b.getRelative(BlockFace.UP).getType()))) {
             NotEnoughSpaceException ex = new NotEnoughSpaceException(String.format("No space above chest in world '%s' at location: %d; %d; %d",
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
             plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
-            plugin.debug("Failed to create shop (#" + id + ")");
-            plugin.debug(ex);
+            plugin.getDebugLogger().debug("Failed to create shop (#" + id + ")");
+            plugin.getDebugLogger().debug(ex);
             return false;
         }
 
@@ -158,7 +158,7 @@ public class Shop {
      */
     public void removeHologram() {
         if (hologram != null && hologram.exists()) {
-            plugin.debug("Removing hologram (#" + id + ")");
+            plugin.getDebugLogger().debug("Removing hologram (#" + id + ")");
             hologram.remove();
         }
     }
@@ -168,7 +168,7 @@ public class Shop {
      */
     public void removeItem() {
         if (item != null) {
-            plugin.debug("Removing shop item (#" + id + ")");
+            plugin.getDebugLogger().debug("Removing shop item (#" + id + ")");
             item.remove();
         }
     }
@@ -178,7 +178,7 @@ public class Shop {
      * <b>Call this after {@link #createHologram(PreCreateResult)}, because it depends on the hologram's location</b>
      */
     private void createItem() {
-        plugin.debug("Creating item (#" + id + ")");
+        plugin.getDebugLogger().debug("Creating item (#" + id + ")");
 
         Location itemLocation;
 
@@ -191,7 +191,7 @@ public class Shop {
      * to prepare creating the hologram.
      */
     private PreCreateResult preCreateHologram() {
-        plugin.debug("Creating hologram (#" + id + ")");
+        plugin.getDebugLogger().debug("Creating hologram (#" + id + ")");
 
         InventoryHolder ih = getInventoryHolder();
 

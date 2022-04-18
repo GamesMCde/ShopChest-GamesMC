@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>common</module>
         <module>plugin</module>
         <module>nms/interface</module>
         <module>nms/reflection</module>
@@ -296,6 +297,12 @@
             </dependency>
 
             <!-- Internal shaded dependencies -->
+            <!-- Common -->
+            <dependency>
+                <groupId>de.epiceric</groupId>
+                <artifactId>shopchest-common</artifactId>
+                <version>1.0.0</version>
+            </dependency>
             <!-- NMS -->
             <dependency>
                 <groupId>de.epiceric</groupId>
