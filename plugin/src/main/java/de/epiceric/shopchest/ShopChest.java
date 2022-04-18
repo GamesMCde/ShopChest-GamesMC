@@ -14,6 +14,8 @@ import de.epiceric.shopchest.event.ShopInitializedEvent;
 //import de.epiceric.shopchest.external.PlotSquaredShopFlag;
 //import de.epiceric.shopchest.external.WorldGuardShopFlag;
 //import de.epiceric.shopchest.external.listeners.*;
+import de.epiceric.shopchest.external.ExternalManager;
+import de.epiceric.shopchest.hook.HookManager;
 import de.epiceric.shopchest.language.LanguageUtils;
 //import de.epiceric.shopchest.external.listeners2.BentoBoxListener;
 //import de.epiceric.shopchest.listeners.WorldGuardListener;
@@ -66,6 +68,8 @@ public class ShopChest extends JavaPlugin {
     private String downloadLink = "";
     private ShopUtils shopUtils;
     private DebugLogger debugLogger;
+    private HookManager hookManager;
+    private ExternalManager externalManager;
     /*
     private Plugin worldGuard;
     private Towny towny;
@@ -112,13 +116,10 @@ public class ShopChest extends JavaPlugin {
 
         debugLogger.debug("Loading ShopChest version " + getDescription().getVersion());
 
-        // TODO EXTERNAL : Register WorldGuard Flags
+        hookManager = new HookManager();
+        externalManager = new ExternalManager();
 
-        /*
-        worldGuard = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
-        if (worldGuard != null) {
-            WorldGuardShopFlag.register(this);
-        }*/
+        externalManager.load();
     }
 
     @Override
@@ -197,13 +198,10 @@ public class ShopChest extends JavaPlugin {
         shopCreationThreadPool = new ThreadPoolExecutor(0, 8,
                 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
-        // TODO EXTERNAL : Load it the right way
-
-        loadExternalPlugins();
         initDatabase();
         checkForUpdates();
         registerListeners();
-        //registerExternalListeners();
+        externalManager.enable();
         initializeShops();
 
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -250,72 +248,6 @@ public class ShopChest extends JavaPlugin {
         }
 
         debugLogger.close();
-    }
-
-    private void loadExternalPlugins() {
-        // TODO EXTERNAL : Load Integrations
-
-        /*
-        Plugin townyPlugin = Bukkit.getServer().getPluginManager().getPlugin("Towny");
-        if (townyPlugin instanceof Towny) {
-            towny = (Towny) townyPlugin;
-        }
-
-        Plugin authMePlugin = Bukkit.getServer().getPluginManager().getPlugin("AuthMe");
-        if (authMePlugin instanceof AuthMe) {
-            authMe = (AuthMe) authMePlugin;
-        }
-
-        Plugin uSkyBlockPlugin = Bukkit.getServer().getPluginManager().getPlugin("uSkyBlock");
-        if (uSkyBlockPlugin instanceof uSkyBlockAPI) {
-            uSkyBlock = (uSkyBlockAPI) uSkyBlockPlugin;
-        }
-
-        Plugin aSkyBlockPlugin = Bukkit.getServer().getPluginManager().getPlugin("ASkyBlock");
-        if (aSkyBlockPlugin instanceof ASkyBlock) {
-            aSkyBlock = (ASkyBlock) aSkyBlockPlugin;
-        }
-
-        Plugin islandWorldPlugin = Bukkit.getServer().getPluginManager().getPlugin("IslandWorld");
-        if (islandWorldPlugin instanceof IslandWorld) {
-            islandWorld = (IslandWorld) islandWorldPlugin;
-        }
-
-        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention");
-        if (griefPreventionPlugin instanceof GriefPrevention) {
-            griefPrevention = (GriefPrevention) griefPreventionPlugin;
-        }
-
-        Plugin areaShopPlugin = Bukkit.getServer().getPluginManager().getPlugin("AreaShop");
-        if (areaShopPlugin instanceof AreaShop) {
-            areaShop = (AreaShop) areaShopPlugin;
-        }
-
-        Plugin bentoBoxPlugin = getServer().getPluginManager().getPlugin("BentoBox");
-        if (bentoBoxPlugin instanceof BentoBox) {
-            bentoBox = (BentoBox) bentoBoxPlugin;
-        }
-        */
-
-
-        // TODO EXTERNAL : Register flags and
-        /*
-        if (hasWorldGuard()) {
-            WorldGuardWrapper.getInstance().registerEvents(this);
-        }
-
-        if (hasPlotSquared()) {
-            try {
-                Class.forName("com.plotsquared.core.PlotSquared");
-                PlotSquaredShopFlag.register(this);
-            } catch (ClassNotFoundException ex) {
-                PlotSquaredOldShopFlag.register(this);
-            }
-        }
-
-        if (hasBentoBox()) {
-            BentoBoxShopFlag.register(this);
-        }*/
     }
 
     private void initDatabase() {
@@ -393,46 +325,7 @@ public class ShopChest extends JavaPlugin {
         if (!Utils.getServerVersion().equals("v1_8_R1")) {
             getServer().getPluginManager().registerEvents(new BlockExplodeListener(this), this);
         }
-
-        // TODO EXTERNAL : Register Listeners 1
-
-        /*
-        if (hasWorldGuard()) {
-            getServer().getPluginManager().registerEvents(new WorldGuardListener(this), this);
-
-            if (hasAreaShop()) {
-                getServer().getPluginManager().registerEvents(new AreaShopListener(this), this);
-            }
-        }
-
-        if (hasBentoBox()) {
-            getServer().getPluginManager().registerEvents(new BentoBoxListener(this), this);
-        }*/
     }
-
-    // TODO : EXTERNAL : Register Listeners 2
-    /*
-    private void registerExternalListeners() {
-        if (hasASkyBlock())
-            getServer().getPluginManager().registerEvents(new ASkyBlockListener(this), this);
-        if (hasGriefPrevention())
-            getServer().getPluginManager().registerEvents(new GriefPreventionListener(this), this);
-        if (hasIslandWorld())
-            getServer().getPluginManager().registerEvents(new IslandWorldListener(this), this);
-        if (hasPlotSquared()) {
-            PlotSquaredListener psListener = new PlotSquaredListener(this);
-            getServer().getPluginManager().registerEvents(psListener, this);
-            PlotSquared.get().getEventDispatcher().registerListener(psListener);
-        }
-        if (hasTowny())
-            getServer().getPluginManager().registerEvents(new TownyListener(this), this);
-        if (hasUSkyBlock())
-            getServer().getPluginManager().registerEvents(new USkyBlockListener(this), this);
-        if (hasWorldGuard())
-            getServer().getPluginManager().registerEvents(new de.epiceric.shopchest.external.listeners.WorldGuardListener(this), this);
-        if (hasBentoBox())
-            getServer().getPluginManager().registerEvents(new de.epiceric.shopchest.external.listeners.BentoBoxListener(this), this);
-    } */
 
     /**
      * Initializes the shops
@@ -502,6 +395,10 @@ public class ShopChest extends JavaPlugin {
         return platform;
     }
 
+    public HookManager getHookManager() {
+        return hookManager;
+    }
+
     public HologramFormat getHologramFormat() {
         return hologramFormat;
     }
@@ -516,71 +413,6 @@ public class ShopChest extends JavaPlugin {
     public ShopUpdater getUpdater() {
         return updater;
     }
-
-    // TODO EXTERNAL Plugins supports
-
-    /*
-    public boolean hasAreaShop() {
-        return Config.enableAreaShopIntegration && areaShop != null && areaShop.isEnabled();
-    }
-
-
-    public boolean hasGriefPrevention() {
-        return Config.enableGriefPreventionIntegration && griefPrevention != null && griefPrevention.isEnabled();
-    }
-
-
-    public GriefPrevention getGriefPrevention() {
-        return griefPrevention;
-    }
-
-
-    public boolean hasIslandWorld() {
-        return Config.enableIslandWorldIntegration && islandWorld != null && islandWorld.isEnabled();
-    }
-
-    public boolean hasASkyBlock() {
-        return Config.enableASkyblockIntegration && aSkyBlock != null && aSkyBlock.isEnabled();
-    }
-
-    public boolean hasUSkyBlock() {
-        return Config.enableUSkyblockIntegration && uSkyBlock != null && uSkyBlock.isEnabled();
-    }
-
-    public uSkyBlockAPI getUSkyBlock() {
-        return uSkyBlock;
-    }
-
-    public boolean hasPlotSquared() {
-        if (!Config.enablePlotsquaredIntegration) {
-            return false;
-        }
-
-        if (Utils.getMajorVersion() < 13) {
-            // Supported PlotSquared versions don't support versions below 1.13
-            return false;
-        }
-        Plugin p = getServer().getPluginManager().getPlugin("PlotSquared");
-        return p != null && p.isEnabled();
-    }
-
-
-    public boolean hasAuthMe() {
-        return Config.enableAuthMeIntegration && authMe != null && authMe.isEnabled();
-    }
-
-    public boolean hasTowny() {
-        return Config.enableTownyIntegration && towny != null && towny.isEnabled();
-    }
-
-    public boolean hasWorldGuard() {
-        return Config.enableWorldGuardIntegration && worldGuard != null && worldGuard.isEnabled();
-    }
-
-    public boolean hasBentoBox() {
-        return Config.enableBentoBoxIntegration && bentoBox != null && bentoBox.isEnabled();
-    }
-    */
 
     /**
      * @return ShopChest's {@link ShopUtils} containing some important methods

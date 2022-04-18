@@ -126,10 +126,9 @@ public class ShopInteractListener implements Listener {
         if (ClickType.getPlayerClickType(p).getClickType() != ClickType.EnumClickType.CREATE)
             return;
 
-        // TODO EXTERNAL : Check AUTH
-        /*
-        if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(p))
-            return;*/
+        if(!plugin.getHookManager().canInteract(p)){
+            return;
+        }
 
         if (e.useInteractedBlock() == Event.Result.DENY && !p.hasPermission(Permissions.CREATE_PROTECTED)) {
             p.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
@@ -255,33 +254,7 @@ public class ShopInteractListener implements Listener {
                     if (shop.getBuyPrice() > 0) {
                         if (p.hasPermission(Permissions.BUY)) {
                             // TODO: Outsource shop use external permission
-                            boolean externalPluginsAllowed = true;
-
-                            // TODO EXTERNAL : Check USE
-                            /*
-                            if (plugin.hasPlotSquared() && Config.enablePlotsquaredIntegration) {
-                                try {
-                                    Class.forName("com.plotsquared.core.PlotSquared");
-                                    com.plotsquared.core.location.Location plotLocation =
-                                            com.plotsquared.core.location.Location.at(b.getWorld().getName(), b.getX(), b.getY(), b.getZ());
-                                    com.plotsquared.core.plot.Plot plot = plotLocation.getOwnedPlot();
-                                    externalPluginsAllowed = PlotSquaredShopFlag.isFlagAllowedOnPlot(plot, PlotSquaredShopFlag.USE_SHOP, p);
-                                } catch (ClassNotFoundException ex) {
-                                    com.github.intellectualsites.plotsquared.plot.object.Location plotLocation =
-                                            new com.github.intellectualsites.plotsquared.plot.object.Location(b.getWorld().getName(), b.getX(), b.getY(), b.getZ());
-                                    com.github.intellectualsites.plotsquared.plot.object.Plot plot = plotLocation.getOwnedPlot();
-                                    externalPluginsAllowed = PlotSquaredOldShopFlag.isFlagAllowedOnPlot(plot, PlotSquaredOldShopFlag.USE_SHOP, p);
-                                }
-                            }
-
-                            if (externalPluginsAllowed && plugin.hasWorldGuard() && Config.enableWorldGuardIntegration) {
-                                String flagName = (shop.getShopType() == ShopType.ADMIN ? "use-admin-shop" : "use-shop");
-                                WorldGuardWrapper wgWrapper = WorldGuardWrapper.getInstance();
-                                Optional<IWrappedFlag<WrappedState>> flag = wgWrapper.getFlag(flagName, WrappedState.class);
-                                if (!flag.isPresent()) plugin.getDebugLogger().debug("WorldGuard flag '" + flagName + "' is not present!");
-                                WrappedState state = flag.map(f -> wgWrapper.queryFlag(p, b.getLocation(), f).orElse(WrappedState.DENY)).orElse(WrappedState.DENY);
-                                externalPluginsAllowed = state == WrappedState.ALLOW;
-                            }*/
+                            boolean externalPluginsAllowed = plugin.getHookManager().canUseShop(b, p, shop.getShopType() == ShopType.ADMIN);
                             
                             if (shop.getShopType() == ShopType.ADMIN) {
                                 if (externalPluginsAllowed || p.hasPermission(Permissions.BYPASS_EXTERNAL_PLUGIN)) {
@@ -382,33 +355,7 @@ public class ShopInteractListener implements Listener {
                     if (shop.getSellPrice() > 0) {
                         if (p.hasPermission(Permissions.SELL)) {
                             // TODO: Outsource shop use external permission
-                            boolean externalPluginsAllowed = true;
-
-                            // TODO EXTERNAL : Check USE
-                            /*
-                            if (plugin.hasPlotSquared() && Config.enablePlotsquaredIntegration) {
-                                try {
-                                    Class.forName("com.plotsquared.core.PlotSquared");
-                                    com.plotsquared.core.location.Location plotLocation =
-                                            com.plotsquared.core.location.Location.at(b.getWorld().getName(), b.getX(), b.getY(), b.getZ());
-                                    com.plotsquared.core.plot.Plot plot = plotLocation.getOwnedPlot();
-                                    externalPluginsAllowed = PlotSquaredShopFlag.isFlagAllowedOnPlot(plot, PlotSquaredShopFlag.USE_SHOP, p);
-                                } catch (ClassNotFoundException ex) {
-                                    com.github.intellectualsites.plotsquared.plot.object.Location plotLocation =
-                                            new com.github.intellectualsites.plotsquared.plot.object.Location(b.getWorld().getName(), b.getX(), b.getY(), b.getZ());
-                                    com.github.intellectualsites.plotsquared.plot.object.Plot plot = plotLocation.getOwnedPlot();
-                                    externalPluginsAllowed = PlotSquaredOldShopFlag.isFlagAllowedOnPlot(plot, PlotSquaredOldShopFlag.USE_SHOP, p);
-                                }
-                            }
-
-                            if (externalPluginsAllowed && plugin.hasWorldGuard() && Config.enableWorldGuardIntegration) {
-                                String flagName = (shop.getShopType() == ShopType.ADMIN ? "use-admin-shop" : "use-shop");
-                                WorldGuardWrapper wgWrapper = WorldGuardWrapper.getInstance();
-                                Optional<IWrappedFlag<WrappedState>> flag = wgWrapper.getFlag(flagName, WrappedState.class);
-                                if (!flag.isPresent()) plugin.getDebugLogger().debug("WorldGuard flag '" + flagName + "' is not present!");
-                                WrappedState state = flag.map(f -> wgWrapper.queryFlag(p, b.getLocation(), f).orElse(WrappedState.DENY)).orElse(WrappedState.DENY);
-                                externalPluginsAllowed = state == WrappedState.ALLOW;
-                            }*/
+                            boolean externalPluginsAllowed = plugin.getHookManager().canUseShop(b, p, shop.getShopType() == ShopType.ADMIN);
 
                             ItemStack itemStack = shop.getProduct().getItemStack();
 
@@ -473,8 +420,9 @@ public class ShopInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        // TODO EXTERNAL : Check AUTH
-        //if (Config.enableAuthMeIntegration && plugin.hasAuthMe() && !AuthMeApi.getInstance().isAuthenticated(e.getPlayer())) return;
+        if(!plugin.getHookManager().canInteract(e.getPlayer())) {
+            return;
+        }
         handleInteractEvent(e);
     }
 
