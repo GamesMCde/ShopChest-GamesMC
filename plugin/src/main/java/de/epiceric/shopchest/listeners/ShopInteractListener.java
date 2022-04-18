@@ -448,11 +448,18 @@ public class ShopInteractListener implements Listener {
         double creationPrice = (shopType == ShopType.NORMAL) ? Config.shopCreationPriceNormal : Config.shopCreationPriceAdmin;
         Shop shop = new Shop(plugin, executor, product, location, buyPrice, sellPrice, shopType);
 
+        // TODO Link this to the hook method
+        boolean canHook = true; // plugin.getHookManager();
+        if(!canHook && !executor.hasPermission(Permissions.CREATE_PROTECTED)) {
+            plugin.getDebugLogger().debug("Create cancelled (Hook)");
+            executor.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
+            return;
+        }
+
         ShopCreateEvent event = new ShopCreateEvent(executor, shop, creationPrice);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled() && !executor.hasPermission(Permissions.CREATE_PROTECTED)) {
+        if (event.isCancelled()) {
             plugin.getDebugLogger().debug("Create event cancelled");
-            executor.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
             return;
         }
 
