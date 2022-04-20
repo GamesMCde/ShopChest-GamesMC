@@ -1,6 +1,7 @@
 package de.epiceric.shopchest.listeners;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
@@ -221,9 +222,11 @@ public class ChestProtectListener implements Listener {
 
         plugin.getDebugLogger().debug(String.format("%s tries to extend %s's shop (#%d)", p.getName(), shop.getVendor().getName(), shop.getID()));
 
-        // TODO Link this to the hook method
-        boolean canHook = true; // plugin.getHookManager();
-        if(!canHook && !p.hasPermission(Permissions.EXTEND_PROTECTED)) {
+
+        final List<Block> currentShopBlocks = Utils.getChestLocations(shop).stream().map(Location::getBlock).toList();
+
+        boolean canExtendHook = plugin.getHookManager().canExtendShop(b, currentShopBlocks, p);
+        if(!canExtendHook && !p.hasPermission(Permissions.EXTEND_PROTECTED)) {
             plugin.getDebugLogger().debug("Extend cancelled (Hook)");
             return;
         }

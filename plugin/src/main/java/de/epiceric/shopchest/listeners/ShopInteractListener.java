@@ -57,12 +57,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -448,9 +443,11 @@ public class ShopInteractListener implements Listener {
         double creationPrice = (shopType == ShopType.NORMAL) ? Config.shopCreationPriceNormal : Config.shopCreationPriceAdmin;
         Shop shop = new Shop(plugin, executor, product, location, buyPrice, sellPrice, shopType);
 
-        // TODO Link this to the hook method
-        boolean canHook = true; // plugin.getHookManager();
-        if(!canHook && !executor.hasPermission(Permissions.CREATE_PROTECTED)) {
+
+        final List<Block> shopBlocks = Utils.getChestLocations(shop).stream().map(Location::getBlock).toList();
+
+        final boolean canCreateHook = plugin.getHookManager().canCreateShop(location.getBlock(), shopBlocks, executor);
+        if(!canCreateHook && !executor.hasPermission(Permissions.CREATE_PROTECTED)) {
             plugin.getDebugLogger().debug("Create cancelled (Hook)");
             executor.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CREATE_PROTECTED));
             return;
