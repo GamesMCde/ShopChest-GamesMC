@@ -31,12 +31,11 @@ public interface UseShopHook {
      * <p>
      * Whether the player can use the shop represented by this block
      * </p>
-     * <br>
      * <p>
      * It's the method called by the plugin
      * </p>
      * <p>
-     * By default, it calls {@link UseShopHook#canUsePlayerShop(Block, Player)}} and
+     * By default, it calls {@link UseShopHook#canUsePlayerShop(Block, Player)} and
      * {@link UseShopHook#canUseAdminShop(Block, Player)}
      * </p>
      *
