@@ -82,30 +82,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <!-- Github repo (Vault, uSkyBlock, GriefPrevention, PlotSquared v4, Towny) -->
+        <!-- Github repo (Vault) -->
         <repository>
             <id>jitpack-repo</id>
             <url>https://jitpack.io</url>
-        </repository>
-        <!-- CodeMc repo (AuthMe, ASkyBlock, BentoBox, WorldGuardWrapper) -->
-        <repository>
-            <id>codemc-repo</id>
-            <url>https://repo.codemc.org/repository/maven-public/</url>
-        </repository>
-        <!-- Inventive Talent repo (ReflectionHelper) -->
-        <repository>
-            <id>inventive-repo</id>
-            <url>https://repo.inventivetalent.org/content/groups/public/</url>
-        </repository>
-        <!-- EngineHub repo (WorldGuard from WorldGuardWrapper) -->
-        <repository>
-            <id>enginehub-repo</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
-        <!-- AreaShop repo -->
-        <repository>
-            <id>areashop-repo</id>
-            <url>http://maven.wiefferink.me</url>
         </repository>
     </repositories>
 
@@ -121,142 +101,6 @@
                 <groupId>com.github.MilkBowl</groupId>
                 <artifactId>VaultAPI</artifactId>
                 <version>1.7</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>fr.xephi</groupId>
-                <artifactId>authme</artifactId>
-                <version>5.4.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.plotsquared</groupId>
-                <artifactId>PlotSquared-Core</artifactId>
-                <version>6.5.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.rlf.uSkyBlock</groupId>
-                <artifactId>uSkyBlock-API</artifactId>
-                <version>v2.8.9</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.wasteofplastic</groupId>
-                <artifactId>askyblock</artifactId>
-                <version>3.0.9.4</version>
-                <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>bukkit.org</groupId>
-                        <artifactId>craftbukkit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.9.2</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.9.4</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.10</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.11</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.9</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1.8</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot.1.8.3</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot.1.8.4</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot.1.8.6</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot.1.8.8</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>spigotmc.org</groupId>
-                        <artifactId>spigot-1649</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.github.TechFortress</groupId>
-                <artifactId>GriefPrevention</artifactId>
-                <version>16.17.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>me.wiefferink</groupId>
-                <artifactId>areashop</artifactId>
-                <version>2.6.0</version>
-                <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>me.wiefferink</groupId>
-                        <artifactId>interactivemessenger</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>me.wiefferink</groupId>
-                        <artifactId>bukkitdo</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sk89q</groupId>
-                        <artifactId>worldedit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sk89q</groupId>
-                        <artifactId>worldguard</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sk89q.worldguard</groupId>
-                        <artifactId>worldguard-legacy</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>world.bentobox</groupId>
-                <artifactId>bentobox</artifactId>
-                <version>1.17.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.IntellectualSites.PlotSquared</groupId>
-                <artifactId>Core</artifactId>
-                <version>4.453</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.TownyAdvanced</groupId>
-                <artifactId>Towny</artifactId>
-                <version>0.97.5.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>pl.gnacik.islandworld</groupId>
-                <artifactId>IslandWorld</artifactId>
-                <version>8.5</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -278,11 +122,6 @@
             </dependency>
 
             <!-- Shaded dependencies -->
-            <dependency>
-                <groupId>org.codemc.worldguardwrapper</groupId>
-                <artifactId>worldguardwrapper</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
-            </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
@@ -365,10 +204,6 @@
                         <finalName>${buildName}-${project.version}</finalName>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                         <relocations>
-                            <relocation>
-                                <pattern>org.codemc.worldguardwrapper</pattern>
-                                <shadedPattern>de.epiceric.shopchest.dependencies.worldguardwrapper</shadedPattern>
-                            </relocation>
                             <relocation>
                                 <pattern>com.zaxxer.hikari</pattern>
                                 <shadedPattern>de.epiceric.shopchest.dependencies.hikari</shadedPattern>
