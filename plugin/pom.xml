@@ -72,6 +72,10 @@
         </dependency>
         <dependency>
             <groupId>de.epiceric</groupId>
+            <artifactId>shopchest-nms-v1_19_R1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.epiceric</groupId>
             <artifactId>shopchest-external</artifactId>
         </dependency>
     </dependencies>
