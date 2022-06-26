@@ -228,6 +228,8 @@ public class ChestProtectListener implements Listener {
         boolean canExtendHook = plugin.getHookManager().canExtendShop(b, currentShopBlocks, p);
         if(!canExtendHook && !p.hasPermission(Permissions.EXTEND_PROTECTED)) {
             plugin.getDebugLogger().debug("Extend cancelled (Hook)");
+            e.setCancelled(true);
+            p.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_EXTEND_PROTECTED));
             return;
         }
 
@@ -235,7 +237,7 @@ public class ChestProtectListener implements Listener {
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             e.setCancelled(true);
-            p.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_EXTEND_PROTECTED));
+            // Don't send message, assume that plugins that cancel this event will do it
             return;
         }
 
