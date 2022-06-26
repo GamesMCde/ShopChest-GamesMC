@@ -63,6 +63,8 @@ import java.util.function.Consumer;
 
 public class ShopInteractListener implements Listener {
 
+    // TODO Fix Admin shop selling (Idk why but it's broken)
+
     private ShopChest plugin;
     private Economy econ;
     private Database database;
