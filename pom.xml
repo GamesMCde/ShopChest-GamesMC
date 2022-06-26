@@ -88,6 +88,11 @@
             <id>jitpack-repo</id>
             <url>https://jitpack.io</url>
         </repository>
+        <!-- EngineHub repo (WorldEdit, WorldGuard) -->
+        <repository>
+            <id>enginehub-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -111,6 +116,14 @@
                 <artifactId>spigot</artifactId>
                 <version>${spigot.version}</version>
                 <classifier>remapped-mojang</classifier>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- External dependencies -->
+            <dependency>
+                <groupId>com.sk89q.worldguard</groupId>
+                <artifactId>worldguard-bukkit</artifactId>
+                <version>7.0.7</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -145,6 +158,7 @@
                 <groupId>de.epiceric</groupId>
                 <artifactId>shopchest-common</artifactId>
                 <version>1.0.0</version>
+                <scope>provided</scope>
             </dependency>
             <!-- NMS -->
             <dependency>
@@ -182,7 +196,7 @@
                 <artifactId>shopchest-nms-v1_19_R1</artifactId>
                 <version>1.0.0</version>
             </dependency>
-            <!-- External plugins -->
+            <!-- External plugins support -->
             <dependency>
                 <groupId>de.epiceric</groupId>
                 <artifactId>shopchest-external</artifactId>

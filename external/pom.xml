@@ -17,6 +17,14 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.epiceric</groupId>
+            <artifactId>shopchest-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

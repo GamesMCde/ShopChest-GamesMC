@@ -7,6 +7,9 @@ author: EpicEric
 website: "${project.url}"
 description: Create your own nice-looking chest shops and sell your stuff to other players!
 depend: [Vault]
+softdepend:
+  - WorldEdit
+  - WorldGuard
 api-version: "1.13"
 
 permissions:

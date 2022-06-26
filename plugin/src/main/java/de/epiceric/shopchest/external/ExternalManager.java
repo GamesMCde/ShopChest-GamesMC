@@ -1,8 +1,66 @@
 package de.epiceric.shopchest.external;
 
+import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.debug.DebugLogger;
+import de.epiceric.shopchest.external.worldguard.WGLoader;
+import de.epiceric.shopchest.hook.HookManager;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+
 public class ExternalManager {
 
+    private final HookManager hookManager;
+    private final DebugLogger logger;
+    private final List<ExternalLoader> loaders;
+
+    public ExternalManager(HookManager hookManager, DebugLogger logger) {
+        this.hookManager = hookManager;
+        this.logger = logger;
+        loaders = new LinkedList<>();
+    }
+
+    public void setup() {
+        // Add WorldGuard
+        if (Config.enableWorldGuardIntegration) {
+            final ExternalLoadData loadData = new ExternalLoadData();
+            if (Config.wgAllowCreateShopDefault) {
+                loadData.setFlag(ExternalLoadData.Flags.CREATE);
+            }
+            if (Config.wgAllowUseShopDefault) {
+                loadData.setFlag(ExternalLoadData.Flags.USE);
+            }
+            if (Config.wgAllowUseAdminShopDefault) {
+                loadData.setFlag(ExternalLoadData.Flags.USE_ADMIN);
+            }
+            loaders.add(new WGLoader(hookManager, loadData));
+        }
+    }
+
+    private void executePhase(Consumer<ExternalLoader> phase) {
+        for (ExternalLoader loader : loaders) {
+            if (loader.isStopped()) {
+                continue;
+            }
+            try {
+                phase.accept(loader);
+            } catch (Exception e) {
+                logger.debug("Can not load '" + loader.getName() + "' integration :");
+                logger.debug(e.getMessage());
+                loader.setStopped(true);
+            }
+        }
+    }
+
+    public void check() {
+        executePhase(ExternalLoader::check);
+    }
+
     public void load() {
+        executePhase(ExternalLoader::load);
+
+
         // TODO EXTERNAL : Register WorldGuard Flags
 
         /*
@@ -12,7 +70,11 @@ public class ExternalManager {
         }*/
     }
 
-    public void enable () {
+    public void enable() {
+        executePhase(ExternalLoader::enable);
+
+        executePhase(loader -> logger.debug("Successfully loaded '" + loader.getName() + "' integration"));
+
         // TODO EXTERNAL : Load Integrations
 
         /*
@@ -115,7 +177,6 @@ public class ExternalManager {
             getServer().getPluginManager().registerEvents(new de.epiceric.shopchest.external.listeners.BentoBoxListener(this), this);
         */
     }
-
 
 
     // TODO EXTERNAL Plugins supports

@@ -117,8 +117,10 @@ public class ShopChest extends JavaPlugin {
         debugLogger.debug("Loading ShopChest version " + getDescription().getVersion());
 
         hookManager = new HookManager();
-        externalManager = new ExternalManager();
+        externalManager = new ExternalManager(hookManager, debugLogger);
 
+        externalManager.setup();
+        externalManager.check();
         externalManager.load();
     }
 
