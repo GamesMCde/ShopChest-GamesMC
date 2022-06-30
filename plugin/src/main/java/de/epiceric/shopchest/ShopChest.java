@@ -1,24 +1,14 @@
 package de.epiceric.shopchest;
 
-//import com.palmergames.bukkit.towny.Towny;
-//import com.plotsquared.core.PlotSquared;
-//import com.wasteofplastic.askyblock.ASkyBlock;
 import de.epiceric.shopchest.command.ShopCommand;
 import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.hologram.HologramFormat;
 import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.debug.NullDebugLogger;
 import de.epiceric.shopchest.event.ShopInitializedEvent;
-//import de.epiceric.shopchest.external.BentoBoxShopFlag;
-//import de.epiceric.shopchest.external.PlotSquaredOldShopFlag;
-//import de.epiceric.shopchest.external.PlotSquaredShopFlag;
-//import de.epiceric.shopchest.external.WorldGuardShopFlag;
-//import de.epiceric.shopchest.external.listeners.*;
 import de.epiceric.shopchest.external.ExternalManager;
 import de.epiceric.shopchest.hook.HookManager;
 import de.epiceric.shopchest.language.LanguageUtils;
-//import de.epiceric.shopchest.external.listeners2.BentoBoxListener;
-//import de.epiceric.shopchest.listeners.WorldGuardListener;
 import de.epiceric.shopchest.listeners.*;
 import de.epiceric.shopchest.nms.Platform;
 import de.epiceric.shopchest.nms.PlatformLoader;
@@ -27,22 +17,14 @@ import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
 import de.epiceric.shopchest.utils.*;
 import de.epiceric.shopchest.utils.UpdateChecker.UpdateCheckerResult;
-//import fr.xephi.authme.AuthMe;
-//import me.ryanhamshire.GriefPrevention.GriefPrevention;
-//import me.wiefferink.areashop.AreaShop;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-//import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-//import org.codemc.worldguardwrapper.WorldGuardWrapper;
-//import pl.islandworld.IslandWorld;
-//import us.talabrek.ultimateskyblock.api.uSkyBlockAPI;
-//import world.bentobox.bentobox.BentoBox;
 
 import java.io.File;
 import java.util.Map;
@@ -70,17 +52,6 @@ public class ShopChest extends JavaPlugin {
     private DebugLogger debugLogger;
     private HookManager hookManager;
     private ExternalManager externalManager;
-    /*
-    private Plugin worldGuard;
-    private Towny towny;
-    private AuthMe authMe;
-    private uSkyBlockAPI uSkyBlock;
-    private ASkyBlock aSkyBlock;
-    private IslandWorld islandWorld;
-    private GriefPrevention griefPrevention;
-    private AreaShop areaShop;
-    private BentoBox bentoBox;
-    */
     private ShopUpdater updater;
     private ExecutorService shopCreationThreadPool;
 
