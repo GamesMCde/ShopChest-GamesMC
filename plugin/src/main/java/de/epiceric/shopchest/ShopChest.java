@@ -21,7 +21,7 @@ import de.epiceric.shopchest.language.LanguageUtils;
 //import de.epiceric.shopchest.listeners.WorldGuardListener;
 import de.epiceric.shopchest.listeners.*;
 import de.epiceric.shopchest.nms.Platform;
-import de.epiceric.shopchest.nms.reflection.PlatformImpl;
+import de.epiceric.shopchest.nms.PlatformLoader;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
@@ -142,50 +142,17 @@ public class ShopChest extends JavaPlugin {
             return;
         }
 
-        switch (Utils.getServerVersion()) {
-            case "v1_8_R1":
-            case "v1_8_R2":
-            case "v1_8_R3":
-            case "v1_9_R1":
-            case "v1_9_R2":
-            case "v1_10_R1":
-            case "v1_11_R1":
-            case "v1_12_R1":
-            case "v1_13_R1":
-            case "v1_13_R2":
-            case "v1_14_R1":
-            case "v1_15_R1":
-            case "v1_16_R1":
-            case "v1_16_R2":
-            case "v1_16_R3":
-                platform = new PlatformImpl(debugLogger);
-                break;
-            case "v1_17_R1":
-                // Need to have an implementation for 1.17.1 and 1.17 -> Change in the name of EntityDestroyPacket
-                // TODO Check CraftMagicNumbers (And create a dedicated class to load Platform)
-                if(Bukkit.getBukkitVersion().equals("1.17.1-R0.1-SNAPSHOT")){
-                    platform = new de.epiceric.shopchest.nms.v1_17_1_R1.PlatformImpl();
-                }
-                else {
-                    platform = new de.epiceric.shopchest.nms.v1_17_R1.PlatformImpl();
-                }
-                break;
-            case "v1_18_R1":
-                platform = new de.epiceric.shopchest.nms.v1_18_R1.PlatformImpl();
-                break;
-            case "v1_18_R2":
-                platform = new de.epiceric.shopchest.nms.v1_18_R2.PlatformImpl();
-                break;
-            case "v1_19_R1":
-                platform = new de.epiceric.shopchest.nms.v1_19_R1.PlatformImpl();
-                break;
-            default:
-                debugLogger.debug("Server version not officially supported: " + Utils.getServerVersion() + "!");
-                //debug("Plugin may still work, but more errors are expected!");
-                getLogger().warning("Server version not officially supported: " + Utils.getServerVersion() + "!");
-                //getLogger().warning("Plugin may still work, but more errors are expected!");
-                getServer().getPluginManager().disablePlugin(this);
-                return;
+        // Load NMS
+        final PlatformLoader platformLoader = new PlatformLoader(debugLogger);
+        try {
+            platform = platformLoader.loadPlatform();
+        } catch (RuntimeException e) {
+            debugLogger.debug(e.getMessage());
+            debugLogger.debug("Disabling the plugin");
+            debugLogger.getLogger().warning(e.getMessage());
+            debugLogger.getLogger().warning("Disabling the plugin");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
 
         shopUtils = new ShopUtils(this);
