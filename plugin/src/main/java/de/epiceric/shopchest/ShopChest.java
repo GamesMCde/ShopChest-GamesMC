@@ -108,14 +108,17 @@ public class ShopChest extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
+        // Load the config
         config = new Config(this);
 
+        // Load the debugger
         debugLogger = Config.enableDebugLog ?
                 DebugLogger.getLogger(new File(getDataFolder(), "debug.txt"), getLogger())
                 : new NullDebugLogger(getLogger());
 
         debugLogger.debug("Loading ShopChest version " + getDescription().getVersion());
 
+        // Load external integrations
         hookManager = new HookManager();
         externalManager = new ExternalManager(hookManager, debugLogger);
 
@@ -128,6 +131,8 @@ public class ShopChest extends JavaPlugin {
     public void onEnable() {
         debugLogger.debug("Enabling ShopChest version " + getDescription().getVersion());
 
+        // Load Vault
+        // TODO Load Vault in dedicated class
         if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
             debugLogger.debug("Could not find plugin \"Vault\"");
             getLogger().severe("Could not find plugin \"Vault\"");
@@ -155,18 +160,24 @@ public class ShopChest extends JavaPlugin {
             return;
         }
 
+        // Load shop utils
         shopUtils = new ShopUtils(this);
+
+        // Load language messages
         saveResource("item_names.txt", true);
         LanguageUtils.load();
 
+        // Load hologram format
         File hologramFormatFile = new File(getDataFolder(), "hologram-format.yml");
         if (!hologramFormatFile.exists()) {
             saveResource("hologram-format.yml", false);
         }
-
         hologramFormat = new HologramFormat(this);
         hologramFormat.load();
+
+        // Load commands
         shopCommand = new ShopCommand(this);
+
         shopCreationThreadPool = new ThreadPoolExecutor(0, 8,
                 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
