@@ -1,39 +1,29 @@
 # ShopChest
+
 ShopChest - Spigot/Bukkit Plugin
 
 ## API
-To use the API, you need to add the following repository and dependency in your maven project:
 
-```xml
-<repositories>
-  <repository>
-    <id>shopchest-repo</id>
-    <url>https://epicericee.github.io/ShopChest/maven/</url>
-  </repository>
-</repositories>
-
-<dependencies>
-  <dependency>
-    <groupId>de.epiceric</groupId>
-    <artifactId>ShopChest</artifactId>
-    <version>1.11.1</version>
-    <scope>provided</scope>
-  </dependency>
-</dependencies>
-```
-
-You can find the javadoc here: https://epicericee.github.io/ShopChest/javadoc/
+For the moment, the project structure can change a lot, and there is no official API planned.
+If you want to use ShopChest functionality, just add the .jar with the version you want to use to your project.
+Maybe in future I will post an official API through github packages, but currently I don't have the time.
 
 ## Build
-Clone this repository and use ``sh lib/install_local_depedencies.sh`` to import local dependencies.
-After importation, use ``mvn clean package`` or ``mvn clean install`` to build the project.
-After the build succeeded, the ShopChest.jar is found in the ``/plugin/target/`` folder.
+
+You need Maven and a jdk.
+
+- First, compile spigot with the BuildTools.jar and the '--remapped' argument.
+  You need to do it for a lot of minecraft version, starting from 1.17.
+  To get them all, just do the next step, an error message will tell you what minecraft version is missing.
+  (I will try to suppress this step in future)
+- Use ``mvn clean package`` or ``mvn clean install`` at the root of the project to build ShopChest artefact.
+- After the build succeeded, the ShopChest.jar is found in the ``/plugin/target/`` folder.
 
 ## Issues
-If you find any issues, please provide them in the [Issues Section](https://github.com/EpicEricEE/ShopChest/issues) with a good description of how to reproduce it. If you get any error messages in the console, please also provide them.
 
+If you find any issues, please provide them in the [Issues Section](https://github.com/Flowsqy/ShopChest/issues) with a
+good description of how to reproduce it. If you get any error messages in the console, please also provide them.
 
 ## Download
-This resource/plugin is found on the official spigot page [here](https://www.spigotmc.org/resources/shopchest.11431/).
-You can also download the latest unstable builds on [this page](https://ci.codemc.io/job/EpicEricEE/job/ShopChest/).
 
+I don't post build for this branch as it's in progress. If you want to use it, build it.
