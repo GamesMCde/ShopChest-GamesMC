@@ -105,16 +105,12 @@ public class ShopChest extends JavaPlugin {
         // Load Vault
         // TODO Load Vault in dedicated class
         if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
-            debugLogger.debug("Could not find plugin \"Vault\"");
-            getLogger().severe("Could not find plugin \"Vault\"");
-            getServer().getPluginManager().disablePlugin(this);
+            cancelLoading("Could not find plugin \"Vault\"");
             return;
         }
 
         if (!setupEconomy()) {
-            debugLogger.debug("Could not find any Vault economy dependency!");
-            getLogger().severe("Could not find any Vault economy dependency!");
-            getServer().getPluginManager().disablePlugin(this);
+            cancelLoading("Could not find any Vault economy dependency!");
             return;
         }
 
@@ -123,11 +119,7 @@ public class ShopChest extends JavaPlugin {
         try {
             platform = platformLoader.loadPlatform();
         } catch (RuntimeException e) {
-            debugLogger.debug(e.getMessage());
-            debugLogger.debug("Disabling the plugin");
-            debugLogger.getLogger().warning(e.getMessage());
-            debugLogger.getLogger().warning("Disabling the plugin");
-            Bukkit.getPluginManager().disablePlugin(this);
+            cancelLoading(e.getMessage());
             return;
         }
 
@@ -162,6 +154,20 @@ public class ShopChest extends JavaPlugin {
 
         updater = new ShopUpdater(this);
         updater.start();
+    }
+
+    /**
+     * Disable the plugin and load the reason.
+     *
+     * @param reason The reason to log
+     */
+    private void cancelLoading(String reason) {
+        final String disableMessage = "Disabling the plugin";
+        debugLogger.debug(reason);
+        debugLogger.debug(disableMessage);
+        debugLogger.getLogger().warning(reason);
+        debugLogger.getLogger().warning(disableMessage);
+        Bukkit.getPluginManager().disablePlugin(this);
     }
 
     @Override
