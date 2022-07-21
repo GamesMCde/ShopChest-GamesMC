@@ -22,7 +22,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -43,7 +42,7 @@ public class ShopChest extends JavaPlugin {
     private Platform platform;
     private HologramFormat hologramFormat;
     private ShopCommand shopCommand;
-    private Economy econ = null;
+    private Economy economy;
     private Database database;
     private boolean isUpdateNeeded = false;
     private String latestVersion = "";
@@ -60,19 +59,6 @@ public class ShopChest extends JavaPlugin {
      */
     public static ShopChest getInstance() {
         return instance;
-    }
-
-    /**
-     * Sets up the economy of Vault
-     * @return Whether an economy plugin has been registered
-     */
-    private boolean setupEconomy() {
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
     }
 
     @Override
@@ -103,14 +89,11 @@ public class ShopChest extends JavaPlugin {
         debugLogger.debug("Enabling ShopChest version " + getDescription().getVersion());
 
         // Load Vault
-        // TODO Load Vault in dedicated class
-        if (!getServer().getPluginManager().isPluginEnabled("Vault")) {
-            cancelLoading("Could not find plugin \"Vault\"");
-            return;
-        }
-
-        if (!setupEconomy()) {
-            cancelLoading("Could not find any Vault economy dependency!");
+        final EconomyLoader economyLoader = new EconomyLoader();
+        try {
+            economy = economyLoader.loadEconomy();
+        } catch (RuntimeException e) {
+            cancelLoading(e.getMessage());
             return;
         }
 
@@ -385,7 +368,7 @@ public class ShopChest extends JavaPlugin {
      * @return Registered Economy of Vault
      */
     public Economy getEconomy() {
-        return econ;
+        return economy;
     }
 
     /**
