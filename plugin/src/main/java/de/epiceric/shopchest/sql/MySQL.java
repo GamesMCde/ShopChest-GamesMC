@@ -23,11 +23,12 @@ public class MySQL extends Database {
         HikariConfig config = new HikariConfig();
         // TODO Inspect this
         //  Why mariadb instead of my sql dani ?
-        config.setJdbcUrl(String.format("jdbc:mariadb://%s:%d/%s",
+        config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
                 Config.databaseMySqlHost, Config.databaseMySqlPort, Config.databaseMySqlDatabase));
         config.setUsername(Config.databaseMySqlUsername);
         config.setPassword(Config.databaseMySqlPassword);
         config.setConnectionTestQuery("SELECT 1");
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         return new HikariDataSource(config);
     }
