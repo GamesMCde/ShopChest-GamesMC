@@ -107,6 +107,6 @@ public class MySQL extends Database {
 
     @Override
     String getQueryGetTable() {
-        return "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=?";
+        return "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? AND TABLE_SCHEMA='"+Config.databaseMySqlDatabase+"'";
     }
 }
