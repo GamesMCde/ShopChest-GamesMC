@@ -147,7 +147,8 @@ shop-creation-price:
   # ...an admin shop
   admin: 0
 
-shop-tax:
+# The shop taxes for items in percent
+shop-taxes:
   default: 0
   enchanted_book: 30
 
