@@ -82,9 +82,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <!-- NMS Assembly classifier -->
-        <nmsAssemblyClassifier>nms-assembly</nmsAssemblyClassifier>
-
         <!-- Avoid the deployment of all artifact  -->
         <maven.deploy.skip>true</maven.deploy.skip>
 
@@ -186,7 +183,6 @@
             <dependency>
                 <groupId>de.epiceric</groupId>
                 <artifactId>shopchest-nms-all</artifactId>
-                <classifier>${nmsAssemblyClassifier}</classifier>
                 <version>1.0.0</version>
             </dependency>
             <dependency>

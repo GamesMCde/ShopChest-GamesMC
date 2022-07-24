@@ -50,7 +50,6 @@
         <dependency>
             <groupId>de.epiceric</groupId>
             <artifactId>shopchest-nms-all</artifactId>
-            <classifier>${nmsAssemblyClassifier}</classifier>
         </dependency>
         <dependency>
             <groupId>de.epiceric</groupId>

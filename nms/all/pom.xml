@@ -63,6 +63,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>nms-assembly.xml</descriptor>
                             </descriptors>
