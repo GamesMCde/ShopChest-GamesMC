@@ -6,10 +6,10 @@
         <artifactId>shopchest-nms</artifactId>
         <groupId>de.epiceric</groupId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>de.epiceric</groupId> <!-- Needed to be usable without parent -->
     <artifactId>shopchest-nms-all</artifactId>
     <version>1.0.0</version>
 
