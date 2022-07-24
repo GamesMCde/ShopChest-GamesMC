@@ -34,6 +34,13 @@
                     <name>!buildNMS</name>
                 </property>
             </activation>
+            <repositories>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/Flowsqy/ShopChest</url>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 
@@ -60,13 +67,10 @@
 
     <distributionManagement>
         <repository>
-            <id>codemc-releases</id>
-            <url>https://repo.codemc.io/repository/maven-releases/</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Flowsqy/ShopChest</url>
         </repository>
-        <snapshotRepository>
-            <id>codemc-snapshots</id>
-            <url>https://repo.codemc.io/repository/maven-snapshots/</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -80,6 +84,9 @@
 
         <!-- NMS Assembly classifier -->
         <nmsAssemblyClassifier>nms-assembly</nmsAssemblyClassifier>
+
+        <!-- Avoid the deployment of all artifact  -->
+        <maven.deploy.skip>true</maven.deploy.skip>
 
         <!-- Name of the plugin for the final jar -->
         <buildName>ShopChest</buildName>
