@@ -10,6 +10,8 @@ import org.bukkit.event.block.BlockExplodeEvent;
 
 import de.epiceric.shopchest.ShopChest;
 
+// Useless -> duplicate in ChestProtectListener
+
 public class BlockExplodeListener implements Listener {
 
     private ShopChest plugin;
