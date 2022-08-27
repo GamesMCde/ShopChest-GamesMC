@@ -6,12 +6,10 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class PendingAction {
 
-    protected final Block block;
     protected final long endTime;
 
-    public PendingAction(Block block, long duration) {
-        this.block = block;
-        this.endTime = System.currentTimeMillis() + duration;
+    public PendingAction(long duration) {
+        this.endTime = duration < 0 ? -1 : (System.currentTimeMillis() + duration);
     }
 
     /**
@@ -28,7 +26,7 @@ public abstract class PendingAction {
      * @return {@code true} if this action is valid, {@code false} otherwise
      */
     public boolean hasExpired() {
-        return System.currentTimeMillis() > endTime;
+        return endTime != -1 && System.currentTimeMillis() > endTime;
     }
 
     /**

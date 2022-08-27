@@ -33,12 +33,11 @@ public class ActionManager {
      * Get the current action of a {@link org.bukkit.entity.Player}
      *
      * @param uuid {@link org.bukkit.entity.Player}'s {@link UUID}
-     * @return An {@link Optional} {@link PendingAction} which is :
-     * - empty if there is no pending action for this player
-     * - filled by the current valid pending action if there is one
+     * @return A {@link PendingAction} which the player should do when interacting
      */
-    public Optional<PendingAction> getAction(UUID uuid) {
-        return Optional.ofNullable(playerActions.computeIfPresent(uuid, (k, v) -> v.hasExpired() ? null : v));
+    public PendingAction getAction(UUID uuid) {
+        final PendingAction action = playerActions.computeIfPresent(uuid, (k, v) -> v.hasExpired() ? null : v);
+        return action == null ? new InteractShopPendingAction(-1) : action;
     }
 
 }
