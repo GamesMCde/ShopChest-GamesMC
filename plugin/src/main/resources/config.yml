@@ -23,6 +23,9 @@ shop-info-item: "STICK"
 # in order to prevent accidents.
 confirm-shopping: false
 
+# Set the threshold for the costs the confirm shopping feature will be activated.
+confirm-shopping-threshold: 1000
+
 # Set whether players should be able to select the shop item from the
 # creative inventory if they don't hold an item in their hand.
 creative-select-item: true

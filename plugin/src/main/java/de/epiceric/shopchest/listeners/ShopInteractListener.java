@@ -255,7 +255,7 @@ public class ShopInteractListener implements Listener {
                             
                             if (shop.getShopType() == ShopType.ADMIN) {
                                 if (externalPluginsAllowed || p.hasPermission(Permissions.BYPASS_EXTERNAL_PLUGIN)) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !Config.confirmShopping || shop.getBuyPrice()<Config.confirmShoppingThreshold) {
                                         buy(p, shop, p.isSneaking());
                                         if (Config.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -285,7 +285,7 @@ public class ShopInteractListener implements Listener {
                                         amount = shop.getProduct().getAmount();
                                     
                                     if (Utils.getAmount(c.getInventory(), itemStack) >= amount) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                        if (confirmed || !Config.confirmShopping || shop.getBuyPrice()<Config.confirmShoppingThreshold) {
                                             buy(p, shop, p.isSneaking());
                                             if (Config.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -302,7 +302,7 @@ public class ShopInteractListener implements Listener {
                                         }
                                     } else {
                                         if (Config.autoCalculateItemAmount && Utils.getAmount(c.getInventory(), itemStack) > 0) {
-                                            if (confirmed || !Config.confirmShopping) {
+                                            if (confirmed || !Config.confirmShopping || shop.getBuyPrice()<Config.confirmShoppingThreshold) {
                                                 buy(p, shop, p.isSneaking());
                                                 if (Config.confirmShopping) {
                                                     Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -365,7 +365,7 @@ public class ShopInteractListener implements Listener {
                                 int amount = stack ? itemStack.getMaxStackSize() : shop.getProduct().getAmount();
 
                                 if (Utils.getAmount(p.getInventory(), itemStack) >= amount) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !Config.confirmShopping || shop.getSellPrice()<Config.confirmShoppingThreshold) {
                                         sell(p, shop, stack);
                                         if (Config.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -382,7 +382,7 @@ public class ShopInteractListener implements Listener {
                                     }
                                 } else {
                                     if (Config.autoCalculateItemAmount && Utils.getAmount(p.getInventory(), itemStack) > 0) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                        if (confirmed || !Config.confirmShopping || shop.getSellPrice()<Config.confirmShoppingThreshold) {
                                             sell(p, shop, stack);
                                             if (Config.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
