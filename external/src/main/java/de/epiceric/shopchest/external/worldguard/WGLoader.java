@@ -10,11 +10,10 @@ public class WGLoader extends ExternalLoader {
 
     // Maybe need to enable listener for deny message (see old listeners2)
 
-    private final WGFlagRegistry flagRegistry;
+    private WGFlagRegistry flagRegistry;
 
     public WGLoader(HookManager hookManager, ExternalLoadData loadData) {
         super(hookManager, loadData);
-        this.flagRegistry = new WGFlagRegistry();
     }
 
     @Override
@@ -40,6 +39,9 @@ public class WGLoader extends ExternalLoader {
     @Override
     public void load() {
         // Register flags
+        if (flagRegistry == null) {
+            flagRegistry = new WGFlagRegistry();
+        }
         flagRegistry.initialize(loadData);
         flagRegistry.register();
     }
