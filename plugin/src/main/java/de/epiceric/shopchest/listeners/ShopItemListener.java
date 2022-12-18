@@ -143,10 +143,19 @@ public class ShopItemListener implements Listener {
                 }
             }
         } else if (shopUtils.isShop(underWater.getLocation())) {
+            // - Respawn if burned from lava
             if (e.getBucket() == Material.LAVA_BUCKET) {
                 Shop shop = shopUtils.getShop(underWater.getLocation());
                 if (shop.getItem() != null) {
                     shop.getItem().resetForPlayer(e.getPlayer());
+                }
+            }
+            // - Cancel velocity from linked water sources
+            else if (e.getBucket() == Material.WATER_BUCKET) {
+                Shop shop = shopUtils.getShop(underWater.getLocation());
+                if (shop.getItem() != null) {
+                    // Delay the respawn otherwise the velocity is impacted by the water even with the respawn
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> shop.getItem().resetForPlayer(e.getPlayer()), 2L);
                 }
             }
         } else {
