@@ -21,6 +21,9 @@ public class ExternalManager {
         loaders = new LinkedList<>();
     }
 
+    /**
+     * Setup external loaders from configuration options
+     */
     public void setup() {
         // Add WorldGuard
         if (Config.enableWorldGuardIntegration) {
@@ -38,6 +41,11 @@ public class ExternalManager {
         }
     }
 
+    /**
+     * Execute a phase of the {@link ExternalLoader} lifecycle
+     *
+     * @param phase The phase to execute
+     */
     private void executePhase(Consumer<ExternalLoader> phase) {
         for (ExternalLoader loader : loaders) {
             if (loader.isStopped()) {
@@ -53,10 +61,16 @@ public class ExternalManager {
         }
     }
 
+    /**
+     * Check if the external loader can load the plugin support
+     */
     public void check() {
         executePhase(ExternalLoader::check);
     }
 
+    /**
+     * Execute the 'load' phase of every {@link ExternalLoader}
+     */
     public void load() {
         executePhase(ExternalLoader::load);
 
@@ -70,6 +84,9 @@ public class ExternalManager {
         }*/
     }
 
+    /**
+     * Execute the 'enable' phase of every {@link ExternalLoader}
+     */
     public void enable() {
         executePhase(ExternalLoader::enable);
 
