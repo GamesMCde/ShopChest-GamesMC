@@ -28,12 +28,14 @@ public class NotifyPlayerOnJoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         final Player p = e.getPlayer();
 
+        // Plugin update notifier
         if (plugin.isUpdateNeeded() && Config.enableUpdateChecker) {
             if (p.hasPermission(Permissions.UPDATE_NOTIFICATION)) {
                 Utils.sendUpdateMessage(plugin, p);
             }
         }
 
+        // Revenue made while offline notifier
         plugin.getShopDatabase().getLastLogout(p, new Callback<Long>(plugin) {
             @Override
             public void onResult(Long result) {
