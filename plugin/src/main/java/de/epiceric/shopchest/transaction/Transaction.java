@@ -1,5 +1,6 @@
 package de.epiceric.shopchest.transaction;
 
+import de.epiceric.shopchest.event.ShopBuySellEvent;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +21,9 @@ public class Transaction {
         }
 
         // Call buy or sell event
+        if (processEvent()) {
+            return;
+        }
 
         transferItems();
 
@@ -65,6 +69,20 @@ public class Transaction {
             }
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Call {@link ShopBuySellEvent}
+     *
+     * @return {@code true} if the event is cancelled. {@code false} otherwise.
+     */
+    private boolean processEvent() {
+        /*
+        final ShopBuySellEvent transactionEvent = new ShopBuySellEvent();
+        Bukkit.getPluginManager().callEvent(transactionEvent);
+        return transactionEvent.isCancelled();
+        */
         return true;
     }
 
