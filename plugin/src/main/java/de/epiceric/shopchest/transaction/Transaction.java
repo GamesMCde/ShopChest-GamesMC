@@ -1,9 +1,16 @@
 package de.epiceric.shopchest.transaction;
 
+import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.event.ShopBuySellEvent;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
+import de.epiceric.shopchest.language.Replacement;
 import org.bukkit.inventory.ItemStack;
+
+// TODO Moved outclass :
+// - Update hologram
+// - Log economy in database
 
 public class Transaction {
 
@@ -13,23 +20,35 @@ public class Transaction {
     private int amount;
     private final double moneyAmountRequired, moneyAmountGiven;
 
-    public void apply() {
+    /**
+     * Process to the transaction
+     *
+     * @return {@code true} if the transaction occurs. {@code false} otherwise
+     */
+    public boolean process() {
+        //plugin.getDebugLogger().debug(executor.getName() + " is buying (#" + shop.getID() + ")");
+        //plugin.getDebugLogger().debug(executor.getName() + " is selling (#" + shop.getID() + ")");
+
         if (!check()) {
-            return;
+            return false;
         }
 
         // Call buy or sell event
         if (processEvent()) {
-            return;
+            return false;
         }
 
-        transferItems();
+        //database.logEconomy(executor, shop, newProduct, newPrice, ShopBuySellEvent.Type.BUY, null);
 
         transferMoney();
+
+        transferItems();
 
         inform();
 
         // log
+
+        return true;
     }
 
     /**
@@ -44,6 +63,8 @@ public class Transaction {
             return false;
         }
 
+        //plugin.getDebugLogger().debug(executor.getName() + " has enough money for " + amountForMoney + " item(s) (#" + shop.getID() + ")");
+
         // Check seller item quantity
         if (!seller.hasProductAmount(itemStack, amount)) {
             informer.sendNotEnoughItem();
@@ -55,6 +76,17 @@ public class Transaction {
             informer.sendNotEnoughSpace();
             return false;
         }
+
+        //plugin.getDebugLogger().debug(executor.getName() + " has enough inventory space for " + freeSpace + " items (#" + shop.getID() + ")");
+
+
+        /*
+        plugin.getDebugLogger().debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
+        plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.getName(), finalNewAmount1, newProduct.getItemStack().toString(), "ADMIN"));
+
+        plugin.getDebugLogger().debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
+        plugin.getLogger().info(String.format("%s sold %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
+        */
         return true;
     }
 
@@ -67,9 +99,23 @@ public class Transaction {
         /*
         final ShopBuySellEvent transactionEvent = new ShopBuySellEvent();
         Bukkit.getPluginManager().callEvent(transactionEvent);
+        if (plugin.getDebugLogger().debug("Buy event cancelled (#" + shop.getID() + ")");
         return transactionEvent.isCancelled();
         */
         return true;
+    }
+
+    private void transferMoney() {
+        // TODO Check for error during transaction
+
+        /*
+        plugin.getDebugLogger().debug("Economy transaction failed (r): " + r.errorMessage + " (#" + shop.getID() + ")");
+        executor.sendMessage(LanguageUtils.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r.errorMessage)));
+         */
+
+        // Remove buyer money
+
+        // Add seller money
     }
 
     private void transferItems() {
@@ -78,16 +124,86 @@ public class Transaction {
         // Add items in buyer inventory
     }
 
-    private void transferMoney() {
-        // Remove buyer money
-
-        // Add seller money
-    }
-
     private void inform() {
-        // Inform buyer
 
-        // Inform seller
+    // DIRECT
+
+        // TO BUYER
+        String vendorName = (shop.getVendor().getName() == null ? shop.getVendor().getUniqueId().toString() : shop.getVendor().getName());
+        executor.sendMessage(LanguageUtils.getMessage(Message.BUY_SUCCESS,
+                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
+                new Replacement(Placeholder.VENDOR, vendorName)
+        ));
+
+            // IF ADMIN SHOP
+        executor.sendMessage(LanguageUtils.getMessage(Message.BUY_SUCCESS_ADMIN,
+                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount1)),
+                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice))
+        ));
+
+        // TO SELLER
+        if(sellerPlayer.isOnline()) {
+            if(Config.enableVendorMessages) {
+                shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
+                        new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                        new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                        new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
+                        new Replacement(Placeholder.PLAYER, executor.getName())
+                ));
+            }
+        }
+        else if(Config.enableVendorBungeeMessages) {
+            String message = LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
+                    new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                    new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                    new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
+                    new Replacement(Placeholder.PLAYER, executor.getName())
+            );
+            sendBungeeMessage(shop.getVendor().getName(), message);
+        }
+
+
+    // INDIRECT
+
+        // TO BUYER
+        if(buyerPlayer.isOnline()) {
+            if(Config.enableVendorMessages) {
+                shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_SOLD,
+                        new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                        new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                        new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
+                        new Replacement(Placeholder.PLAYER, executor.getName())
+                ));
+            }
+        }
+        else if(Config.enableVendorBungeeMessages) {
+            String message = LanguageUtils.getMessage(Message.SOMEONE_SOLD,
+                    new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                    new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                    new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
+                    new Replacement(Placeholder.PLAYER, executor.getName())
+            );
+            sendBungeeMessage(shop.getVendor().getName(), message);
+        }
+
+        // TO SELLER
+        String vendorName = (shop.getVendor().getName() == null ? shop.getVendor().getUniqueId().toString() : shop.getVendor().getName());
+        executor.sendMessage(LanguageUtils.getMessage(Message.SELL_SUCCESS,
+                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
+                new Replacement(Placeholder.VENDOR, vendorName)
+        ));
+
+            // IF ADMIN SHOP
+        executor.sendMessage(LanguageUtils.getMessage(Message.SELL_SUCCESS_ADMIN,
+                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
+                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
+                new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice))
+        ));
     }
 
 }
