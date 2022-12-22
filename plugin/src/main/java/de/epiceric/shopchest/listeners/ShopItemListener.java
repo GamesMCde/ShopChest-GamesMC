@@ -36,6 +36,7 @@ public class ShopItemListener implements Listener {
         this.plugin = plugin;
     }
 
+    // Respawn the item when a block is placed on it
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent e) {
         Block b = e.getBlockPlaced();
@@ -50,6 +51,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Respawn the item when a block is placed on it
     @EventHandler(priority = EventPriority.HIGH)
     public void onMultiBlockPlace(BlockMultiPlaceEvent e) {
         for (BlockState blockState : e.getReplacedBlockStates()) {
@@ -65,6 +67,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Respawn the item over the shulker box when it closes
     @EventHandler(priority = EventPriority.HIGH)
     public void onShulkerClose(InventoryCloseEvent e) {
         if (e.getInventory().getType() != InventoryType.SHULKER_BOX) {
@@ -88,16 +91,19 @@ public class ShopItemListener implements Listener {
         }, 15);
     }
 
+    // Cancel piston extend if it affects a shop item
     @EventHandler(priority = EventPriority.HIGH)
     public void onPistonExtend(BlockPistonExtendEvent e) {
         // If the piston would only move itself
         Block airAfterPiston = e.getBlock().getRelative(e.getDirection());
         Block belowAir = airAfterPiston.getRelative(BlockFace.DOWN);
+        // Check if the piston try to push the item
         if (shopUtils.isShop(belowAir.getLocation())) {
             e.setCancelled(true);
             return;
         }
 
+        // Check if one of the block moved by the piston try to push the item
         for (Block b : e.getBlocks()) {
             Block newBlock = b.getRelative(e.getDirection());
             Block belowNewBlock = newBlock.getRelative(BlockFace.DOWN);
@@ -105,6 +111,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Cancel piston retract and respawn item if one of the block moved by the piston try to push the item
     @EventHandler(priority = EventPriority.HIGH)
     public void onPistonRetract(BlockPistonRetractEvent e) {
         for (Block b : e.getBlocks()) {
@@ -122,6 +129,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Cancel liquid flow if it flows on an item shop
     @EventHandler(priority = EventPriority.HIGH)
     public void onLiquidFlow(BlockFromToEvent e) {
         Block b = e.getToBlock();
@@ -130,6 +138,7 @@ public class ShopItemListener implements Listener {
         if (shopUtils.isShop(below.getLocation())) e.setCancelled(true);
     }
 
+    // Respawn the item if a bucket is used on a shop item
     @EventHandler(priority = EventPriority.HIGH)
     public void onBucketEmpty(PlayerBucketEmptyEvent e) {
         Block clicked = e.getBlockClicked();
@@ -143,10 +152,19 @@ public class ShopItemListener implements Listener {
                 }
             }
         } else if (shopUtils.isShop(underWater.getLocation())) {
+            // - Respawn if burned from lava
             if (e.getBucket() == Material.LAVA_BUCKET) {
                 Shop shop = shopUtils.getShop(underWater.getLocation());
                 if (shop.getItem() != null) {
                     shop.getItem().resetForPlayer(e.getPlayer());
+                }
+            }
+            // - Cancel velocity from linked water sources
+            else if (e.getBucket() == Material.WATER_BUCKET) {
+                Shop shop = shopUtils.getShop(underWater.getLocation());
+                if (shop.getItem() != null) {
+                    // Delay the respawn otherwise the velocity is impacted by the water even with the respawn
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> shop.getItem().resetForPlayer(e.getPlayer()), 2L);
                 }
             }
         } else {
@@ -156,6 +174,7 @@ public class ShopItemListener implements Listener {
         e.setCancelled(true);
     }
 
+    // Cancel a tree or a mushroom to grow if it affects a shop or a shop item
     @EventHandler(priority = EventPriority.HIGH)
     public void onStructureGrow(StructureGrowEvent e) {
         for (BlockState state : e.getBlocks()) {
@@ -166,6 +185,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Cancel a block to grow if it affects a shop or a shop item
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockGrow(BlockGrowEvent e) {
         Block newBlock = e.getNewState().getBlock();
@@ -174,6 +194,7 @@ public class ShopItemListener implements Listener {
         }
     }
 
+    // Cancel the spread of a block if it affects a shop or a shop item
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockSpread(BlockSpreadEvent e) {
         Block newBlock = e.getNewState().getBlock();
