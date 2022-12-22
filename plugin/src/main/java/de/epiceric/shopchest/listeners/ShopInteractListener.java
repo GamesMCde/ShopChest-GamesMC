@@ -279,7 +279,11 @@ public class ShopInteractListener implements Listener {
                                     Container c = (Container) b.getState();
                                     ItemStack itemStack = shop.getProduct().getItemStack();
                                     int amount = (p.isSneaking() ? itemStack.getMaxStackSize() : shop.getProduct().getAmount());
-
+                                    
+                                    // If shop has higher amounts than a stack, use the shop amount to allow players to use bulk discount
+                                    if(shop.getProduct().getAmount()>itemStack.getMaxStackSize())
+                                        amount = shop.getProduct().getAmount();
+                                    
                                     if (Utils.getAmount(c.getInventory(), itemStack) >= amount) {
                                         if (confirmed || !Config.confirmShopping) {
                                             buy(p, shop, p.isSneaking());
@@ -636,7 +640,7 @@ public class ShopInteractListener implements Listener {
 
         ItemStack itemStack = shop.getProduct().getItemStack();
         int amount = shop.getProduct().getAmount();
-        if (stack) amount = itemStack.getMaxStackSize();
+        if (stack && amount<=shop.getProduct().getAmount()) amount = itemStack.getMaxStackSize();
 
         String worldName = shop.getLocation().getWorld().getName();
 
