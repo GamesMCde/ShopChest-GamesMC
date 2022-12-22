@@ -10,7 +10,8 @@ import org.bukkit.event.block.BlockExplodeEvent;
 
 import de.epiceric.shopchest.ShopChest;
 
-// Useless -> duplicate in ChestProtectListener
+// https://github.com/Flowsqy/ShopChest/commit/9a9f95eec23746f8316e9245b2c4e6f1c7595593
+// :')
 
 public class BlockExplodeListener implements Listener {
 

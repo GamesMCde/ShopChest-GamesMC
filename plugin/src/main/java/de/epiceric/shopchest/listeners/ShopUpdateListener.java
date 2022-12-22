@@ -30,6 +30,7 @@ public class ShopUpdateListener implements Listener {
         this.plugin = plugin;
     }
 
+    // Update hologram replacement if items move
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryUpdate(InventoryMoveItemEvent e) {
         if (!plugin.getHologramFormat().isDynamic()) return;
@@ -52,6 +53,7 @@ public class ShopUpdateListener implements Listener {
         }
     }
 
+    // Remove the player tracking when leaving the server
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         // If done without delay, Bukkit#getOnlinePlayers() would still
@@ -74,6 +76,7 @@ public class ShopUpdateListener implements Listener {
         }.runTaskLater(plugin, 1L);
     }
 
+    // Update player tracker when teleport
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         Location from = e.getFrom();
@@ -106,11 +109,13 @@ public class ShopUpdateListener implements Listener {
         }
     }
 
+    // Update the shop while moving
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent e) {
         plugin.getUpdater().updateShops(e.getPlayer());
     }
 
+    // Load shop when chunk are loading
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent e) {
         if (!plugin.getShopDatabase().isInitialized()) {
