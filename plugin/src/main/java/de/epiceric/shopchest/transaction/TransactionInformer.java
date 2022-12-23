@@ -8,4 +8,8 @@ public interface TransactionInformer {
 
     void sendNotEnoughSpace();
 
+    void sendInitiatorSuccess(String amount, String productName, double moneyAmountGiven, double moneyAmountRequired);
+
+    void sendTargetSuccess(String amount, String productName, double moneyAmountGiven, double moneyAmountRequired);
+
 }

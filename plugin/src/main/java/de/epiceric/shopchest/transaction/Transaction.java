@@ -1,11 +1,6 @@
 package de.epiceric.shopchest.transaction;
 
-import de.epiceric.shopchest.config.Config;
-import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.event.ShopBuySellEvent;
-import de.epiceric.shopchest.language.LanguageUtils;
-import de.epiceric.shopchest.language.Message;
-import de.epiceric.shopchest.language.Replacement;
 import org.bukkit.inventory.ItemStack;
 
 // TODO Moved outclass :
@@ -125,85 +120,10 @@ public class Transaction {
     }
 
     private void inform() {
-
-    // DIRECT
-
-        // TO BUYER
-        String vendorName = (shop.getVendor().getName() == null ? shop.getVendor().getUniqueId().toString() : shop.getVendor().getName());
-        executor.sendMessage(LanguageUtils.getMessage(Message.BUY_SUCCESS,
-                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
-                new Replacement(Placeholder.VENDOR, vendorName)
-        ));
-
-            // IF ADMIN SHOP
-        executor.sendMessage(LanguageUtils.getMessage(Message.BUY_SUCCESS_ADMIN,
-                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount1)),
-                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice))
-        ));
-
-        // TO SELLER
-        if(sellerPlayer.isOnline()) {
-            if(Config.enableVendorMessages) {
-                shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
-                        new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                        new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                        new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
-                        new Replacement(Placeholder.PLAYER, executor.getName())
-                ));
-            }
-        }
-        else if(Config.enableVendorBungeeMessages) {
-            String message = LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
-                    new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                    new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                    new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
-                    new Replacement(Placeholder.PLAYER, executor.getName())
-            );
-            sendBungeeMessage(shop.getVendor().getName(), message);
-        }
-
-
-    // INDIRECT
-
-        // TO BUYER
-        if(buyerPlayer.isOnline()) {
-            if(Config.enableVendorMessages) {
-                shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_SOLD,
-                        new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                        new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                        new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
-                        new Replacement(Placeholder.PLAYER, executor.getName())
-                ));
-            }
-        }
-        else if(Config.enableVendorBungeeMessages) {
-            String message = LanguageUtils.getMessage(Message.SOMEONE_SOLD,
-                    new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                    new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                    new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
-                    new Replacement(Placeholder.PLAYER, executor.getName())
-            );
-            sendBungeeMessage(shop.getVendor().getName(), message);
-        }
-
-        // TO SELLER
-        String vendorName = (shop.getVendor().getName() == null ? shop.getVendor().getUniqueId().toString() : shop.getVendor().getName());
-        executor.sendMessage(LanguageUtils.getMessage(Message.SELL_SUCCESS,
-                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
-                new Replacement(Placeholder.VENDOR, vendorName)
-        ));
-
-            // IF ADMIN SHOP
-        executor.sendMessage(LanguageUtils.getMessage(Message.SELL_SUCCESS_ADMIN,
-                new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice))
-        ));
+        String amountStr;
+        String productName;
+        informer.sendInitiatorSuccess(amountStr, productName, moneyAmountGiven, moneyAmountRequired);
+        informer.sendTargetSuccess(amountStr, productName, moneyAmountGiven, moneyAmountRequired);
     }
 
 }

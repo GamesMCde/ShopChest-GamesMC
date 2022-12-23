@@ -2,7 +2,25 @@ package de.epiceric.shopchest.transaction;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.function.Supplier;
+
 public interface Actor {
+
+    /**
+     * Check if this {@link Actor} is represented by an entity
+     * <br>
+     * (e.g. An admin shop is not represented; A player shop is represented (by a player owner))
+     *
+     * @return Whether this {@link Actor} is represented
+     */
+    boolean isRepresented();
+
+    /**
+     * Get the name of this {@link Actor}
+     *
+     * @return The name of this {@link Actor}
+     */
+    String getName();
 
     /**
      * Check if this {@link Actor} have a specified amount of money
@@ -33,7 +51,7 @@ public interface Actor {
     /**
      * Send a message to this {@link Actor}
      *
-     * @param message The message to send
+     * @param messageSupplier The message supplier that provide the message to send
      */
-    void sendMessage(String message);
+    void sendMessage(Supplier<String> messageSupplier);
 }
