@@ -6,6 +6,8 @@ import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
 import de.epiceric.shopchest.language.Replacement;
 
+import java.util.function.Supplier;
+
 public class BuyInformer implements TransactionInformer {
 
     private Actor buyer, seller;
@@ -46,23 +48,19 @@ public class BuyInformer implements TransactionInformer {
 
     @Override
     public void sendTargetSuccess(String amount, String productName, double moneyAmountGiven, double moneyAmountRequired) {
-        if (sellerPlayer.isOnline()) {
+        final Supplier<String> messageSupplier = () -> LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
+                new Replacement(Placeholder.AMOUNT, amount),
+                new Replacement(Placeholder.ITEM_NAME, productName),
+                new Replacement(Placeholder.BUY_PRICE, String.valueOf(moneyAmountGiven)),
+                new Replacement(Placeholder.PLAYER, buyer.getName())
+        );
+
+        if (seller.canReceiveServerMessage()) {
             if (Config.enableVendorMessages) {
-                shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
-                        new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                        new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                        new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
-                        new Replacement(Placeholder.PLAYER, executor.getName())
-                ));
+                seller.sendMessage(messageSupplier);
             }
         } else if (Config.enableVendorBungeeMessages) {
-            String message = LanguageUtils.getMessage(Message.SOMEONE_BOUGHT,
-                    new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
-                    new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()),
-                    new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
-                    new Replacement(Placeholder.PLAYER, executor.getName())
-            );
-            sendBungeeMessage(shop.getVendor().getName(), message);
+            seller.sendBungeeMessage(messageSupplier);
         }
     }
 

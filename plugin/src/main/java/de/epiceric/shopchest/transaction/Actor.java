@@ -49,9 +49,24 @@ public interface Actor {
     boolean hasEnoughInventorySpace(ItemStack itemStack, int amount);
 
     /**
+     * Check if this {@link Actor} can receive a message on this server
+     *
+     * @return {@code true} if this {@link Actor} can receive a server message. {@code false} otherwise
+     */
+    boolean canReceiveServerMessage();
+
+    /**
      * Send a message to this {@link Actor}
      *
      * @param messageSupplier The message supplier that provide the message to send
      */
     void sendMessage(Supplier<String> messageSupplier);
+
+    /**
+     * Send a message through BungeeCord to this {@link Actor}
+     *
+     * @param messageSupplier The message supplier that provide the message to send
+     */
+    void sendBungeeMessage(Supplier<String> messageSupplier);
+
 }
