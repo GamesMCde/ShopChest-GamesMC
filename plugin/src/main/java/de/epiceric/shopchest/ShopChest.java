@@ -1,7 +1,8 @@
 package de.epiceric.shopchest;
 
 import de.epiceric.shopchest.command.ShopCommand;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.ConfigManager;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.hologram.HologramFormat;
 import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.debug.NullDebugLogger;
@@ -15,6 +16,7 @@ import de.epiceric.shopchest.nms.PlatformLoader;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
+import de.epiceric.shopchest.transaction.TaxManager;
 import de.epiceric.shopchest.utils.*;
 import de.epiceric.shopchest.utils.UpdateChecker.UpdateCheckerResult;
 import net.milkbowl.vault.economy.Economy;
@@ -38,7 +40,8 @@ public class ShopChest extends JavaPlugin {
 
     private static ShopChest instance;
 
-    private Config config;
+    private ConfigManager configManager;
+    private TaxManager taxManager;
     private Platform platform;
     private HologramFormat hologramFormat;
     private ShopCommand shopCommand;
@@ -65,11 +68,21 @@ public class ShopChest extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
-        // Load the config
-        config = new Config(this);
+        configManager = new ConfigManager(this, getDataFolder());
+
+        if (!configManager.checkDataFolder()) {
+            cancelLoading("Can not write in the directory : " + getDataFolder().getAbsolutePath());
+            return;
+        }
+
+        // Prepare managers to store configuration data
+        taxManager = new TaxManager();
+
+        // Load configurations
+        configManager.load();
 
         // Load the debugger
-        debugLogger = Config.enableDebugLog ?
+        debugLogger = GlobalConfig.enableDebugLog ?
                 DebugLogger.getLogger(new File(getDataFolder(), "debug.txt"), getLogger())
                 : new NullDebugLogger(getLogger());
 
@@ -146,6 +159,7 @@ public class ShopChest extends JavaPlugin {
      */
     private void cancelLoading(String reason) {
         final String disableMessage = "Disabling the plugin";
+        final DebugLogger debugLogger = this.debugLogger != null ? this.debugLogger : new NullDebugLogger(getLogger());
         debugLogger.debug(reason);
         debugLogger.debug(disableMessage);
         debugLogger.getLogger().warning(reason);
@@ -156,6 +170,8 @@ public class ShopChest extends JavaPlugin {
     @Override
     public void onDisable() {
         debugLogger.debug("Disabling ShopChest...");
+
+        configManager.unload();
 
         if (shopUtils == null) {
             // Plugin has not been fully enabled (probably due to errors),
@@ -194,7 +210,7 @@ public class ShopChest extends JavaPlugin {
     }
 
     private void initDatabase() {
-        if (Config.databaseType == Database.DatabaseType.SQLite) {
+        if (GlobalConfig.databaseType == Database.DatabaseType.SQLite) {
             debugLogger.debug("Using database type: SQLite");
             getLogger().info("Using SQLite");
             database = new SQLite(this);
@@ -202,18 +218,18 @@ public class ShopChest extends JavaPlugin {
             debugLogger.debug("Using database type: MySQL");
             getLogger().info("Using MySQL");
             database = new MySQL(this);
-            if (Config.databaseMySqlPingInterval > 0) {
+            if (GlobalConfig.databaseMySqlPingInterval > 0) {
                 Bukkit.getScheduler().runTaskTimer(this, () -> {
                     if (database instanceof MySQL) {
                         ((MySQL) database).ping();
                     }
-                }, Config.databaseMySqlPingInterval * 20L, Config.databaseMySqlPingInterval * 20L);
+                }, GlobalConfig.databaseMySqlPingInterval * 20L, GlobalConfig.databaseMySqlPingInterval * 20L);
             }
         }
     }
 
     private void checkForUpdates() {
-        if (!Config.enableUpdateChecker) {
+        if (!GlobalConfig.enableUpdateChecker) {
             return;
         }
         
@@ -328,6 +344,20 @@ public class ShopChest extends JavaPlugin {
     }
 
     /**
+     * @return The {@link ConfigManager} instance
+     */
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
+    /**
+     * @return The {@link TaxManager} instance
+     */
+    public TaxManager getTaxManager() {
+        return taxManager;
+    }
+
+    /**
      * @return A thread pool for executing shop creation tasks
      */
     public ExecutorService getShopCreationThreadPool() {
@@ -423,10 +453,4 @@ public class ShopChest extends JavaPlugin {
         this.downloadLink = downloadLink;
     }
 
-    /**
-     * @return The {@link Config} of ShopChest
-     */
-    public Config getShopChestConfig() {
-        return config;
-    }
 }

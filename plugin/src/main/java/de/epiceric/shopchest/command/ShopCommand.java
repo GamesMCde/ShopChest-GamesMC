@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -22,7 +23,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
@@ -50,7 +50,7 @@ public class ShopCommand {
         }
 
         this.plugin = plugin;
-        this.name = Config.mainCommandName.toLowerCase(Locale.ENGLISH).trim();
+        this.name = GlobalConfig.mainCommandName.toLowerCase(Locale.ENGLISH).trim();
         this.fallbackPrefix = plugin.getName().toLowerCase(Locale.ENGLISH).trim();
         this.pluginCommand = createPluginCommand();
         this.executor = new ShopCommandExecutor(plugin);
@@ -277,7 +277,7 @@ public class ShopCommand {
 
         sender.sendMessage(" ");
         String header = LanguageUtils.getMessage(Message.COMMAND_DESC_HEADER,
-                new Replacement(Placeholder.COMMAND, Config.mainCommandName));
+                new Replacement(Placeholder.COMMAND, GlobalConfig.mainCommandName));
 
         if (!header.trim().isEmpty()) sender.sendMessage(header);
 
@@ -291,7 +291,7 @@ public class ShopCommand {
         }
 
         String footer = LanguageUtils.getMessage(Message.COMMAND_DESC_FOOTER,
-                new Replacement(Placeholder.COMMAND,Config.mainCommandName));
+                new Replacement(Placeholder.COMMAND, GlobalConfig.mainCommandName));
 
         if (!footer.trim().isEmpty()) sender.sendMessage(footer);
         sender.sendMessage(" ");

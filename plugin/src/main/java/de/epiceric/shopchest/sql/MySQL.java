@@ -7,10 +7,10 @@ import java.sql.Statement;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 
 public class MySQL extends Database {
 
@@ -24,9 +24,9 @@ public class MySQL extends Database {
         // TODO Inspect this
         //  Why mariadb instead of my sql dani ?
         config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
-                Config.databaseMySqlHost, Config.databaseMySqlPort, Config.databaseMySqlDatabase));
-        config.setUsername(Config.databaseMySqlUsername);
-        config.setPassword(Config.databaseMySqlPassword);
+                GlobalConfig.databaseMySqlHost, GlobalConfig.databaseMySqlPort, GlobalConfig.databaseMySqlDatabase));
+        config.setUsername(GlobalConfig.databaseMySqlUsername);
+        config.setPassword(GlobalConfig.databaseMySqlPassword);
         config.setConnectionTestQuery("SELECT 1");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
@@ -108,6 +108,6 @@ public class MySQL extends Database {
 
     @Override
     String getQueryGetTable() {
-        return "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? AND TABLE_SCHEMA='"+Config.databaseMySqlDatabase+"'";
+        return "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? AND TABLE_SCHEMA='"+ GlobalConfig.databaseMySqlDatabase+"'";
     }
 }

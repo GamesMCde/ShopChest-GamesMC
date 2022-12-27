@@ -1,6 +1,6 @@
 package de.epiceric.shopchest.transaction;
 
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
@@ -56,10 +56,10 @@ public class BuyInformer implements TransactionInformer {
         );
 
         if (seller.canReceiveServerMessage()) {
-            if (Config.enableVendorMessages) {
+            if (GlobalConfig.enableVendorMessages) {
                 seller.sendMessage(messageSupplier);
             }
-        } else if (Config.enableVendorBungeeMessages) {
+        } else if (GlobalConfig.enableVendorBungeeMessages) {
             seller.sendBungeeMessage(messageSupplier);
         }
     }

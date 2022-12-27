@@ -6,7 +6,7 @@ import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import org.codemc.worldguardwrapper.region.IWrappedRegion;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.shop.Shop;
 import me.wiefferink.areashop.events.notify.DeletedRegionEvent;
 import me.wiefferink.areashop.events.notify.ResoldRegionEvent;

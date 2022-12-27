@@ -22,7 +22,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryHolder;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.event.ShopExtendEvent;
 import de.epiceric.shopchest.language.LanguageUtils;
@@ -65,8 +65,8 @@ public class ChestProtectListener implements Listener {
             });
         } else {
             CompletableFuture.runAsync(() -> {
-                double creationPrice = shop.getShopType() == ShopType.ADMIN ? Config.shopCreationPriceAdmin : Config.shopCreationPriceNormal;
-                if (creationPrice > 0 && Config.refundShopCreation && p.getUniqueId().equals(shop.getVendor().getUniqueId())) {
+                double creationPrice = shop.getShopType() == ShopType.ADMIN ? GlobalConfig.shopCreationPriceAdmin : GlobalConfig.shopCreationPriceNormal;
+                if (creationPrice > 0 && GlobalConfig.refundShopCreation && p.getUniqueId().equals(shop.getVendor().getUniqueId())) {
                     EconomyResponse r = plugin.getEconomy().depositPlayer(p, shop.getLocation().getWorld().getName(), creationPrice);
                     if (!r.transactionSuccess()) {
                         plugin.getDebugLogger().debug("Economy transaction failed: " + r.errorMessage);

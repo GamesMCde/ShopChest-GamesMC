@@ -7,7 +7,7 @@ import org.codemc.worldguardwrapper.flag.IWrappedFlag;
 import org.codemc.worldguardwrapper.flag.WrappedState;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 
 public class WorldGuardShopFlag {
 

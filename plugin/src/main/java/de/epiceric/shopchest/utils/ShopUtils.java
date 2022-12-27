@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
@@ -20,7 +21,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.util.Vector;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.event.ShopsLoadedEvent;
 import de.epiceric.shopchest.shop.Shop;
 import de.epiceric.shopchest.shop.Shop.ShopType;
@@ -277,7 +277,7 @@ public class ShopUtils {
         }
 
         if (limit < -1) limit = -1;
-        return (useDefault ?Config.defaultLimit : limit);
+        return (useDefault ? GlobalConfig.defaultLimit : limit);
     }
 
     /**
@@ -438,7 +438,7 @@ public class ShopUtils {
             return;
         }
 
-        if (Config.onlyShowShopsInSight) {
+        if (GlobalConfig.onlyShowShopsInSight) {
             updateVisibleShops(player);
         } else {
             updateNearestShops(player);
@@ -458,8 +458,8 @@ public class ShopUtils {
     }
 
     private void updateVisibleShops(Player player) {
-        double itemDistSquared = Math.pow(Config.maximalItemDistance, 2);
-        double maxDist = Config.maximalDistance;
+        double itemDistSquared = Math.pow(GlobalConfig.maximalItemDistance, 2);
+        double maxDist = GlobalConfig.maximalDistance;
 
         double nearestDistSquared = Double.MAX_VALUE;
         Shop nearestShop = null;
@@ -517,8 +517,8 @@ public class ShopUtils {
     }
 
     private void updateNearestShops(Player p) {
-        double holoDistSqr = Math.pow(Config.maximalDistance, 2);
-        double itemDistSqr = Math.pow(Config.maximalItemDistance, 2);
+        double holoDistSqr = Math.pow(GlobalConfig.maximalDistance, 2);
+        double itemDistSqr = Math.pow(GlobalConfig.maximalItemDistance, 2);
 
         Location playerLocation = p.getLocation();
 

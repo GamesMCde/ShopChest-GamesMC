@@ -14,7 +14,7 @@ import org.codemc.worldguardwrapper.flag.IWrappedFlag;
 import org.codemc.worldguardwrapper.flag.WrappedState;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.event.ShopCreateEvent;
 import de.epiceric.shopchest.event.ShopExtendEvent;
 import de.epiceric.shopchest.utils.Utils;

@@ -18,7 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.LanguageConfiguration;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.nms.CustomBookMeta;
@@ -988,7 +988,7 @@ public class LanguageUtils {
     }
 
     public static void load() {
-        langConfig = Config.langConfig;
+        langConfig = GlobalConfig.langConfig;
 
         itemNames.clear();
         enchantmentNames.clear();
@@ -2632,10 +2632,10 @@ public class LanguageUtils {
             if (Utils.getMajorVersion() < 9) {
                 Potion potion = Potion.fromItemStack(stack);
                 potionType = potion.getType();
-                upgradeString = potion.getLevel() == 2 && Config.appendPotionLevelToItemName ? " II" : "";
+                upgradeString = potion.getLevel() == 2 && GlobalConfig.appendPotionLevelToItemName ? " II" : "";
             } else {
                 potionType = meta.getBasePotionData().getType();
-                upgradeString = (meta.getBasePotionData().isUpgraded() && Config.appendPotionLevelToItemName ? " II" : "");
+                upgradeString = (meta.getBasePotionData().isUpgraded() && GlobalConfig.appendPotionLevelToItemName ? " II" : "");
             }
 
             for (PotionName potionName : potionNames) {

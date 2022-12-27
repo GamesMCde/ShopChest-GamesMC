@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.BoundingBox;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.shop.Shop;
 import world.bentobox.bentobox.api.events.island.IslandBanEvent;
 import world.bentobox.bentobox.api.events.island.IslandDeleteChunksEvent;

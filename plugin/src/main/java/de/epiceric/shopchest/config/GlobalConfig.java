@@ -8,11 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import de.epiceric.shopchest.ShopChest;
@@ -21,7 +20,7 @@ import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.utils.ItemUtils;
 import de.epiceric.shopchest.utils.Utils;
 
-public class Config {
+public class GlobalConfig extends ConfigFile {
 
     /**
      * The item with which a player can click a shop to retrieve information
@@ -63,7 +62,7 @@ public class Config {
      **/
     public static List<String> areashopRemoveShopEvents;
 
-    public static Map<String, Double> shopTaxes;
+    //public static Map<String, Double> shopTaxes;
 
     /**
      * The hostname used in ShopChest's MySQL database
@@ -317,132 +316,11 @@ public class Config {
      */
     public static LanguageConfiguration langConfig;
 
-    private ShopChest plugin;
+    private final ShopChest plugin;
 
-    public Config(ShopChest plugin) {
+    public GlobalConfig(File dataFolder, ShopChest plugin, String fileName, boolean resource) {
+        super(dataFolder, fileName, resource);
         this.plugin = plugin;
-
-        plugin.saveDefaultConfig();
-
-        reload(true, true, true);
-    }
-
-    /**
-     * <p>Set a configuration value</p>
-     * <i>Config is automatically reloaded</i>
-     *
-     * @param property Property to change
-     * @param value    Value to set
-     */
-    public void set(String property, String value) {
-        boolean langChange = (property.equalsIgnoreCase("language-file"));
-        try {
-            int intValue = Integer.parseInt(value);
-            plugin.getConfig().set(property, intValue);
-
-            plugin.saveConfig();
-            reload(false, langChange, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not an integer */ }
-
-        try {
-            double doubleValue = Double.parseDouble(value);
-            plugin.getConfig().set(property, doubleValue);
-
-            plugin.saveConfig();
-            reload(false, langChange, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not a double */ }
-
-        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-            boolean boolValue = Boolean.parseBoolean(value);
-            plugin.getConfig().set(property, boolValue);
-        } else {
-            plugin.getConfig().set(property, value);
-        }
-
-        plugin.saveConfig();
-
-        reload(false, langChange, false);
-    }
-
-    /**
-     * Add a value to a list in the config.yml.
-     * If the list does not exist, a new list with the given value will be created
-     *
-     * @param property Location of the list
-     * @param value    Value to add
-     */
-    public void add(String property, String value) {
-        List list = (plugin.getConfig().getList(property) == null) ? new ArrayList<>() : plugin.getConfig().getList(property);
-
-        try {
-            int intValue = Integer.parseInt(value);
-            list.add(intValue);
-
-            plugin.saveConfig();
-            reload(false, false, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not an integer */ }
-
-        try {
-            double doubleValue = Double.parseDouble(value);
-            list.add(doubleValue);
-
-            plugin.saveConfig();
-            reload(false, false, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not a double */ }
-
-        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-            boolean boolValue = Boolean.parseBoolean(value);
-            list.add(boolValue);
-        } else {
-            list.add(value);
-        }
-
-        plugin.saveConfig();
-
-        reload(false, false, false);
-    }
-
-    public void remove(String property, String value) {
-        List list = (plugin.getConfig().getList(property) == null) ? new ArrayList<>() : plugin.getConfig().getList(property);
-
-        try {
-            int intValue = Integer.parseInt(value);
-            list.remove(intValue);
-
-            plugin.saveConfig();
-            reload(false, false, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not an integer */ }
-
-        try {
-            double doubleValue = Double.parseDouble(value);
-            list.remove(doubleValue);
-
-            plugin.saveConfig();
-            reload(false, false, false);
-
-            return;
-        } catch (NumberFormatException e) { /* Value not a double */ }
-
-        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-            boolean boolValue = Boolean.parseBoolean(value);
-            list.remove(boolValue);
-        } else {
-            list.remove(value);
-        }
-
-        plugin.saveConfig();
-
-        reload(false, false, false);
     }
 
     /**
@@ -451,65 +329,10 @@ public class Config {
      * @param langReload Whether the language configuration should be reloaded
      * @param showMessages Whether console (error) messages should be shown
      */
-    public void reload(boolean firstLoad, boolean langReload, boolean showMessages) {
+    public void reload0(boolean firstLoad, boolean langReload, boolean showMessages) {
         plugin.reloadConfig();
 
-        shopInfoItem = ItemUtils.getItemStack(plugin.getConfig().getString("shop-info-item"));
-        wgAllowCreateShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.create-shop");
-        wgAllowUseAdminShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.use-admin-shop");
-        wgAllowUseShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.use-shop");
-        townyShopPlotsResidents = plugin.getConfig().getStringList("towny-shop-plots.residents");
-        townyShopPlotsMayor = plugin.getConfig().getStringList("towny-shop-plots.mayor");
-        townyShopPlotsKing = plugin.getConfig().getStringList("towny-shop-plots.king");
-        areashopRemoveShopEvents = plugin.getConfig().getStringList("areashop-remove-shops");
-        databaseMySqlPingInterval = plugin.getConfig().getInt("database.mysql.ping-interval");
-        databaseMySqlHost = plugin.getConfig().getString("database.mysql.hostname");
-        databaseMySqlPort = plugin.getConfig().getInt("database.mysql.port");
-        databaseMySqlDatabase = plugin.getConfig().getString("database.mysql.database");
-        databaseMySqlUsername = plugin.getConfig().getString("database.mysql.username");
-        databaseMySqlPassword = plugin.getConfig().getString("database.mysql.password");
-        databaseTablePrefix = plugin.getConfig().getString("database.table-prefix");
-        databaseType = Database.DatabaseType.valueOf(plugin.getConfig().getString("database.type"));
-        minimumPrices = (plugin.getConfig().getConfigurationSection("minimum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("minimum-prices").getKeys(true);
-        maximumPrices = (plugin.getConfig().getConfigurationSection("maximum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("maximum-prices").getKeys(true);
-        shopTaxes = (plugin.getConfig().getConfigurationSection("shop-taxes") == null ? Map.of("default", 0d) : plugin.getConfig().getConfigurationSection("shop-taxes").getKeys(true).stream().collect(Collectors.toMap(i -> i, i -> plugin.getConfig().getConfigurationSection("shop-taxes").getDouble(i))));
-        allowDecimalsInPrice = plugin.getConfig().getBoolean("allow-decimals-in-price");
-        allowBrokenItems = plugin.getConfig().getBoolean("allow-broken-items");
-        autoCalculateItemAmount = (allowDecimalsInPrice && plugin.getConfig().getBoolean("auto-calculate-item-amount"));
-        creativeSelectItem = plugin.getConfig().getBoolean("creative-select-item");
-        blacklist = (plugin.getConfig().getStringList("blacklist") == null) ? new ArrayList<String>() : plugin.getConfig().getStringList("blacklist");
-        buyGreaterOrEqualSell = plugin.getConfig().getBoolean("buy-greater-or-equal-sell");
-        confirmShopping = plugin.getConfig().getBoolean("confirm-shopping");
-        refundShopCreation = plugin.getConfig().getBoolean("refund-shop-creation");
-        enableUpdateChecker = plugin.getConfig().getBoolean("enable-update-checker");
-        enableDebugLog = plugin.getConfig().getBoolean("enable-debug-log");
-        enableEconomyLog = plugin.getConfig().getBoolean("enable-economy-log");
-        cleanupEconomyLogDays = plugin.getConfig().getInt("cleanup-economy-log-days");
-        enableWorldGuardIntegration = plugin.getConfig().getBoolean("enable-worldguard-integration");
-        enableTownyIntegration = plugin.getConfig().getBoolean("enable-towny-integration");
-        enableAuthMeIntegration = plugin.getConfig().getBoolean("enable-authme-integration");
-        enablePlotsquaredIntegration = plugin.getConfig().getBoolean("enable-plotsquared-integration");
-        enableUSkyblockIntegration = plugin.getConfig().getBoolean("enable-uskyblock-integration");
-        enableASkyblockIntegration = plugin.getConfig().getBoolean("enable-askyblock-integration");
-        enableBentoBoxIntegration = plugin.getConfig().getBoolean("enable-bentobox-integration");
-        enableIslandWorldIntegration = plugin.getConfig().getBoolean("enable-islandworld-integration");
-        enableGriefPreventionIntegration = plugin.getConfig().getBoolean("enable-griefprevention-integration");
-        enableAreaShopIntegration = plugin.getConfig().getBoolean("enable-areashop-integration");
-        enableVendorMessages = plugin.getConfig().getBoolean("enable-vendor-messages");
-        enableVendorBungeeMessages = plugin.getConfig().getBoolean("enable-vendor-bungee-messages");
-        onlyShowShopsInSight = plugin.getConfig().getBoolean("only-show-shops-in-sight");
-        appendPotionLevelToItemName = plugin.getConfig().getBoolean("append-potion-level-to-item-name");
-        removeShopOnError = plugin.getConfig().getBoolean("remove-shop-on-error");
-        invertMouseButtons = plugin.getConfig().getBoolean("invert-mouse-buttons");
-        hologramFixedBottom = plugin.getConfig().getBoolean("hologram-fixed-bottom");
-        hologramLift = plugin.getConfig().getDouble("hologram-lift");
-        maximalDistance = plugin.getConfig().getDouble("maximal-distance");
-        maximalItemDistance = plugin.getConfig().getDouble("maximal-item-distance");
-        shopCreationPriceNormal = plugin.getConfig().getDouble("shop-creation-price.normal");
-        shopCreationPriceAdmin = plugin.getConfig().getDouble("shop-creation-price.admin");
-        defaultLimit = plugin.getConfig().getInt("shop-limits.default");
-        mainCommandName = plugin.getConfig().getString("main-command-name");
-        languageFile = plugin.getConfig().getString("language-file");
+
 
         if (firstLoad || langReload) loadLanguageConfig(showMessages);
         if (!firstLoad && langReload) LanguageUtils.load();
@@ -615,5 +438,209 @@ public class Config {
             }
         }
     }
+
+    @Override
+    protected void loadConfiguration(YamlConfiguration configuration) {
+        shopInfoItem = ItemUtils.getItemStack(plugin.getConfig().getString("shop-info-item"));
+        wgAllowCreateShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.create-shop");
+        wgAllowUseAdminShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.use-admin-shop");
+        wgAllowUseShopDefault = plugin.getConfig().getBoolean("worldguard-default-flag-values.use-shop");
+        townyShopPlotsResidents = plugin.getConfig().getStringList("towny-shop-plots.residents");
+        townyShopPlotsMayor = plugin.getConfig().getStringList("towny-shop-plots.mayor");
+        townyShopPlotsKing = plugin.getConfig().getStringList("towny-shop-plots.king");
+        areashopRemoveShopEvents = plugin.getConfig().getStringList("areashop-remove-shops");
+        databaseMySqlPingInterval = plugin.getConfig().getInt("database.mysql.ping-interval");
+        databaseMySqlHost = plugin.getConfig().getString("database.mysql.hostname");
+        databaseMySqlPort = plugin.getConfig().getInt("database.mysql.port");
+        databaseMySqlDatabase = plugin.getConfig().getString("database.mysql.database");
+        databaseMySqlUsername = plugin.getConfig().getString("database.mysql.username");
+        databaseMySqlPassword = plugin.getConfig().getString("database.mysql.password");
+        databaseTablePrefix = plugin.getConfig().getString("database.table-prefix");
+        databaseType = Database.DatabaseType.valueOf(plugin.getConfig().getString("database.type"));
+        minimumPrices = (plugin.getConfig().getConfigurationSection("minimum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("minimum-prices").getKeys(true);
+        maximumPrices = (plugin.getConfig().getConfigurationSection("maximum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("maximum-prices").getKeys(true);
+        allowDecimalsInPrice = plugin.getConfig().getBoolean("allow-decimals-in-price");
+        allowBrokenItems = plugin.getConfig().getBoolean("allow-broken-items");
+        autoCalculateItemAmount = (allowDecimalsInPrice && plugin.getConfig().getBoolean("auto-calculate-item-amount"));
+        creativeSelectItem = plugin.getConfig().getBoolean("creative-select-item");
+        blacklist = (plugin.getConfig().getStringList("blacklist") == null) ? new ArrayList<String>() : plugin.getConfig().getStringList("blacklist");
+        buyGreaterOrEqualSell = plugin.getConfig().getBoolean("buy-greater-or-equal-sell");
+        confirmShopping = plugin.getConfig().getBoolean("confirm-shopping");
+        refundShopCreation = plugin.getConfig().getBoolean("refund-shop-creation");
+        enableUpdateChecker = plugin.getConfig().getBoolean("enable-update-checker");
+        enableDebugLog = plugin.getConfig().getBoolean("enable-debug-log");
+        enableEconomyLog = plugin.getConfig().getBoolean("enable-economy-log");
+        cleanupEconomyLogDays = plugin.getConfig().getInt("cleanup-economy-log-days");
+        enableWorldGuardIntegration = plugin.getConfig().getBoolean("enable-worldguard-integration");
+        enableTownyIntegration = plugin.getConfig().getBoolean("enable-towny-integration");
+        enableAuthMeIntegration = plugin.getConfig().getBoolean("enable-authme-integration");
+        enablePlotsquaredIntegration = plugin.getConfig().getBoolean("enable-plotsquared-integration");
+        enableUSkyblockIntegration = plugin.getConfig().getBoolean("enable-uskyblock-integration");
+        enableASkyblockIntegration = plugin.getConfig().getBoolean("enable-askyblock-integration");
+        enableBentoBoxIntegration = plugin.getConfig().getBoolean("enable-bentobox-integration");
+        enableIslandWorldIntegration = plugin.getConfig().getBoolean("enable-islandworld-integration");
+        enableGriefPreventionIntegration = plugin.getConfig().getBoolean("enable-griefprevention-integration");
+        enableAreaShopIntegration = plugin.getConfig().getBoolean("enable-areashop-integration");
+        enableVendorMessages = plugin.getConfig().getBoolean("enable-vendor-messages");
+        enableVendorBungeeMessages = plugin.getConfig().getBoolean("enable-vendor-bungee-messages");
+        onlyShowShopsInSight = plugin.getConfig().getBoolean("only-show-shops-in-sight");
+        appendPotionLevelToItemName = plugin.getConfig().getBoolean("append-potion-level-to-item-name");
+        removeShopOnError = plugin.getConfig().getBoolean("remove-shop-on-error");
+        invertMouseButtons = plugin.getConfig().getBoolean("invert-mouse-buttons");
+        hologramFixedBottom = plugin.getConfig().getBoolean("hologram-fixed-bottom");
+        hologramLift = plugin.getConfig().getDouble("hologram-lift");
+        maximalDistance = plugin.getConfig().getDouble("maximal-distance");
+        maximalItemDistance = plugin.getConfig().getDouble("maximal-item-distance");
+        shopCreationPriceNormal = plugin.getConfig().getDouble("shop-creation-price.normal");
+        shopCreationPriceAdmin = plugin.getConfig().getDouble("shop-creation-price.admin");
+        defaultLimit = plugin.getConfig().getInt("shop-limits.default");
+        mainCommandName = plugin.getConfig().getString("main-command-name");
+        languageFile = plugin.getConfig().getString("language-file");
+
+        //shopTaxes = (plugin.getConfig().getConfigurationSection("shop-taxes") == null ? Map.of("default", 0d) : plugin.getConfig().getConfigurationSection("shop-taxes").getKeys(true).stream().collect(Collectors.toMap(i -> i, i -> plugin.getConfig().getConfigurationSection("shop-taxes").getDouble(i))));
+    }
+
+
+    // Old config manipulation methods
+
+    /*
+
+
+    /**
+     * <p>Set a configuration value</p>
+     * <i>Config is automatically reloaded</i>
+     *
+     * @param property Property to change
+     * @param value    Value to set
+     */
+
+    /*
+    public void set(String property, String value) {
+        boolean langChange = (property.equalsIgnoreCase("language-file"));
+        try {
+            int intValue = Integer.parseInt(value);
+            plugin.getConfig().set(property, intValue);
+
+            plugin.saveConfig();
+            reload(false, langChange, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not an integer
+        }
+
+        try {
+            double doubleValue = Double.parseDouble(value);
+            plugin.getConfig().set(property, doubleValue);
+
+            plugin.saveConfig();
+            reload(false, langChange, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not a double
+        }
+
+        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+            boolean boolValue = Boolean.parseBoolean(value);
+            plugin.getConfig().set(property, boolValue);
+        } else {
+            plugin.getConfig().set(property, value);
+        }
+
+        plugin.saveConfig();
+
+        reload(false, langChange, false);
+    }
+
+    /**
+     * Add a value to a list in the config.yml.
+     * If the list does not exist, a new list with the given value will be created
+     *
+     * @param property Location of the list
+     * @param value    Value to add
+     */
+    /*
+    public void add(String property, String value) {
+        List list = (plugin.getConfig().getList(property) == null) ? new ArrayList<>() : plugin.getConfig().getList(property);
+
+        try {
+            int intValue = Integer.parseInt(value);
+            list.add(intValue);
+
+            plugin.saveConfig();
+            reload(false, false, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not an integer
+        }
+
+        try {
+            double doubleValue = Double.parseDouble(value);
+            list.add(doubleValue);
+
+            plugin.saveConfig();
+            reload(false, false, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not a double
+        }
+
+        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+            boolean boolValue = Boolean.parseBoolean(value);
+            list.add(boolValue);
+        } else {
+            list.add(value);
+        }
+
+        plugin.saveConfig();
+
+        reload(false, false, false);
+    }
+
+
+
+    public void remove(String property, String value) {
+        List list = (plugin.getConfig().getList(property) == null) ? new ArrayList<>() : plugin.getConfig().getList(property);
+
+        try {
+            int intValue = Integer.parseInt(value);
+            list.remove(intValue);
+
+            plugin.saveConfig();
+            reload(false, false, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not an integer
+        }
+
+        try {
+            double doubleValue = Double.parseDouble(value);
+            list.remove(doubleValue);
+
+            plugin.saveConfig();
+            reload(false, false, false);
+
+            return;
+        } catch (NumberFormatException e) {
+            // Value not a double
+        }
+
+        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+            boolean boolValue = Boolean.parseBoolean(value);
+            list.remove(boolValue);
+        } else {
+            list.remove(value);
+        }
+
+        plugin.saveConfig();
+
+        reload(false, false, false);
+    }
+
+     */
 
 }
