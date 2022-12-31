@@ -11,7 +11,8 @@ public interface FakeArmorStand extends FakeEntity {
      * It sets the invisibility, the custom name, make it visible and the marker flag
      *
      * @param packetQueue The {@link PacketQueue} to store the packet
+     * @param customName  The name to set
      */
-    void metadata(PacketQueue packetQueue);
+    void metadata(PacketQueue packetQueue, NMSComponent customName);
 
 }
