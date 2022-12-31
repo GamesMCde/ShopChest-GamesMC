@@ -1,17 +1,18 @@
 package de.epiceric.shopchest.nms;
 
 import de.epiceric.shopchest.ShopChest;
+import de.epiceric.shopchest.nms.metadata.MetadataProperties;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class ArmorStandWrapper {
 
     private final UUID uuid = UUID.randomUUID();
+    private final Platform platform;
     private final FakeArmorStand fakeArmorStand;
 
     private Location location;
@@ -20,28 +21,47 @@ public class ArmorStandWrapper {
     public ArmorStandWrapper(ShopChest plugin, Location location, String customName) {
         this.location = location;
         this.customName = customName;
-        this.fakeArmorStand = plugin.getPlatform().createFakeArmorStand();
+        this.platform = plugin.getPlatform();
+        this.fakeArmorStand = platform.createFakeArmorStand();
     }
 
     public void setVisible(Player player, boolean visible) {
-        final List<Player> receiver = Collections.singletonList(player);
         if(visible){
-            fakeArmorStand.spawn(uuid, location, receiver);
-            fakeArmorStand.sendData(customName, receiver);
+            final PacketQueue packetQueue = platform.createPacketQueue();
+            fakeArmorStand.create(packetQueue, uuid, location);
+            final MetadataProperties mdp = platform.getMetadataProperties();
+            final MetadataProperties.Entity entityMdp = mdp.entity();
+            fakeArmorStand.metadata(packetQueue,
+                    entityMdp.noGravity().set(true),
+                    entityMdp.silent().set(true),
+                    entityMdp.invisible().set(true),
+                    // TODO Handle custom name properly
+                    entityMdp.customName().set(new NMSComponent()),
+                    entityMdp.customNameVisible().set(true),
+                    mdp.armorStand().marker().set(true)
+            );
+            packetQueue.send(Collections.singletonList(player));
         }
         else if(fakeArmorStand.getEntityId() != -1){
-            fakeArmorStand.remove(receiver);
+            final PacketQueue packetQueue = platform.createPacketQueue();
+            fakeArmorStand.remove(packetQueue);
+            packetQueue.send(Collections.singletonList(player));
         }
     }
 
     public void setLocation(Location location) {
         this.location = location;
-        fakeArmorStand.setLocation(location, Objects.requireNonNull(location.getWorld()).getPlayers());
+        final PacketQueue packetQueue = platform.createPacketQueue();
+        fakeArmorStand.teleport(packetQueue, location.toVector());
+        packetQueue.send(Objects.requireNonNull(location.getWorld()).getPlayers());
     }
 
     public void setCustomName(String customName) {
         this.customName = customName;
-        fakeArmorStand.sendData(customName, Objects.requireNonNull(location.getWorld()).getPlayers());
+        final PacketQueue packetQueue = platform.createPacketQueue();
+        // TODO Handle custom name properly
+        fakeArmorStand.metadata(packetQueue, platform.getMetadataProperties().entity().customName().set(new NMSComponent()));
+        packetQueue.send(Objects.requireNonNull(location.getWorld()).getPlayers());
     }
 
     public void remove() {

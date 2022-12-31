@@ -376,6 +376,9 @@ public class Shop {
 
         holoLocation.add(0, GlobalConfig.hologramLift, 0);
 
+        final float MARKER_ARMOR_STAND_OFFSET = 1.975f;
+        holoLocation.add(0, MARKER_ARMOR_STAND_OFFSET, 0);
+
         return holoLocation;
     }
 

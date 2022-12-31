@@ -2,12 +2,18 @@ package de.epiceric.shopchest.shop;
 
 import de.epiceric.shopchest.ShopChest;
 import de.epiceric.shopchest.nms.FakeItem;
+import de.epiceric.shopchest.nms.PacketQueue;
+import de.epiceric.shopchest.nms.Platform;
+import de.epiceric.shopchest.nms.metadata.MetadataProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ShopItem {
@@ -17,12 +23,14 @@ public class ShopItem {
     private final ItemStack itemStack;
     private final Location location;
     private final UUID uuid = UUID.randomUUID();
+    private final Platform platform;
     private final FakeItem fakeItem;
 
     public ShopItem(ShopChest plugin, ItemStack itemStack, Location location) {
         this.itemStack = itemStack;
         this.location = location;
-        this.fakeItem = plugin.getPlatform().createFakeItem();
+        this.platform = plugin.getPlatform();
+        this.fakeItem = platform.createFakeItem();
     }
 
     /**
@@ -60,10 +68,17 @@ public class ShopItem {
      */
     public void showPlayer(Player p, boolean force) {
         if (viewers.add(p.getUniqueId()) || force) {
-            final List<Player> receiver = Collections.singletonList(p);
-            fakeItem.spawn(uuid, location, receiver);
-            fakeItem.sendData(itemStack, receiver);
-            fakeItem.resetVelocity(receiver);
+            final PacketQueue packetQueue = platform.createPacketQueue();
+            fakeItem.create(packetQueue, uuid, location);
+            final MetadataProperties mdp = platform.getMetadataProperties();
+            final MetadataProperties.Entity entityMdp = mdp.entity();
+            fakeItem.metadata(packetQueue,
+                    entityMdp.noGravity().set(true),
+                    entityMdp.silent().set(true),
+                    mdp.item().item().set(itemStack)
+            );
+            fakeItem.cancelVelocity(packetQueue);
+            packetQueue.send(Collections.singletonList(p));
         }
     }
 
@@ -81,7 +96,9 @@ public class ShopItem {
     public void hidePlayer(Player p, boolean force) {
         if (viewers.remove(p.getUniqueId()) || force) {
             if (p.isOnline()) {
-                fakeItem.remove(Collections.singletonList(p));
+                final PacketQueue packetQueue = platform.createPacketQueue();
+                fakeItem.remove(packetQueue);
+                packetQueue.send(Collections.singletonList(p));
             }
         }
     }

@@ -3,13 +3,11 @@ package de.epiceric.shopchest.nms.v1_19_R2;
 import de.epiceric.shopchest.nms.FakeEntity;
 import de.epiceric.shopchest.nms.PacketQueue;
 import de.epiceric.shopchest.nms.ReflectionUtils;
+import de.epiceric.shopchest.nms.metadata.MetadataValue;
+import de.epiceric.shopchest.nms.v1_19_R2.metadata.ExplicitMetadataValue;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,22 +15,19 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class FakeEntityImpl implements FakeEntity {
 
     private final static AtomicInteger ENTITY_COUNTER;
-    private final static EntityDataAccessor<Boolean> DATA_NO_GRAVITY;
-    private final static EntityDataAccessor<Boolean> DATA_SILENT;
 
     static {
         try {
             ENTITY_COUNTER = (AtomicInteger) ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "c");
-            DATA_NO_GRAVITY = ReflectionUtils.forceCast(ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "aP"));
-            DATA_SILENT = ReflectionUtils.forceCast(ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "aO"));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -89,20 +84,19 @@ public abstract class FakeEntityImpl implements FakeEntity {
         ((PacketQueueImpl) packetQueue).register(positionPacket);
     }
 
-    /**
-     * Register a 'metadata' packet in the {@link PacketQueue} with the silent and no gravity properties
-     *
-     * @param packetQueue   The {@link PacketQueue} to store the packet
-     * @param addProperties A {@link List} of {@link net.minecraft.network.syncher.SynchedEntityData.DataValue} to add
-     */
-    public void metadata(PacketQueue packetQueue, List<SynchedEntityData.DataValue<?>> addProperties) {
-        final List<SynchedEntityData.DataValue<?>> packedItems = new LinkedList<>();
-        packedItems.add(SynchedEntityData.DataValue.create(DATA_NO_GRAVITY, true));
-        packedItems.add(SynchedEntityData.DataValue.create(DATA_SILENT, true));
-        packedItems.addAll(addProperties);
-
+    @Override
+    public void metadata(PacketQueue packetQueue, MetadataValue[] values) {
+        final List<SynchedEntityData.DataValue<?>> packedItems = Stream.of(values)
+                .map(value -> ((ExplicitMetadataValue) value).toNMS())
+                .collect(Collectors.toList());
         final ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(entityId, packedItems);
         ((PacketQueueImpl) packetQueue).register(dataPacket);
+    }
+
+    @Override
+    public void cancelVelocity(PacketQueue packetQueue) {
+        final ClientboundSetEntityMotionPacket velocityPacket = new ClientboundSetEntityMotionPacket(getEntityId(), Vec3.ZERO);
+        ((PacketQueueImpl) packetQueue).register(velocityPacket);
     }
 
 }

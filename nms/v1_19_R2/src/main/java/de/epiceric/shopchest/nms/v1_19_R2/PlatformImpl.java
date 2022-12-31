@@ -1,6 +1,8 @@
 package de.epiceric.shopchest.nms.v1_19_R2;
 
 import de.epiceric.shopchest.nms.*;
+import de.epiceric.shopchest.nms.metadata.MetadataProperties;
+import de.epiceric.shopchest.nms.v1_19_R2.metadata.MetadataPropertiesImpl;
 
 public class PlatformImpl implements Platform {
 
@@ -22,6 +24,11 @@ public class PlatformImpl implements Platform {
     @Override
     public TextComponentHelper getTextComponentHelper() {
         return new TextComponentHelperImpl();
+    }
+
+    @Override
+    public MetadataProperties getMetadataProperties() {
+        return new MetadataPropertiesImpl();
     }
 
 }

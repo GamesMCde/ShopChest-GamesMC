@@ -1,5 +1,7 @@
 package de.epiceric.shopchest.nms;
 
+import de.epiceric.shopchest.nms.metadata.MetadataProperties;
+
 /**
  * The platform that create all nms objects
  */
@@ -28,5 +30,12 @@ public interface Platform {
 
 
     TextComponentHelper getTextComponentHelper();
+
+    /**
+     * Get a list of {@link de.epiceric.shopchest.nms.metadata.MetadataProperty}
+     *
+     * @return The {@link MetadataProperties} instance
+     */
+    MetadataProperties getMetadataProperties();
 
 }
