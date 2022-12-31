@@ -1,6 +1,8 @@
 package de.epiceric.shopchest.nms.v1_19_R2;
 
 import de.epiceric.shopchest.nms.FakeItem;
+import de.epiceric.shopchest.nms.PacketQueue;
+import de.epiceric.shopchest.nms.ReflectionUtils;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -8,21 +10,18 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 
-public class FakeItemImpl extends FakeEntityImpl<ItemStack> implements FakeItem {
+public class FakeItemImpl extends FakeEntityImpl implements FakeItem {
 
     private final static EntityDataAccessor<net.minecraft.world.item.ItemStack> DATA_ITEM;
 
     static {
         try {
-            final Field dataItemField = ItemEntity.class.getDeclaredField("c"); // DATA_ITEM
-            dataItemField.setAccessible(true);
-            DATA_ITEM = forceCast(dataItemField.get(null));
+            DATA_ITEM = ReflectionUtils.forceCast(ReflectionUtils.getPrivateStaticFieldValue(ItemEntity.class, "c"));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -33,23 +32,21 @@ public class FakeItemImpl extends FakeEntityImpl<ItemStack> implements FakeItem 
     }
 
     @Override
-    public void sendData(ItemStack item, Iterable<Player> receivers) {
-        sendData(receivers, item);
+    public void metadata(PacketQueue packetQueue, ItemStack item) {
+        final List<SynchedEntityData.DataValue<?>> addProperties = Collections.singletonList(
+                SynchedEntityData.DataValue.create(DATA_ITEM, CraftItemStack.asNMSCopy(item))
+        );
+        metadata(packetQueue, addProperties);
     }
 
     @Override
-    public void resetVelocity(Iterable<Player> receivers) {
-        final ClientboundSetEntityMotionPacket velocityPacket = new ClientboundSetEntityMotionPacket(entityId, Vec3.ZERO);
-        sendPacket(velocityPacket, receivers);
+    public void cancelVelocity(PacketQueue packetQueue) {
+        final ClientboundSetEntityMotionPacket velocityPacket = new ClientboundSetEntityMotionPacket(getEntityId(), Vec3.ZERO);
+        ((PacketQueueImpl) packetQueue).register(velocityPacket);
     }
 
     @Override
     protected EntityType<?> getEntityType() {
         return EntityType.ITEM;
-    }
-
-    @Override
-    protected void addSpecificData(List<SynchedEntityData.DataValue<?>> packedItems, ItemStack data) {
-        packedItems.add(SynchedEntityData.DataValue.create(DATA_ITEM, CraftItemStack.asNMSCopy(data)));
     }
 }
