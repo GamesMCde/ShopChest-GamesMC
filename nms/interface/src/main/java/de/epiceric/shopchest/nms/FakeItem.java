@@ -1,12 +1,27 @@
 package de.epiceric.shopchest.nms;
 
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface FakeItem extends FakeEntity{
+/**
+ * Represent an Item entity that only exists clientside
+ */
+public interface FakeItem extends FakeEntity {
 
-    void sendData(ItemStack item, Iterable<Player> receivers);
+    /**
+     * Register a 'metadata' packet in the {@link PacketQueue}
+     * <br>
+     * It sets the type of item
+     *
+     * @param packetQueue The {@link PacketQueue} to store the packet
+     * @param item        The {@link ItemStack} type
+     */
+    void metadata(PacketQueue packetQueue, ItemStack item);
 
-    void resetVelocity(Iterable<Player> receivers);
+    /**
+     * Register a zero 'velocity' packet in the {@link PacketQueue} to stop the item from moving
+     *
+     * @param packetQueue The {@link PacketQueue} to store the packet
+     */
+    void cancelVelocity(PacketQueue packetQueue);
 
 }

@@ -1,12 +1,17 @@
 package de.epiceric.shopchest.nms;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
+/**
+ * Represent an ArmorStand that only exists clientside
+ */
 public interface FakeArmorStand extends FakeEntity {
 
-    void sendData(String name, Iterable<Player> receivers);
-
-    void setLocation(Location location, Iterable<Player> receivers);
+    /**
+     * Register a 'metadata' packet in the {@link PacketQueue}
+     * <br>
+     * It sets the invisibility, the custom name, make it visible and the marker flag
+     *
+     * @param packetQueue The {@link PacketQueue} to store the packet
+     */
+    void metadata(PacketQueue packetQueue);
 
 }
