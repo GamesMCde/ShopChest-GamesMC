@@ -2,20 +2,20 @@ package de.epiceric.shopchest.nms.reflection;
 
 import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.FakeArmorStand;
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-
-import java.lang.reflect.Field;
-import java.util.UUID;
 
 public class FakeArmorStandImpl extends FakeEntityImpl implements FakeArmorStand {
-
-    private final Class<?> packetPlayOutEntityTeleportClass = nmsClassResolver.resolveSilent("network.protocol.game.PacketPlayOutEntityTeleport");
 
     public FakeArmorStandImpl(DebugLogger debug) {
         super(debug);
     }
+
+    @Override
+    protected Object getEntityType() {
+        return null;
+    }
+
+    /*
+    private final Class<?> packetPlayOutEntityTeleportClass = nmsClassResolver.resolveSilent("network.protocol.game.PacketPlayOutEntityTeleport");
 
     @Override
     public void sendData(String name, Iterable<Player> receivers) {
@@ -77,5 +77,6 @@ public class FakeArmorStandImpl extends FakeEntityImpl implements FakeArmorStand
         for(Player receiver : receivers) {
             ReflectionUtils.sendPacket(debug, ReflectionUtils.createPacketSpawnEntity(debug, entityId, uuid, location, EntityType.ARMOR_STAND), receiver);
         }
-    }
+    }*/
+
 }
