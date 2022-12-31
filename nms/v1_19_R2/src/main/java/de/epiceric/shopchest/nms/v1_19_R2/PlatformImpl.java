@@ -1,9 +1,6 @@
 package de.epiceric.shopchest.nms.v1_19_R2;
 
-import de.epiceric.shopchest.nms.FakeArmorStand;
-import de.epiceric.shopchest.nms.FakeItem;
-import de.epiceric.shopchest.nms.Platform;
-import de.epiceric.shopchest.nms.TextComponentHelper;
+import de.epiceric.shopchest.nms.*;
 
 public class PlatformImpl implements Platform {
 
@@ -15,6 +12,11 @@ public class PlatformImpl implements Platform {
     @Override
     public FakeItem createFakeItem() {
         return new FakeItemImpl();
+    }
+
+    @Override
+    public PacketQueue createPacketQueue() {
+        return new PacketQueueImpl();
     }
 
     @Override
