@@ -68,6 +68,9 @@ public class ShopChest extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
+        // Set a default debugger
+        this.debugLogger = new NullDebugLogger(getLogger());
+
         configManager = new ConfigManager(this, getDataFolder());
 
         if (!configManager.checkDataFolder()) {
@@ -159,7 +162,6 @@ public class ShopChest extends JavaPlugin {
      */
     private void cancelLoading(String reason) {
         final String disableMessage = "Disabling the plugin";
-        final DebugLogger debugLogger = this.debugLogger != null ? this.debugLogger : new NullDebugLogger(getLogger());
         debugLogger.debug(reason);
         debugLogger.debug(disableMessage);
         debugLogger.getLogger().warning(reason);
