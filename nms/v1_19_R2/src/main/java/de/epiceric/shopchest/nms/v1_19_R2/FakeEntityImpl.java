@@ -90,7 +90,7 @@ public abstract class FakeEntityImpl implements FakeEntity {
     }
 
     /**
-     * Register a 'metadata' packet in the {@link PacketQueue}
+     * Register a 'metadata' packet in the {@link PacketQueue} with the silent and no gravity properties
      *
      * @param packetQueue   The {@link PacketQueue} to store the packet
      * @param addProperties A {@link List} of {@link net.minecraft.network.syncher.SynchedEntityData.DataValue} to add
