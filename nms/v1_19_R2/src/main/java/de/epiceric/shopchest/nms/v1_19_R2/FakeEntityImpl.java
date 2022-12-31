@@ -1,26 +1,28 @@
 package de.epiceric.shopchest.nms.v1_19_R2;
 
 import de.epiceric.shopchest.nms.FakeEntity;
-import net.minecraft.network.protocol.Packet;
+import de.epiceric.shopchest.nms.PacketQueue;
+import de.epiceric.shopchest.nms.ReflectionUtils;
+import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class FakeEntityImpl<T> implements FakeEntity {
+public abstract class FakeEntityImpl implements FakeEntity {
 
     private final static AtomicInteger ENTITY_COUNTER;
     private final static EntityDataAccessor<Boolean> DATA_NO_GRAVITY;
@@ -28,29 +30,18 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
 
     static {
         try {
-            final Field entityCounterField = Entity.class.getDeclaredField("c"); // ENTITY_COUNTER
-            entityCounterField.setAccessible(true);
-            ENTITY_COUNTER = (AtomicInteger) entityCounterField.get(null);
-            final Field dataNoGravityField = Entity.class.getDeclaredField("aP"); // DATA_NO_GRAVITY
-            dataNoGravityField.setAccessible(true);
-            DATA_NO_GRAVITY = forceCast(dataNoGravityField.get(null));
-            final Field dataSilentField = Entity.class.getDeclaredField("aO"); // DATA_SILENT
-            dataSilentField.setAccessible(true);
-            DATA_SILENT = forceCast(dataSilentField.get(null));
+            ENTITY_COUNTER = (AtomicInteger) ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "c");
+            DATA_NO_GRAVITY = ReflectionUtils.forceCast(ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "aP"));
+            DATA_SILENT = ReflectionUtils.forceCast(ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "aO"));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected final int entityId;
+    private final int entityId;
 
     public FakeEntityImpl() {
         entityId = ENTITY_COUNTER.incrementAndGet();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <T> T forceCast(Object o) {
-        return (T) o;
     }
 
     @Override
@@ -58,19 +49,13 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
         return entityId;
     }
 
-    protected void sendPacket(Packet<?> packet, Iterable<Player> receivers) {
-        for (Player receiver : receivers) {
-            ((CraftPlayer) receiver).getHandle().connection.send(packet);
-        }
-    }
-
     @Override
-    public void spawn(UUID uuid, Location location, Iterable<Player> receivers) {
-        final ClientboundAddEntityPacket spawnPacket = new ClientboundAddEntityPacket(
+    public void create(PacketQueue packetQueue, UUID uuid, Location location) {
+        final ClientboundAddEntityPacket addPacket = new ClientboundAddEntityPacket(
                 entityId,
                 uuid,
                 location.getX(),
-                location.getY() + getSpawnOffSet(),
+                location.getY(),
                 location.getZ(),
                 0f,
                 0f,
@@ -79,35 +64,45 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
                 Vec3.ZERO,
                 0d
         );
-        sendPacket(spawnPacket, receivers);
-    }
-
-    @Override
-    public void remove(Iterable<Player> receivers) {
-        final ClientboundRemoveEntitiesPacket removePacket = new ClientboundRemoveEntitiesPacket(entityId);
-        sendPacket(removePacket, receivers);
-    }
-
-    protected void sendData(Iterable<Player> receivers, T data) {
-        // Create packet
-        final List<SynchedEntityData.DataValue<?>> packedItems = new LinkedList<>();
-        final ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(entityId, packedItems);
-
-        // Setup data
-        packedItems.add(SynchedEntityData.DataValue.create(DATA_NO_GRAVITY, true));
-        packedItems.add(SynchedEntityData.DataValue.create(DATA_SILENT, true));
-        addSpecificData(packedItems, data);
-
-        // Send packet
-        sendPacket(dataPacket, receivers);
+        ((PacketQueueImpl) packetQueue).register(addPacket);
     }
 
     protected abstract EntityType<?> getEntityType();
 
-    protected float getSpawnOffSet() {
-        return 0f;
+    @Override
+    public void remove(PacketQueue packetQueue) {
+        final ClientboundRemoveEntitiesPacket removePacket = new ClientboundRemoveEntitiesPacket(entityId);
+        ((PacketQueueImpl) packetQueue).register(removePacket);
     }
 
-    protected abstract void addSpecificData(List<SynchedEntityData.DataValue<?>> packedItems, T data);
+    @Override
+    public void teleport(PacketQueue packetQueue, Vector position) {
+        final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        buffer.writeVarInt(entityId);
+        buffer.writeDouble(position.getX());
+        buffer.writeDouble(position.getY());
+        buffer.writeDouble(position.getZ());
+        buffer.writeByte(0);
+        buffer.writeByte(0);
+        buffer.writeBoolean(false);
+        final ClientboundTeleportEntityPacket positionPacket = new ClientboundTeleportEntityPacket(buffer);
+        ((PacketQueueImpl) packetQueue).register(positionPacket);
+    }
+
+    /**
+     * Register a 'metadata' packet in the {@link PacketQueue}
+     *
+     * @param packetQueue   The {@link PacketQueue} to store the packet
+     * @param addProperties A {@link List} of {@link net.minecraft.network.syncher.SynchedEntityData.DataValue} to add
+     */
+    public void metadata(PacketQueue packetQueue, List<SynchedEntityData.DataValue<?>> addProperties) {
+        final List<SynchedEntityData.DataValue<?>> packedItems = new LinkedList<>();
+        packedItems.add(SynchedEntityData.DataValue.create(DATA_NO_GRAVITY, true));
+        packedItems.add(SynchedEntityData.DataValue.create(DATA_SILENT, true));
+        packedItems.addAll(addProperties);
+
+        final ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(entityId, packedItems);
+        ((PacketQueueImpl) packetQueue).register(dataPacket);
+    }
 
 }
