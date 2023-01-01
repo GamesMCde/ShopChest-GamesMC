@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.language.Message;
@@ -29,7 +29,7 @@ public class NotifyPlayerOnJoinListener implements Listener {
         final Player p = e.getPlayer();
 
         // Plugin update notifier
-        if (plugin.isUpdateNeeded() && Config.enableUpdateChecker) {
+        if (plugin.isUpdateNeeded() && GlobalConfig.enableUpdateChecker) {
             if (p.hasPermission(Permissions.UPDATE_NOTIFICATION)) {
                 Utils.sendUpdateMessage(plugin, p);
             }

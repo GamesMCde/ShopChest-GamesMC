@@ -147,11 +147,6 @@ shop-creation-price:
   # ...an admin shop
   admin: 0
 
-# The shop taxes for items in percent
-shop-taxes:
-  default: 0
-  enchanted_book: 30
-
 
 # Shop limits are handled with permissions.
 # A player with permission "shopchest.limit.X" has a limit of X shops,

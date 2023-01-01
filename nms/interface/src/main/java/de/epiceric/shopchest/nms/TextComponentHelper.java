@@ -15,6 +15,22 @@ import java.util.regex.Pattern;
 
 public interface TextComponentHelper {
 
+    // TODO Update this to handle translatable message
+    /*
+    1.13+ ->
+        net.minecraft.world.item.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
+        Component component = nStack.getItem().getName(nStack);
+        // String itemLocalName = Component.Serializer.toJson(component)
+
+    1.8 to 1.12.2 ->
+        final net.minecraft.server.v1_8_R1.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
+        nStack.getItem().e_(nStack)
+        player.spigot().sendMessage(new TranslatableComponent(nStack.getItem().k(nStack) + ".name"));
+            -> A lot more to implement because before there was no method in Item nms class that create the component
+               The message was sent directly by using the server language file
+               But the functionality exist since 1.8
+     */
+
     default void sendUpdateMessage(Player player, String updateMessage, String hoverMessage, String downloadUrl){
         final TextComponent component = new TextComponent();
         component.setExtra(Arrays.asList(TextComponent.fromLegacyText(updateMessage)));

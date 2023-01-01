@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import de.epiceric.shopchest.config.ConfigManager;
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -25,7 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.event.ShopPreCreateEvent;
 import de.epiceric.shopchest.event.ShopPreInfoEvent;
@@ -90,13 +91,18 @@ class ShopCommandExecutor implements CommandExecutor {
                 } else {
                     sender.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_UPDATE));
                 }
-            } else if (subCommand.getName().equalsIgnoreCase("config")) {
+            }
+            /*
+            else if (subCommand.getName().equalsIgnoreCase("config")) {
                 if (sender.hasPermission(Permissions.CONFIG)) {
                     return args.length >= 4 && changeConfig(sender, args);
                 } else {
                     sender.sendMessage(LanguageUtils.getMessage(Message.NO_PERMISSION_CONFIG));
                 }
-            } else if (subCommand.getName().equalsIgnoreCase("removeall")) {
+
+            }
+            */
+            else if (subCommand.getName().equalsIgnoreCase("removeall")) {
                 if (sender.hasPermission(Permissions.REMOVE_OTHER)) {
                     if (args.length >= 2) {
                         removeAll(sender, args);
@@ -205,7 +211,7 @@ class ShopCommandExecutor implements CommandExecutor {
         }
 
         // Reload configurations
-        plugin.getShopChestConfig().reload(false, true, true);
+        plugin.getConfigManager().reload();
         plugin.getHologramFormat().reload();
         plugin.getUpdater().restart();
 
@@ -298,7 +304,7 @@ class ShopCommandExecutor implements CommandExecutor {
             return;
         }
 
-        if (!Config.allowDecimalsInPrice && (buyPrice != (int) buyPrice || sellPrice != (int) sellPrice)) {
+        if (!GlobalConfig.allowDecimalsInPrice && (buyPrice != (int) buyPrice || sellPrice != (int) sellPrice)) {
             p.sendMessage(LanguageUtils.getMessage(Message.PRICES_CONTAIN_DECIMALS));
             plugin.getDebugLogger().debug(p.getName() + " has entered an invalid price");
             return;
@@ -319,7 +325,7 @@ class ShopCommandExecutor implements CommandExecutor {
         if (inHand == null) {
             plugin.getDebugLogger().debug(p.getName() + " does not have an item in his hand");
 
-            if (!Config.creativeSelectItem) {
+            if (!GlobalConfig.creativeSelectItem) {
                 p.sendMessage(LanguageUtils.getMessage(Message.NO_ITEM_IN_HAND));
                 return;
             }
@@ -351,7 +357,7 @@ class ShopCommandExecutor implements CommandExecutor {
         ShopType shopType = selectClickType.getShopType();
 
         // Check if item on blacklist
-        for (String item :Config.blacklist) {
+        for (String item : GlobalConfig.blacklist) {
             ItemStack is = ItemUtils.getItemStack(item);
 
             if (is == null) {
@@ -368,7 +374,7 @@ class ShopCommandExecutor implements CommandExecutor {
         }
 
         // Check if prices lower than minimum price
-        for (String key :Config.minimumPrices) {
+        for (String key : GlobalConfig.minimumPrices) {
             ItemStack is = ItemUtils.getItemStack(key);
             double minPrice = plugin.getConfig().getDouble("minimum-prices." + key);
 
@@ -398,7 +404,7 @@ class ShopCommandExecutor implements CommandExecutor {
         }
 
         // Check if prices higher than maximum price
-        for (String key :Config.maximumPrices) {
+        for (String key : GlobalConfig.maximumPrices) {
             ItemStack is = ItemUtils.getItemStack(key);
             double maxPrice = plugin.getConfig().getDouble("maximum-prices." + key);
 
@@ -429,7 +435,7 @@ class ShopCommandExecutor implements CommandExecutor {
 
 
         if (sellEnabled && buyEnabled) {
-            if (Config.buyGreaterOrEqualSell) {
+            if (GlobalConfig.buyGreaterOrEqualSell) {
                 if (buyPrice < sellPrice) {
                     p.sendMessage(LanguageUtils.getMessage(Message.BUY_PRICE_TOO_LOW, new Replacement(Placeholder.MIN_PRICE, String.valueOf(sellPrice))));
                     plugin.getDebugLogger().debug(p.getName() + "'s buy price is lower than the sell price");
@@ -439,7 +445,7 @@ class ShopCommandExecutor implements CommandExecutor {
         }
 
         if (Enchantment.DURABILITY.canEnchantItem(itemStack)) {
-            if (itemStack.getDurability() > 0 && !Config.allowBrokenItems) {
+            if (itemStack.getDurability() > 0 && !GlobalConfig.allowBrokenItems) {
                 p.sendMessage(LanguageUtils.getMessage(Message.CANNOT_SELL_BROKEN_ITEM));
                 plugin.getDebugLogger().debug(p.getName() + "'s item is broken");
                 return;
@@ -447,7 +453,7 @@ class ShopCommandExecutor implements CommandExecutor {
         }
 
         CompletableFuture.runAsync(() -> {
-            double creationPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopCreationPriceNormal :Config.shopCreationPriceAdmin;
+            double creationPrice = (shopType == Shop.ShopType.NORMAL) ? GlobalConfig.shopCreationPriceNormal : GlobalConfig.shopCreationPriceAdmin;
             if (creationPrice > 0) {
                 if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < creationPrice) {
                     p.sendMessage(LanguageUtils.getMessage(Message.SHOP_CREATE_NOT_ENOUGH_MONEY, new Replacement(Placeholder.CREATION_PRICE, String.valueOf(creationPrice))));
@@ -581,6 +587,7 @@ class ShopCommandExecutor implements CommandExecutor {
 
     }
 
+    /*
     private boolean changeConfig(CommandSender sender, String[] args) {
         plugin.getDebugLogger().debug(sender.getName() + " is changing the configuration");
 
@@ -602,6 +609,7 @@ class ShopCommandExecutor implements CommandExecutor {
 
         return true;
     }
+    */
 
     private void removeAll(CommandSender sender, String[] args) {
         OfflinePlayer vendor = Bukkit.getOfflinePlayer(args[1]);

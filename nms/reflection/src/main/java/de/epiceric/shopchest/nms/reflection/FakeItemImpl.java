@@ -12,6 +12,16 @@ import java.util.UUID;
 
 public class FakeItemImpl extends FakeEntityImpl implements FakeItem {
 
+    public FakeItemImpl(DebugLogger debug) {
+        super(debug);
+    }
+
+    @Override
+    protected Object getEntityType() {
+        return null;
+    }
+
+    /*
     private final OBCClassResolver obcClassResolver = new OBCClassResolver();
     private final Class<?> packetPlayOutEntityVelocityClass = nmsClassResolver.resolveSilent("network.protocol.game.PacketPlayOutEntityVelocity");
     private final Class<?> vec3dClass = nmsClassResolver.resolveSilent("world.phys.Vec3D");
@@ -76,4 +86,5 @@ public class FakeItemImpl extends FakeEntityImpl implements FakeItem {
             ReflectionUtils.sendPacket(debug, ReflectionUtils.createPacketSpawnEntity(debug, entityId, uuid, location, EntityType.DROPPED_ITEM), receiver);
         }
     }
+    */
 }

@@ -6,13 +6,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 
 public class Hologram {
     // concurrent since update task is in async thread
@@ -175,7 +175,7 @@ public class Hologram {
 
         text = ChatColor.translateAlternateColorCodes('&', text);
 
-        if (Config.hologramFixedBottom) {
+        if (GlobalConfig.hologramFixedBottom) {
             for (int i = 0; i < line; i++) {
                 ArmorStandWrapper wrapper = wrappers.get(i);
                 wrapper.setLocation(wrapper.getLocation().add(0, 0.25, 0));
@@ -189,7 +189,7 @@ public class Hologram {
 
         Location loc = getLocation();
 
-        if (!Config.hologramFixedBottom) {
+        if (!GlobalConfig.hologramFixedBottom) {
             loc.subtract(0, line * 0.25, 0);
         }
 
@@ -234,7 +234,7 @@ public class Hologram {
      */
     public void removeLine(int line) {
         if (line < wrappers.size()) {
-            if (Config.hologramFixedBottom) {
+            if (GlobalConfig.hologramFixedBottom) {
                 for (int i = 0; i < line; i++) {
                     ArmorStandWrapper wrapper = wrappers.get(i);
                     wrapper.setLocation(wrapper.getLocation().subtract(0, 0.25, 0));

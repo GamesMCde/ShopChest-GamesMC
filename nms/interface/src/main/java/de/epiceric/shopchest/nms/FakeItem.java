@@ -1,12 +1,8 @@
 package de.epiceric.shopchest.nms;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
-public interface FakeItem extends FakeEntity{
-
-    void sendData(ItemStack item, Iterable<Player> receivers);
-
-    void resetVelocity(Iterable<Player> receivers);
+/**
+ * Represent an Item entity that only exists clientside
+ */
+public interface FakeItem extends FakeEntity {
 
 }

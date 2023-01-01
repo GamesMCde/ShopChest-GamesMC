@@ -1,7 +1,6 @@
 package de.epiceric.shopchest.nms;
 
 import de.epiceric.shopchest.debug.DebugLogger;
-import de.epiceric.shopchest.nms.reflection.PlatformImpl;
 import de.epiceric.shopchest.utils.Utils;
 import org.bukkit.Bukkit;
 
@@ -37,7 +36,7 @@ public class PlatformLoader {
     private Platform getReflectionPlatform(String nmsVersion) {
         return switch (nmsVersion) {
             case "v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1", "v1_16_R1", "v1_16_R2", "v1_16_R3" ->
-                    new PlatformImpl(logger);
+                    new de.epiceric.shopchest.nms.reflection.PlatformImpl(logger);
             default -> null;
         };
     }

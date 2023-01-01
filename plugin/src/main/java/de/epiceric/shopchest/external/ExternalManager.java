@@ -1,6 +1,6 @@
 package de.epiceric.shopchest.external;
 
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.external.worldguard.WGLoader;
 import de.epiceric.shopchest.hook.HookManager;
@@ -26,15 +26,15 @@ public class ExternalManager {
      */
     public void setup() {
         // Add WorldGuard
-        if (Config.enableWorldGuardIntegration) {
+        if (GlobalConfig.enableWorldGuardIntegration) {
             final ExternalLoadData loadData = new ExternalLoadData();
-            if (Config.wgAllowCreateShopDefault) {
+            if (GlobalConfig.wgAllowCreateShopDefault) {
                 loadData.setFlag(ExternalLoadData.Flags.CREATE);
             }
-            if (Config.wgAllowUseShopDefault) {
+            if (GlobalConfig.wgAllowUseShopDefault) {
                 loadData.setFlag(ExternalLoadData.Flags.USE);
             }
-            if (Config.wgAllowUseAdminShopDefault) {
+            if (GlobalConfig.wgAllowUseAdminShopDefault) {
                 loadData.setFlag(ExternalLoadData.Flags.USE_ADMIN);
             }
             loaders.add(new WGLoader(hookManager, loadData));

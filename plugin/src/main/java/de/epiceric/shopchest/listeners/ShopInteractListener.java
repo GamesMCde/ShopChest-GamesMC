@@ -1,7 +1,7 @@
 package de.epiceric.shopchest.listeners;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.event.ShopBuySellEvent;
 import de.epiceric.shopchest.event.ShopCreateEvent;
@@ -155,7 +155,7 @@ public class ShopInteractListener implements Listener {
     private void handleInteractEvent(PlayerInteractEvent e) {
         Block b = e.getClickedBlock();
         Player p = e.getPlayer();
-        boolean inverted = Config.invertMouseButtons;
+        boolean inverted = GlobalConfig.invertMouseButtons;
 
         if (Utils.getMajorVersion() >= 9 && e.getHand() == EquipmentSlot.OFF_HAND)
             return;
@@ -211,7 +211,7 @@ public class ShopInteractListener implements Listener {
                 return;
             }
 
-            ItemStack infoItem = Config.shopInfoItem;
+            ItemStack infoItem = GlobalConfig.shopInfoItem;
             if (infoItem != null) {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
                     ItemStack item = Utils.getItemInMainHand(p);
@@ -255,9 +255,9 @@ public class ShopInteractListener implements Listener {
                             
                             if (shop.getShopType() == ShopType.ADMIN) {
                                 if (externalPluginsAllowed || p.hasPermission(Permissions.BYPASS_EXTERNAL_PLUGIN)) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !GlobalConfig.confirmShopping) {
                                         buy(p, shop, p.isSneaking());
-                                        if (Config.confirmShopping) {
+                                        if (GlobalConfig.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
                                             ids.remove(shop.getID());
                                             if (ids.isEmpty()) needsConfirmation.remove(p.getUniqueId());
@@ -285,9 +285,9 @@ public class ShopInteractListener implements Listener {
                                         amount = shop.getProduct().getAmount();
                                     
                                     if (Utils.getAmount(c.getInventory(), itemStack) >= amount) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                        if (confirmed || !GlobalConfig.confirmShopping) {
                                             buy(p, shop, p.isSneaking());
-                                            if (Config.confirmShopping) {
+                                            if (GlobalConfig.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
                                                 ids.remove(shop.getID());
                                                 if (ids.isEmpty()) needsConfirmation.remove(p.getUniqueId());
@@ -301,10 +301,10 @@ public class ShopInteractListener implements Listener {
                                             needsConfirmation.put(p.getUniqueId(), ids);
                                         }
                                     } else {
-                                        if (Config.autoCalculateItemAmount && Utils.getAmount(c.getInventory(), itemStack) > 0) {
-                                            if (confirmed || !Config.confirmShopping) {
+                                        if (GlobalConfig.autoCalculateItemAmount && Utils.getAmount(c.getInventory(), itemStack) > 0) {
+                                            if (confirmed || !GlobalConfig.confirmShopping) {
                                                 buy(p, shop, p.isSneaking());
-                                                if (Config.confirmShopping) {
+                                                if (GlobalConfig.confirmShopping) {
                                                     Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
                                                     ids.remove(shop.getID());
                                                     if (ids.isEmpty()) needsConfirmation.remove(p.getUniqueId());
@@ -319,11 +319,11 @@ public class ShopInteractListener implements Listener {
                                             }
                                         } else {
                                             p.sendMessage(LanguageUtils.getMessage(Message.OUT_OF_STOCK));
-                                            if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
+                                            if (shop.getVendor().isOnline() && GlobalConfig.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.VENDOR_OUT_OF_STOCK,
                                                         new Replacement(Placeholder.AMOUNT, String.valueOf(shop.getProduct().getAmount())),
                                                                 new Replacement(Placeholder.ITEM_NAME, shop.getProduct().getLocalizedName())));
-                                            } else if(!shop.getVendor().isOnline() && Config.enableVendorBungeeMessages){
+                                            } else if(!shop.getVendor().isOnline() && GlobalConfig.enableVendorBungeeMessages){
                                                 String message = LanguageUtils.getMessage(Message.VENDOR_OUT_OF_STOCK,
                                                         new Replacement(Placeholder.AMOUNT, String.valueOf(shop.getProduct().getAmount())),
                                                         new Replacement(Placeholder.ITEM_NAME, shop.getProduct().getLocalizedName()));
@@ -365,9 +365,9 @@ public class ShopInteractListener implements Listener {
                                 int amount = stack ? itemStack.getMaxStackSize() : shop.getProduct().getAmount();
 
                                 if (Utils.getAmount(p.getInventory(), itemStack) >= amount) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !GlobalConfig.confirmShopping) {
                                         sell(p, shop, stack);
-                                        if (Config.confirmShopping) {
+                                        if (GlobalConfig.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
                                             ids.remove(shop.getID());
                                             if (ids.isEmpty()) needsConfirmation.remove(p.getUniqueId());
@@ -381,10 +381,10 @@ public class ShopInteractListener implements Listener {
                                         needsConfirmation.put(p.getUniqueId(), ids);
                                     }
                                 } else {
-                                    if (Config.autoCalculateItemAmount && Utils.getAmount(p.getInventory(), itemStack) > 0) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                    if (GlobalConfig.autoCalculateItemAmount && Utils.getAmount(p.getInventory(), itemStack) > 0) {
+                                        if (confirmed || !GlobalConfig.confirmShopping) {
                                             sell(p, shop, stack);
-                                            if (Config.confirmShopping) {
+                                            if (GlobalConfig.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
                                                 ids.remove(shop.getID());
                                                 if (ids.isEmpty()) needsConfirmation.remove(p.getUniqueId());
@@ -446,7 +446,7 @@ public class ShopInteractListener implements Listener {
             return;
         }
 
-        double creationPrice = (shopType == ShopType.NORMAL) ? Config.shopCreationPriceNormal : Config.shopCreationPriceAdmin;
+        double creationPrice = (shopType == ShopType.NORMAL) ? GlobalConfig.shopCreationPriceNormal : GlobalConfig.shopCreationPriceAdmin;
         Shop shop = new Shop(plugin, executor, product, location, buyPrice, sellPrice, shopType);
 
 
@@ -517,8 +517,8 @@ public class ShopInteractListener implements Listener {
 
         CompletableFuture.runAsync(() -> {
 
-            double creationPrice = shop.getShopType() == ShopType.ADMIN ? Config.shopCreationPriceAdmin : Config.shopCreationPriceNormal;
-            if (creationPrice > 0 && Config.refundShopCreation && executor.getUniqueId().equals(shop.getVendor().getUniqueId())) {
+            double creationPrice = shop.getShopType() == ShopType.ADMIN ? GlobalConfig.shopCreationPriceAdmin : GlobalConfig.shopCreationPriceNormal;
+            if (creationPrice > 0 && GlobalConfig.refundShopCreation && executor.getUniqueId().equals(shop.getVendor().getUniqueId())) {
                 EconomyResponse r = econ.depositPlayer(executor, shop.getLocation().getWorld().getName(), creationPrice);
                 if (!r.transactionSuccess()) {
                     plugin.getDebugLogger().debug("Economy transaction failed: " + r.errorMessage);
@@ -650,11 +650,11 @@ public class ShopInteractListener implements Listener {
             double price = shop.getBuyPrice();
             if (stack) price = (price / shop.getProduct().getAmount()) * finalAmount;
 
-            if (econ.getBalance(executor, worldName) >= price || Config.autoCalculateItemAmount) {
+            if (econ.getBalance(executor, worldName) >= price || GlobalConfig.autoCalculateItemAmount) {
 
                 int amountForMoney = (int) (finalAmount / price * econ.getBalance(executor, worldName));
 
-                if (amountForMoney == 0 && Config.autoCalculateItemAmount) {
+                if (amountForMoney == 0 && GlobalConfig.autoCalculateItemAmount) {
                     executor.sendMessage(LanguageUtils.getMessage(Message.NOT_ENOUGH_MONEY));
                     return;
                 }
@@ -690,7 +690,7 @@ public class ShopInteractListener implements Listener {
 
                         int newAmount = finalAmount;
 
-                        if (Config.autoCalculateItemAmount) {
+                        if (GlobalConfig.autoCalculateItemAmount) {
                             if (shop.getShopType() == ShopType.ADMIN)
                                 newAmount = Math.min(amountForMoney, freeSpace);
                             else
@@ -701,7 +701,7 @@ public class ShopInteractListener implements Listener {
 
                         ShopProduct newProduct = new ShopProduct(product, newAmount);
                         double newPrice = (finalPrice / finalAmount) * newAmount;
-                        double tax = Config.shopTaxes.getOrDefault(itemStack.getType().toString(), Config.shopTaxes.get("default"));
+                        double tax = GlobalConfig.shopTaxes.getOrDefault(itemStack.getType().toString(), GlobalConfig.shopTaxes.get("default"));
 
                         if (freeSpace >= newAmount) {
                             plugin.getDebugLogger().debug(executor.getName() + " has enough inventory space for " + freeSpace + " items (#" + shop.getID() + ")");
@@ -749,11 +749,11 @@ public class ShopInteractListener implements Listener {
                                             plugin.getDebugLogger().debug(executor.getName() + " successfully bought (#" + shop.getID() + ")");
                                             plugin.getLogger().info(String.format("%s bought %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
-                                            if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
+                                            if (shop.getVendor().isOnline() && GlobalConfig.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_BOUGHT, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
                                                         new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
                                                         new Replacement(Placeholder.PLAYER, executor.getName())));
-                                            } else if (!shop.getVendor().isOnline() && Config.enableVendorBungeeMessages) {
+                                            } else if (!shop.getVendor().isOnline() && GlobalConfig.enableVendorBungeeMessages) {
                                                 String message = LanguageUtils.getMessage(Message.SOMEONE_BOUGHT, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
                                                         new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.BUY_PRICE, String.valueOf(newPrice)),
                                                         new Replacement(Placeholder.PLAYER, executor.getName()));
@@ -841,7 +841,7 @@ public class ShopInteractListener implements Listener {
         double finalPrice = price;
         CompletableFuture.runAsync(() -> {
 
-            if (shop.getShopType() == ShopType.ADMIN || econ.getBalance(shop.getVendor(), worldName) >= finalPrice || Config.autoCalculateItemAmount) {
+            if (shop.getShopType() == ShopType.ADMIN || econ.getBalance(shop.getVendor(), worldName) >= finalPrice || GlobalConfig.autoCalculateItemAmount) {
                 int amountForMoney = 1;
 
                 if (shop.getShopType() != ShopType.ADMIN) {
@@ -850,7 +850,7 @@ public class ShopInteractListener implements Listener {
 
                 plugin.getDebugLogger().debug("Vendor has enough money for " + amountForMoney + " item(s) (#" + shop.getID() + ")");
 
-                if (amountForMoney == 0 && Config.autoCalculateItemAmount && shop.getShopType() != ShopType.ADMIN) {
+                if (amountForMoney == 0 && GlobalConfig.autoCalculateItemAmount && shop.getShopType() != ShopType.ADMIN) {
                     executor.sendMessage(LanguageUtils.getMessage(Message.VENDOR_NOT_ENOUGH_MONEY));
                     return;
                 }
@@ -881,7 +881,7 @@ public class ShopInteractListener implements Listener {
 
                     int newAmount = finalAmount;
 
-                    if (Config.autoCalculateItemAmount) {
+                    if (GlobalConfig.autoCalculateItemAmount) {
                         if (shop.getShopType() == ShopType.ADMIN)
                             newAmount = amountForItemCount;
                         else
@@ -943,11 +943,11 @@ public class ShopInteractListener implements Listener {
                                             plugin.getDebugLogger().debug(executor.getName() + " successfully sold (#" + shop.getID() + ")");
                                             plugin.getLogger().info(String.format("%s sold %d of %s from %s", executor.getName(), finalNewAmount, newProduct.getItemStack().toString(), vendorName));
 
-                                            if (shop.getVendor().isOnline() && Config.enableVendorMessages) {
+                                            if (shop.getVendor().isOnline() && GlobalConfig.enableVendorMessages) {
                                                 shop.getVendor().getPlayer().sendMessage(LanguageUtils.getMessage(Message.SOMEONE_SOLD, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
                                                         new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
                                                         new Replacement(Placeholder.PLAYER, executor.getName())));
-                                            } else if (!shop.getVendor().isOnline() && Config.enableVendorBungeeMessages) {
+                                            } else if (!shop.getVendor().isOnline() && GlobalConfig.enableVendorBungeeMessages) {
                                                 String message = LanguageUtils.getMessage(Message.SOMEONE_SOLD, new Replacement(Placeholder.AMOUNT, String.valueOf(finalNewAmount)),
                                                         new Replacement(Placeholder.ITEM_NAME, newProduct.getLocalizedName()), new Replacement(Placeholder.SELL_PRICE, String.valueOf(newPrice)),
                                                         new Replacement(Placeholder.PLAYER, executor.getName()));

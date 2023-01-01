@@ -1,56 +1,43 @@
 package de.epiceric.shopchest.nms.v1_17_R1;
 
 import de.epiceric.shopchest.nms.FakeEntity;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
+import de.epiceric.shopchest.nms.PacketQueue;
+import de.epiceric.shopchest.nms.ReflectionUtils;
+import de.epiceric.shopchest.nms.metadata.MetadataValue;
+import de.epiceric.shopchest.nms.v1_17_R1.metadata.ExplicitMetadataValue;
+import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public abstract class FakeEntityImpl<T> implements FakeEntity {
+public abstract class FakeEntityImpl implements FakeEntity {
 
     private final static AtomicInteger ENTITY_COUNTER;
-    private final static EntityDataAccessor<Boolean> DATA_NO_GRAVITY;
-    private final static EntityDataAccessor<Boolean> DATA_SILENT;
     private final static Field packedItemField;
 
     static {
         try {
-            final Field entityCounterField = Entity.class.getDeclaredField("b"); // ENTITY_COUNTER
-            entityCounterField.setAccessible(true);
-            ENTITY_COUNTER = (AtomicInteger) entityCounterField.get(null);
-            final Field dataNoGravityField = Entity.class.getDeclaredField("aM"); // DATA_NO_GRAVITY
-            dataNoGravityField.setAccessible(true);
-            DATA_NO_GRAVITY = forceCast(dataNoGravityField.get(null));
-            final Field dataSilentField = Entity.class.getDeclaredField("aL"); // DATA_SILENT
-            dataSilentField.setAccessible(true);
-            DATA_SILENT = forceCast(dataSilentField.get(null));
+            ENTITY_COUNTER = (AtomicInteger) ReflectionUtils.getPrivateStaticFieldValue(Entity.class, "b");
             packedItemField = ClientboundSetEntityDataPacket.class.getDeclaredField("b"); // packedItems
             packedItemField.setAccessible(true);
-        }catch (ReflectiveOperationException e){
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected static <T> T forceCast(Object o){
-        return (T) o;
-    }
-
-    protected final int entityId;
+    private final int entityId;
 
     public FakeEntityImpl() {
         entityId = ENTITY_COUNTER.incrementAndGet();
@@ -61,19 +48,13 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
         return entityId;
     }
 
-    protected void sendPacket(Packet<?> packet, Iterable<Player> receivers){
-        for(Player receiver : receivers){
-            ((CraftPlayer)receiver).getHandle().connection.send(packet);
-        }
-    }
-
     @Override
-    public void spawn(UUID uuid, Location location, Iterable<Player> receivers) {
-        final ClientboundAddEntityPacket spawnPacket = new ClientboundAddEntityPacket(
+    public void create(PacketQueue packetQueue, UUID uuid, Location location) {
+        final ClientboundAddEntityPacket addPacket = new ClientboundAddEntityPacket(
                 entityId,
                 uuid,
                 location.getX(),
-                location.getY() + getSpawnOffSet(),
+                location.getY(),
                 location.getZ(),
                 0f,
                 0f,
@@ -81,25 +62,38 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
                 0,
                 Vec3.ZERO
         );
-        sendPacket(spawnPacket, receivers);
+        ((PacketQueueImpl) packetQueue).register(addPacket);
+    }
+
+    protected abstract EntityType<?> getEntityType();
+
+    @Override
+    public void remove(PacketQueue packetQueue) {
+        final ClientboundRemoveEntityPacket removePacket = new ClientboundRemoveEntityPacket(entityId);
+        ((PacketQueueImpl) packetQueue).register(removePacket);
     }
 
     @Override
-    public void remove(Iterable<Player> receivers) {
-        final ClientboundRemoveEntityPacket removePacket = new ClientboundRemoveEntityPacket(entityId);
-        sendPacket(removePacket, receivers);
+    public void teleport(PacketQueue packetQueue, Vector position) {
+        final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        buffer.writeVarInt(entityId);
+        buffer.writeDouble(position.getX());
+        buffer.writeDouble(position.getY());
+        buffer.writeDouble(position.getZ());
+        buffer.writeByte(0);
+        buffer.writeByte(0);
+        buffer.writeBoolean(false);
+        final ClientboundTeleportEntityPacket positionPacket = new ClientboundTeleportEntityPacket(buffer);
+        ((PacketQueueImpl) packetQueue).register(positionPacket);
     }
 
-    protected void sendData(Iterable<Player> receivers, T data){
-        // Create packet
+    @Override
+    public void metadata(PacketQueue packetQueue, MetadataValue[] values) {
+        final List<SynchedEntityData.DataItem<?>> packedItems = Stream.of(values)
+                .map(value -> ((ExplicitMetadataValue) value).toNMS())
+                .collect(Collectors.toList());
         final SynchedEntityData entityData = new SynchedEntityData(null);
         final ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(entityId, entityData, false);
-        final List<SynchedEntityData.DataItem<?>> packedItems = new ArrayList<>(2 + getDataItemCount());
-
-        // Setup data
-        packedItems.add(new SynchedEntityData.DataItem<>(DATA_NO_GRAVITY, true));
-        packedItems.add(new SynchedEntityData.DataItem<>(DATA_SILENT, true));
-        addSpecificData(packedItems, data);
 
         try {
             packedItemField.set(dataPacket, packedItems);
@@ -107,18 +101,13 @@ public abstract class FakeEntityImpl<T> implements FakeEntity {
             throw new RuntimeException(e);
         }
 
-        // Send packet
-        sendPacket(dataPacket, receivers);
+        ((PacketQueueImpl) packetQueue).register(dataPacket);
     }
 
-    protected abstract EntityType<?> getEntityType();
-
-    protected float getSpawnOffSet(){
-        return 0f;
+    @Override
+    public void cancelVelocity(PacketQueue packetQueue) {
+        final ClientboundSetEntityMotionPacket velocityPacket = new ClientboundSetEntityMotionPacket(getEntityId(), Vec3.ZERO);
+        ((PacketQueueImpl) packetQueue).register(velocityPacket);
     }
-
-    protected abstract int getDataItemCount();
-
-    protected abstract void addSpecificData(List<SynchedEntityData.DataItem<?>> packedItems, T data);
 
 }

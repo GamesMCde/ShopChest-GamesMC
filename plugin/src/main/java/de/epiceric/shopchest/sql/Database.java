@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -29,7 +30,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.event.ShopBuySellEvent;
 import de.epiceric.shopchest.event.ShopBuySellEvent.Type;
 import de.epiceric.shopchest.shop.Shop;
@@ -243,16 +243,16 @@ public abstract class Database {
      *                 that were found (as {@code int})
      */
     public void connect(final Callback<Integer> callback) {
-        if (!Config.databaseTablePrefix.matches("^([a-zA-Z0-9\\-\\_]+)?$")) {
+        if (!GlobalConfig.databaseTablePrefix.matches("^([a-zA-Z0-9\\-\\_]+)?$")) {
             // Only letters, numbers dashes and underscores are allowed
             plugin.getLogger().severe("Database table prefix contains illegal letters, using 'shopchest_' prefix.");
-            Config.databaseTablePrefix = "shopchest_";
+            GlobalConfig.databaseTablePrefix = "shopchest_";
         }
 
-        this.tableShops = Config.databaseTablePrefix + "shops";
-        this.tableLogs = Config.databaseTablePrefix + "economy_logs";
-        this.tableLogouts = Config.databaseTablePrefix + "player_logouts";
-        this.tableFields = Config.databaseTablePrefix + "fields";
+        this.tableShops = GlobalConfig.databaseTablePrefix + "shops";
+        this.tableLogs = GlobalConfig.databaseTablePrefix + "economy_logs";
+        this.tableLogouts = GlobalConfig.databaseTablePrefix + "player_logouts";
+        this.tableFields = GlobalConfig.databaseTablePrefix + "fields";
 
         new BukkitRunnable() {
             @Override
@@ -301,7 +301,7 @@ public abstract class Database {
                     }
 
                     // Clean up economy log
-                    if (Config.cleanupEconomyLogDays > 0) {
+                    if (GlobalConfig.cleanupEconomyLogDays > 0) {
                         cleanUpEconomy(false);
                     }
 
@@ -645,7 +645,7 @@ public abstract class Database {
         final String query = "INSERT INTO " + tableLogs + " (shop_id,timestamp,time,player_name,player_uuid,product_name,product,amount,"
                 + "vendor_name,vendor_uuid,admin,world,x,y,z,price,type) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        if (Config.enableEconomyLog) {
+        if (GlobalConfig.enableEconomyLog) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -705,7 +705,7 @@ public abstract class Database {
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                long time = System.currentTimeMillis() - Config.cleanupEconomyLogDays * 86400000L;
+                long time = System.currentTimeMillis() - GlobalConfig.cleanupEconomyLogDays * 86400000L;
                 String queryCleanUpLog = "DELETE FROM " + tableLogs + " WHERE time < " + time;
                 String queryCleanUpPlayers = "DELETE FROM " + tableLogouts + " WHERE time < " + time;
 

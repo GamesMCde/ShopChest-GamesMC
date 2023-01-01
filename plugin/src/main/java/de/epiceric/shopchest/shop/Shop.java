@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import de.epiceric.shopchest.config.GlobalConfig;
 import de.epiceric.shopchest.utils.ShopUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.config.Config;
 import de.epiceric.shopchest.config.hologram.HologramFormat;
 import de.epiceric.shopchest.config.Placeholder;
 import de.epiceric.shopchest.exceptions.ChestNotFoundException;
@@ -115,7 +115,7 @@ public class Shop {
         if (!ShopUtils.isShopMaterial(b.getType())) {
             ChestNotFoundException ex = new ChestNotFoundException(String.format("No Chest found in world '%s' at location: %d; %d; %d",
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
-            plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
+            plugin.getShopUtils().removeShop(this, GlobalConfig.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
             plugin.getDebugLogger().debug("Failed to create shop (#" + id + ")");
             plugin.getDebugLogger().debug(ex);
@@ -123,7 +123,7 @@ public class Shop {
         } else if ((!ItemUtils.isAir(b.getRelative(BlockFace.UP).getType()))) {
             NotEnoughSpaceException ex = new NotEnoughSpaceException(String.format("No space above chest in world '%s' at location: %d; %d; %d",
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
-            plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
+            plugin.getShopUtils().removeShop(this, GlobalConfig.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
             plugin.getDebugLogger().debug("Failed to create shop (#" + id + ")");
             plugin.getDebugLogger().debug(ex);
@@ -347,7 +347,7 @@ public class Shop {
 
         double deltaY = -0.6;
 
-        if (Config.hologramFixedBottom) deltaY = -0.85;
+        if (GlobalConfig.hologramFixedBottom) deltaY = -0.85;
 
         if (chests[1] != null) {
             BlockInventoryHolder c1 = Utils.getMajorVersion() >= 13 && (face == BlockFace.NORTH || face == BlockFace.EAST) ? chests[1] : chests[0];
@@ -374,7 +374,10 @@ public class Shop {
             holoLocation.add(0.5, deltaY, 0.5);
         }
 
-        holoLocation.add(0, Config.hologramLift, 0);
+        holoLocation.add(0, GlobalConfig.hologramLift, 0);
+
+        final float MARKER_ARMOR_STAND_OFFSET = 1.975f;
+        holoLocation.add(0, MARKER_ARMOR_STAND_OFFSET, 0);
 
         return holoLocation;
     }
