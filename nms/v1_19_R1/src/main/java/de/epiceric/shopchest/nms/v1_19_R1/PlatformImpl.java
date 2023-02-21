@@ -1,8 +1,14 @@
 package de.epiceric.shopchest.nms.v1_19_R1;
 
 import de.epiceric.shopchest.nms.*;
-import de.epiceric.shopchest.nms.metadata.MetadataProperties;
-import de.epiceric.shopchest.nms.v1_19_R1.metadata.MetadataPropertiesImpl;
+import de.epiceric.shopchest.nms.network.entity.FakeArmorStand;
+import de.epiceric.shopchest.nms.network.entity.FakeItem;
+import de.epiceric.shopchest.nms.network.entity.metadata.MetadataProperties;
+import de.epiceric.shopchest.nms.network.PacketQueue;
+import de.epiceric.shopchest.nms.v1_19_R1.network.entity.FakeArmorStandImpl;
+import de.epiceric.shopchest.nms.v1_19_R1.network.entity.FakeItemImpl;
+import de.epiceric.shopchest.nms.v1_19_R1.network.entity.metadata.MetadataPropertiesImpl;
+import de.epiceric.shopchest.nms.v1_19_R1.network.PacketQueueImpl;
 
 public class PlatformImpl implements Platform {
 

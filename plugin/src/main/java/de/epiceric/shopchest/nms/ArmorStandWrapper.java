@@ -1,7 +1,7 @@
 package de.epiceric.shopchest.nms;
 
 import de.epiceric.shopchest.ShopChest;
-import de.epiceric.shopchest.nms.metadata.MetadataProperties;
+import de.epiceric.shopchest.nms.network.entity.metadata.MetadataProperties;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

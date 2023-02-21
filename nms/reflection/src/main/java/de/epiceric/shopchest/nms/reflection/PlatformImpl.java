@@ -2,7 +2,10 @@ package de.epiceric.shopchest.nms.reflection;
 
 import de.epiceric.shopchest.debug.DebugLogger;
 import de.epiceric.shopchest.nms.*;
-import de.epiceric.shopchest.nms.metadata.MetadataProperties;
+import de.epiceric.shopchest.nms.network.entity.FakeArmorStand;
+import de.epiceric.shopchest.nms.network.entity.FakeItem;
+import de.epiceric.shopchest.nms.network.entity.metadata.MetadataProperties;
+import de.epiceric.shopchest.nms.network.PacketQueue;
 
 public class PlatformImpl implements Platform {
 

@@ -1,6 +1,6 @@
 package de.epiceric.shopchest.nms.reflection;
 
-import de.epiceric.shopchest.nms.PacketQueue;
+import de.epiceric.shopchest.nms.network.PacketQueue;
 import org.bukkit.entity.Player;
 
 import java.util.LinkedList;

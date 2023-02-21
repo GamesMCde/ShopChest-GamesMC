@@ -1,13 +1,11 @@
 package de.epiceric.shopchest.nms.reflection;
 
 import de.epiceric.shopchest.debug.DebugLogger;
-import de.epiceric.shopchest.nms.FakeEntity;
-import de.epiceric.shopchest.nms.PacketQueue;
-import de.epiceric.shopchest.nms.metadata.MetadataValue;
+import de.epiceric.shopchest.nms.network.entity.FakeEntity;
+import de.epiceric.shopchest.nms.network.PacketQueue;
+import de.epiceric.shopchest.nms.network.entity.metadata.MetadataValue;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.inventivetalent.reflection.resolver.minecraft.NMSClassResolver;
 
 import java.util.UUID;
 
