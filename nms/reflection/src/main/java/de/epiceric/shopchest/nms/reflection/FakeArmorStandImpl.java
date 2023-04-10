@@ -1,7 +1,7 @@
 package de.epiceric.shopchest.nms.reflection;
 
 import de.epiceric.shopchest.debug.DebugLogger;
-import de.epiceric.shopchest.nms.FakeArmorStand;
+import de.epiceric.shopchest.nms.network.entity.FakeArmorStand;
 
 public class FakeArmorStandImpl extends FakeEntityImpl implements FakeArmorStand {
 

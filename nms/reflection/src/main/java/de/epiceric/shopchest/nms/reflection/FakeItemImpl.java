@@ -1,14 +1,7 @@
 package de.epiceric.shopchest.nms.reflection;
 
 import de.epiceric.shopchest.debug.DebugLogger;
-import de.epiceric.shopchest.nms.FakeItem;
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.inventivetalent.reflection.resolver.minecraft.OBCClassResolver;
-
-import java.util.UUID;
+import de.epiceric.shopchest.nms.network.entity.FakeItem;
 
 public class FakeItemImpl extends FakeEntityImpl implements FakeItem {
 
