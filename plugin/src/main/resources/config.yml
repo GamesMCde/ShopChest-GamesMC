@@ -133,6 +133,9 @@ minimum-prices:
 maximum-prices:
 # "STONE": 2
 
+# Seth the shop taxes in percent.
+shop-taxes: 20
+
 # Set the items of which a player can't create a shop.
 blacklist:
 # - "DIORITE"
