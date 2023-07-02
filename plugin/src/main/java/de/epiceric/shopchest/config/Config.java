@@ -105,6 +105,8 @@ public class Config {
      * To actually retrieve the maximum price for an item, you have to get the double {@code maximum-prices.<key>}.
      **/
     public static Set<String> maximumPrices;
+    
+    public static int shopTaxes;
 
     /**
      * <p>List containing items, of which players can't create a shop</p>
@@ -454,6 +456,7 @@ public class Config {
         databaseType = Database.DatabaseType.valueOf(plugin.getConfig().getString("database.type"));
         minimumPrices = (plugin.getConfig().getConfigurationSection("minimum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("minimum-prices").getKeys(true);
         maximumPrices = (plugin.getConfig().getConfigurationSection("maximum-prices") == null) ? new HashSet<String>() : plugin.getConfig().getConfigurationSection("maximum-prices").getKeys(true);
+        shopTaxes = plugin.getConfig().getInt("shop-taxes");
         allowDecimalsInPrice = plugin.getConfig().getBoolean("allow-decimals-in-price");
         allowBrokenItems = plugin.getConfig().getBoolean("allow-broken-items");
         autoCalculateItemAmount = (allowDecimalsInPrice && plugin.getConfig().getBoolean("auto-calculate-item-amount"));
@@ -495,6 +498,16 @@ public class Config {
         if (langReload) {
             plugin.loadLanguages();
         }
+    }
+    
+    /**
+     * Method to calculate the amount of money after applied taxes
+     * @param amount the amount of money before taxes
+     * @return the amount of money after taxes
+     */
+    public static double applyTaxes(double amount)
+    {
+        return amount - (amount * ((double) shopTaxes / 100));
     }
 
 }
