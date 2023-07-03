@@ -4,8 +4,7 @@ import java.util.Optional;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.block.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -69,7 +68,7 @@ public class WorldGuardListener implements Listener {
                 Block block = event.getBlocks().get(0);
                 Material type = block.getType();
                 
-                if (type == Material.CHEST || type == Material.TRAPPED_CHEST) {
+                if (type == Material.CHEST || type == Material.TRAPPED_CHEST || type == Material.BARREL || type == Material.SHULKER_BOX) {
                     if (isAllowed(player, block.getLocation())) {
                         event.setResult(Result.ALLOW);
                     }
@@ -77,8 +76,8 @@ public class WorldGuardListener implements Listener {
             } else if (event.getOriginalEvent() instanceof InventoryOpenEvent) {
                 InventoryOpenEvent orig = (InventoryOpenEvent) event.getOriginalEvent();
 
-                if (orig.getInventory().getHolder() instanceof Chest) {
-                    if (isAllowed(player, ((Chest) orig.getInventory().getHolder()).getLocation())) {
+                if (orig.getInventory().getHolder() instanceof Chest || orig.getInventory().getHolder() instanceof Barrel || orig.getInventory().getHolder() instanceof ShulkerBox) {
+                    if (isAllowed(player, ((Container) orig.getInventory().getHolder()).getLocation())) {
                         event.setResult(Result.ALLOW);
                     }
                 }

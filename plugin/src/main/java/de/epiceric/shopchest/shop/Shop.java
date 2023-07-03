@@ -1,18 +1,17 @@
 package de.epiceric.shopchest.shop;
 
+import java.awt.event.ContainerAdapter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import de.epiceric.shopchest.utils.ShopUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
+import org.bukkit.block.*;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -40,10 +39,10 @@ public class Shop {
 
     private static class PreCreateResult {
         private final Inventory inventory;
-        private final Chest[] chests;
+        private final Container[] chests;
         private final BlockFace face;
 
-        private PreCreateResult(Inventory inventory, Chest[] chests, BlockFace face) {
+        private PreCreateResult(Inventory inventory, Container[] chests, BlockFace face) {
             this.inventory = inventory;
             this.chests = chests;
             this.face = face;
@@ -113,8 +112,8 @@ public class Shop {
         plugin.debug("Creating shop (#" + id + ")");
 
         Block b = location.getBlock();
-        if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST) {
-            ChestNotFoundException ex = new ChestNotFoundException(String.format("No Chest found in world '%s' at location: %d; %d; %d",
+        if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST && b.getType() != Material.BARREL && b.getType() != Material.SHULKER_BOX) {
+            ChestNotFoundException ex = new ChestNotFoundException(String.format("No Suitable Container found in world '%s' at location: %d; %d; %d",
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
             plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
@@ -122,7 +121,7 @@ public class Shop {
             plugin.debug(ex);
             return false;
         } else if ((!ItemUtils.isAir(b.getRelative(BlockFace.UP).getType()))) {
-            NotEnoughSpaceException ex = new NotEnoughSpaceException(String.format("No space above chest in world '%s' at location: %d; %d; %d",
+            NotEnoughSpaceException ex = new NotEnoughSpaceException(String.format("No space above container in world '%s' at location: %d; %d; %d",
                     b.getWorld().getName(), b.getX(), b.getY(), b.getZ()));
             plugin.getShopUtils().removeShop(this, Config.removeShopOnError);
             if (showConsoleMessages) plugin.getLogger().severe(ex.getMessage());
@@ -198,8 +197,8 @@ public class Shop {
 
         if (ih == null) return null;
 
-        Chest[] chests = new Chest[2];
-        BlockFace face;
+        Container[] chests = new Container[2];
+        BlockFace face = null;
 
         if (ih instanceof DoubleChest) {
             DoubleChest dc = (DoubleChest) ih;
@@ -209,13 +208,17 @@ public class Shop {
             chests[0] = r;
             chests[1] = l;
         } else {
-            chests[0] = (Chest) ih;
+            chests[0] = (Container) ih;
         }
 
         if (Utils.getMajorVersion() < 13) {
-            face = ((org.bukkit.material.Directional) chests[0].getData()).getFacing();
+            if (chests[0] instanceof Chest) {
+                face = ((org.bukkit.material.Directional) ((Chest)chests[0]).getData()).getFacing();
+            }
         } else {
-            face = ((Directional) chests[0].getBlockData()).getFacing();
+            if (chests[0] instanceof Chest) {
+                face = ((Directional) ((Chest)chests[0]).getBlockData()).getFacing();
+            }
         }
 
         return new PreCreateResult(ih.getInventory(), chests, face);
@@ -328,7 +331,7 @@ public class Shop {
         return lines.toArray(new String[0]);
     }
 
-    private Location getHologramLocation(Chest[] chests, BlockFace face) {
+    private Location getHologramLocation(Container[] chests, BlockFace face) {
         World w = location.getWorld();
         int x = location.getBlockX();
         int y  = location.getBlockY();
@@ -341,8 +344,8 @@ public class Shop {
         if (Config.hologramFixedBottom) deltaY = -0.85;
 
         if (chests[1] != null) {
-            Chest c1 = Utils.getMajorVersion() >= 13 && (face == BlockFace.NORTH || face == BlockFace.EAST) ? chests[1] : chests[0];
-            Chest c2 = Utils.getMajorVersion() >= 13 && (face == BlockFace.NORTH || face == BlockFace.EAST) ? chests[0] : chests[1];
+            Container c1 = Utils.getMajorVersion() >= 13 && (face == BlockFace.NORTH || face == BlockFace.EAST) ? chests[1] : chests[0];
+            Container c2 = Utils.getMajorVersion() >= 13 && (face == BlockFace.NORTH || face == BlockFace.EAST) ? chests[0] : chests[1];
 
             if (holoLocation.equals(c1.getLocation())) {
                 if (c1.getX() != c2.getX()) {
@@ -471,10 +474,10 @@ public class Shop {
      */
     public InventoryHolder getInventoryHolder() {
         Block b = getLocation().getBlock();
-
-        if (b.getType() == Material.CHEST || b.getType() == Material.TRAPPED_CHEST) {
-            Chest chest = (Chest) b.getState();
-            return chest.getInventory().getHolder();
+        
+        if (ShopUtils.isShopMaterial(b.getType())) {
+            Container container = (Container) b.getState();
+            return container.getInventory().getHolder();
         }
 
         return null;
