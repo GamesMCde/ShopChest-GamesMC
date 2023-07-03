@@ -11,10 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
@@ -107,7 +104,7 @@ public class ShopUtils {
             shopLocation.put(r.getLocation(), shop);
             shopLocation.put(l.getLocation(), shop);
         } else {
-            plugin.debug("Added shop as single chest. (#" + shop.getID() + ")");
+            plugin.debug("Added shop as single (supported) container. (#" + shop.getID() + ")");
 
             shopLocation.put(shop.getLocation(), shop);
         }
@@ -240,6 +237,39 @@ public class ShopUtils {
      */
     public void removeShopById(int shopId, boolean removeFromDatabase) {
         removeShopById(shopId, removeFromDatabase, null);
+    }
+    
+    /**
+     * Check if a material can be a shop (chest)
+     * @param material the material to check
+     * @return true if the material can be a shop, false otherwise
+     */
+    public static boolean isShopMaterial(Material material) {
+        
+        switch(material) {
+            case CHEST:
+            case TRAPPED_CHEST:
+            case BARREL:
+            case SHULKER_BOX:
+            case BLACK_SHULKER_BOX:
+            case BLUE_SHULKER_BOX:
+            case BROWN_SHULKER_BOX:
+            case CYAN_SHULKER_BOX:
+            case GREEN_SHULKER_BOX:
+            case LIGHT_BLUE_SHULKER_BOX:
+            case LIGHT_GRAY_SHULKER_BOX:
+            case LIME_SHULKER_BOX:
+            case MAGENTA_SHULKER_BOX:
+            case ORANGE_SHULKER_BOX:
+            case PINK_SHULKER_BOX:
+            case PURPLE_SHULKER_BOX:
+            case RED_SHULKER_BOX:
+            case WHITE_SHULKER_BOX:
+            case YELLOW_SHULKER_BOX:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
