@@ -137,6 +137,11 @@ public class Config {
      * Whether buys and sells must be confirmed
      **/
     public static boolean confirmShopping;
+    
+    /**
+     * The threshold for the costs the confirm shopping feature will be activated
+     */
+    public static double confirmShoppingThreshold;
 
     /**
      * Whether the shop creation price should be refunded at removal.
@@ -478,6 +483,7 @@ public class Config {
         blacklist = (plugin.getConfig().getStringList("blacklist") == null) ? new ArrayList<String>() : plugin.getConfig().getStringList("blacklist");
         buyGreaterOrEqualSell = plugin.getConfig().getBoolean("buy-greater-or-equal-sell");
         confirmShopping = plugin.getConfig().getBoolean("confirm-shopping");
+        confirmShoppingThreshold = plugin.getConfig().getDouble("confirm-shopping-threshold");
         refundShopCreation = plugin.getConfig().getBoolean("refund-shop-creation");
         enableUpdateChecker = plugin.getConfig().getBoolean("enable-update-checker");
         enableDebugLog = plugin.getConfig().getBoolean("enable-debug-log");
