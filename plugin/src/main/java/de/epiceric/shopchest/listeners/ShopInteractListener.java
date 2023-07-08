@@ -265,7 +265,7 @@ public class ShopInteractListener implements Listener {
                             
                             if (shop.getShopType() == ShopType.ADMIN) {
                                 if (externalPluginsAllowed || p.hasPermission(Permissions.BYPASS_EXTERNAL_PLUGIN)) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !Config.confirmShopping || getBuyPrice(shop, p.isSneaking())<Config.confirmShoppingThreshold) {
                                         buy(p, shop, p.isSneaking());
                                         if (Config.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -295,7 +295,7 @@ public class ShopInteractListener implements Listener {
                                         amount = shop.getProduct().getAmount();
 
                                     if (Utils.getAmount(c.getInventory(), itemStack) >= amount) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                        if (confirmed || !Config.confirmShopping || getBuyPrice(shop, p.isSneaking())<Config.confirmShoppingThreshold) {
                                             buy(p, shop, p.isSneaking());
                                             if (Config.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -312,7 +312,7 @@ public class ShopInteractListener implements Listener {
                                         }
                                     } else {
                                         if (Config.autoCalculateItemAmount && Utils.getAmount(c.getInventory(), itemStack) > 0) {
-                                            if (confirmed || !Config.confirmShopping) {
+                                            if (confirmed || !Config.confirmShopping || getBuyPrice(shop, p.isSneaking())<Config.confirmShoppingThreshold) {
                                                 buy(p, shop, p.isSneaking());
                                                 if (Config.confirmShopping) {
                                                     Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -399,7 +399,7 @@ public class ShopInteractListener implements Listener {
                                 int amount = (stack && shop.getProduct().getAmount()<= itemStack.getMaxStackSize()) ? itemStack.getMaxStackSize() : shop.getProduct().getAmount();
 
                                 if (Utils.getAmount(p.getInventory(), itemStack) >= amount) {
-                                    if (confirmed || !Config.confirmShopping) {
+                                    if (confirmed || !Config.confirmShopping || getSellPrice(shop, p.isSneaking())<Config.confirmShoppingThreshold) {
                                         sell(p, shop, stack);
                                         if (Config.confirmShopping) {
                                             Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -416,7 +416,7 @@ public class ShopInteractListener implements Listener {
                                     }
                                 } else {
                                     if (Config.autoCalculateItemAmount && Utils.getAmount(p.getInventory(), itemStack) > 0) {
-                                        if (confirmed || !Config.confirmShopping) {
+                                        if (confirmed || !Config.confirmShopping || getSellPrice(shop, p.isSneaking())<Config.confirmShoppingThreshold) {
                                             sell(p, shop, stack);
                                             if (Config.confirmShopping) {
                                                 Set<Integer> ids = needsConfirmation.containsKey(p.getUniqueId()) ? needsConfirmation.get(p.getUniqueId()) : new HashSet<Integer>();
@@ -1133,5 +1133,25 @@ public class ShopInteractListener implements Listener {
             plugin.debug(e);
             plugin.getLogger().warning("Failed to send BungeeCord message");
         }
+    }
+    
+    private double getBuyPrice(final Shop shop, boolean stack)
+    {
+        if(shop.getProduct().getAmount() >= shop.getProduct().getItemStack().getMaxStackSize())
+            return shop.getBuyPrice();
+        if(stack)
+            return (shop.getBuyPrice() / shop.getProduct().getAmount()) * shop.getProduct().getItemStack().getMaxStackSize();
+        else
+            return shop.getBuyPrice();
+    }
+    
+    private double getSellPrice(final Shop shop, boolean stack)
+    {
+        if(shop.getProduct().getAmount() >= shop.getProduct().getItemStack().getMaxStackSize())
+            return shop.getSellPrice();
+        if(stack)
+            return (shop.getSellPrice() / shop.getProduct().getAmount()) * shop.getProduct().getItemStack().getMaxStackSize();
+        else
+            return shop.getSellPrice();
     }
 }
