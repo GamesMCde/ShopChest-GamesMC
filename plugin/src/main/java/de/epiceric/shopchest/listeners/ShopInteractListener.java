@@ -648,7 +648,7 @@ public class ShopInteractListener implements Listener {
 
         ItemStack itemStack = shop.getProduct().getItemStack();
         int amount = shop.getProduct().getAmount();
-        if (stack && amount<=shop.getProduct().getAmount()) amount = itemStack.getMaxStackSize();
+        if (stack && amount<=itemStack.getMaxStackSize()) amount = itemStack.getMaxStackSize();
 
         String worldName = shop.getLocation().getWorld().getName();
 
@@ -813,7 +813,7 @@ public class ShopInteractListener implements Listener {
 
         ItemStack itemStack = shop.getProduct().getItemStack();
         int amount = shop.getProduct().getAmount();
-        if (stack && amount<=shop.getProduct().getAmount()) amount = itemStack.getMaxStackSize();
+        if (stack && amount<= itemStack.getMaxStackSize()) amount = itemStack.getMaxStackSize();
 
         double price = shop.getSellPrice();
         if (stack) price = (price / shop.getProduct().getAmount()) * amount;
