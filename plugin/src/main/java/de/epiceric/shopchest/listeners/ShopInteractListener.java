@@ -289,7 +289,7 @@ public class ShopInteractListener implements Listener {
                                     Container c = (Container) b.getState();
                                     ItemStack itemStack = shop.getProduct().getItemStack();
                                     int amount = (p.isSneaking() ? itemStack.getMaxStackSize() : shop.getProduct().getAmount());
-                                    
+
                                     // If shop has higher amounts than a stack, use the shop amount to allow players to use bulk discount
                                     if(shop.getProduct().getAmount()>itemStack.getMaxStackSize())
                                         amount = shop.getProduct().getAmount();
@@ -941,7 +941,7 @@ public class ShopInteractListener implements Listener {
                         } else {
                             plugin.debug("Economy transaction failed (r2): " + r2.errorMessage + " (#" + shop.getID() + ")");
                             executor.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED, new Replacement(Placeholder.ERROR, r2.errorMessage)));
-                            econ.withdrawPlayer(executor, worldName, newPrice);
+                            econ.withdrawPlayer(executor, worldName, Config.applyTaxes(newPrice));
                             econ.depositPlayer(shop.getVendor(), worldName, newPrice);
                         }
 
@@ -1134,7 +1134,7 @@ public class ShopInteractListener implements Listener {
             plugin.getLogger().warning("Failed to send BungeeCord message");
         }
     }
-    
+
     private double getBuyPrice(final Shop shop, boolean stack)
     {
         if(shop.getProduct().getAmount() >= shop.getProduct().getItemStack().getMaxStackSize())
@@ -1144,7 +1144,7 @@ public class ShopInteractListener implements Listener {
         else
             return shop.getBuyPrice();
     }
-    
+
     private double getSellPrice(final Shop shop, boolean stack)
     {
         if(shop.getProduct().getAmount() >= shop.getProduct().getItemStack().getMaxStackSize())

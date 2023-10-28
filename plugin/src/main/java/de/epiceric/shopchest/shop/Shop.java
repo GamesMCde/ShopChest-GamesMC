@@ -19,6 +19,16 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import de.epiceric.shopchest.ShopChest;
+import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.hologram.HologramFormat;
+import de.epiceric.shopchest.config.Placeholder;
+import de.epiceric.shopchest.exceptions.ChestNotFoundException;
+import de.epiceric.shopchest.exceptions.NotEnoughSpaceException;
+import de.epiceric.shopchest.nms.Hologram;
+import de.epiceric.shopchest.utils.ItemUtils;
+import de.epiceric.shopchest.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
