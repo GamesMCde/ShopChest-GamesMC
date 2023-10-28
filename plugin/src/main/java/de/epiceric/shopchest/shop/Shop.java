@@ -6,7 +6,15 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import de.epiceric.shopchest.config.Config;
+import de.epiceric.shopchest.config.Placeholder;
+import de.epiceric.shopchest.config.hologram.HologramFormat;
+import de.epiceric.shopchest.exceptions.ChestNotFoundException;
+import de.epiceric.shopchest.exceptions.NotEnoughSpaceException;
+import de.epiceric.shopchest.nms.Hologram;
+import de.epiceric.shopchest.utils.ItemUtils;
 import de.epiceric.shopchest.utils.ShopUtils;
+import de.epiceric.shopchest.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -28,6 +36,8 @@ import de.epiceric.shopchest.exceptions.NotEnoughSpaceException;
 import de.epiceric.shopchest.nms.Hologram;
 import de.epiceric.shopchest.utils.ItemUtils;
 import de.epiceric.shopchest.utils.Utils;
+
+import de.epiceric.shopchest.ShopChest;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

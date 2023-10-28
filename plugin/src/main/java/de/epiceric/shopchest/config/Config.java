@@ -515,15 +515,5 @@ public class Config {
     {
         return amount - (amount * ((double) shopTaxes / 100));
     }
-    
-    /**
-     * Method to calculate the amount of money after applied taxes
-     * @param amount the amount of money before taxes
-     * @return the amount of money after taxes
-     */
-    public static double applyTaxes(double amount)
-    {
-        return amount - (amount * ((double) shopTaxes / 100));
-    }
 
 }
