@@ -172,7 +172,6 @@ public class ShopChest extends JavaPlugin {
         }
 
         shopUtils = new ShopUtils(this);
-        saveResource("item_names.txt", true);
 
         File hologramFormatFile = new File(getDataFolder(), "hologram-format.yml");
         if (!hologramFormatFile.exists()) {
