@@ -118,6 +118,8 @@ public class PlatformLoader {
                 return new de.epiceric.shopchest.nms.v1_21_R1.PlatformImpl();
             case "61a218cda78417b6039da56e08194083": // 1.21.3 (v1_21_R2)
                 return new de.epiceric.shopchest.nms.v1_21_R2.PlatformImpl();
+            case "60ac387ca8007aa018e6aeb394a6988c": // 1.21.4 (v1_21_R3)
+                return new de.epiceric.shopchest.nms.v1_21_R3.PlatformImpl();
             default:
                 return null;
         }
