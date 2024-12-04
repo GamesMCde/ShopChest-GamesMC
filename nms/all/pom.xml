@@ -17,7 +17,6 @@
     <properties>
         <builtFilePath>target/${project.build.finalName}-${nms-classifier}.jar</builtFilePath>
     </properties>
-
     <!-- Ensure build order for assembly -->
     <dependencies>
         <dependency>
@@ -75,6 +74,14 @@
         <dependency>
             <groupId>de.epiceric</groupId>
             <artifactId>shopchest-nms-v1_21_R1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.epiceric</groupId>
+            <artifactId>shopchest-nms-v1_21_R2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.epiceric</groupId>
+            <artifactId>shopchest-nms-v1_21_R3</artifactId>
         </dependency>
     </dependencies>
 
