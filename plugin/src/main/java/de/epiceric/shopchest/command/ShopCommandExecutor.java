@@ -132,6 +132,8 @@ class ShopCommandExecutor implements CommandExecutor {
                         info(p);
                     } else if (subCommand.getName().equalsIgnoreCase("list")) {
                         list(p, command.getName(), args);
+                    } else if (subCommand.getName().equalsIgnoreCase("empty")) {
+                        empty(p, command.getName(), args);
                     }  else if (subCommand.getName().equalsIgnoreCase("limits")) {
                         plugin.debug(p.getName() + " is viewing his shop limits: " + shopUtils.getShopAmount(p) + "/" + shopUtils.getShopLimit(p));
                         int limit = shopUtils.getShopLimit(p);
@@ -520,9 +522,81 @@ class ShopCommandExecutor implements CommandExecutor {
      * A given player retrieves information about all shops
      * @param p The command executor
      */
-    private void list(final Player p, final String command, final String[] args) {
-        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+    private void empty(final Player p, final String command, final String[] args) {
+        plugin.debug(p.getName() + " wants to retrieve information about empty shops");
 
+        plugin.getShopUtils().getShops(p, new Callback<Collection<Shop>>(plugin) {
+            @Override
+            public void onResult(Collection<Shop> result) {
+                List<Shop> shops = new ArrayList<>(result);
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+
+                if(args.length == 1 || args.length == 2){
+                    int page = 1;
+                    if(args.length == 2){
+                        try{
+                            page = Integer.parseInt(args[1]);
+                        }
+                        catch (NumberFormatException e){
+                            // Invalid page number, default to 1
+                        }
+                    }
+                    shops = shops.stream().filter(s -> {
+                        try {
+                            Container c = (Container) s.getLocation().getBlock().getState();
+                            ItemStack itemStack = s.getProduct().getItemStack();
+                            int amount = Utils.getAmount(c.getInventory(), itemStack);
+                            return amount < s.getProduct().getAmount(); // Only show empty shops
+                        } catch (Exception e) {
+                            return false; // Invalid shop location, ignore
+                        }
+                    }).toList();
+
+                    int totalPages = (int) Math.ceil((double) shops.size() / Config.shopsPerPage);
+                    if (page < 1 || page > totalPages) {
+                        p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
+                        return;
+                    }
+                    int startIndex = (page - 1) * Config.shopsPerPage;
+                    int endIndex = Math.min(startIndex + Config.shopsPerPage, shops.size());
+                    p.sendMessage(messageRegistry.getMessage(Message.SHOPS_EMPTY_HEADER,
+                            new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shops.size())),
+                            new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                            new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                    ));
+
+                    for (int i = startIndex; i < endIndex; i++) {
+                        p.spigot().sendMessage(getShortShopInfo(shops.get(i)));
+                    }
+
+                    //Send previous and next page buttons if there are more pages and make them clickable with command /shops list page +/- 1
+                    BaseComponent pageButtons = getPageButtons("/" + command + " empty", page, page > 1, page < totalPages);
+                    if(pageButtons != null) {
+                        p.spigot().sendMessage(pageButtons);
+                    }
+                    p.sendMessage(messageRegistry.getMessage(Message.SHOPS_EMPTY_FOOTER,
+                            new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shops.size())),
+                            new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                            new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                    ));
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                        new Replacement(Placeholder.ERROR, "Failed to get shops")));
+            }
+        });
+    }
+
+    /**
+     * A given player retrieves information about all shops
+     * @param p The command executor
+     */
+    private void list(final Player p, final String command, final String[] args) {
         plugin.debug(p.getName() + " wants to retrieve information about all shops");
 
         plugin.getShopUtils().getShops(p, new Callback<Collection<Shop>>(plugin) {

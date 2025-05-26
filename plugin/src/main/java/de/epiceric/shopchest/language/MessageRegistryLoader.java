@@ -109,7 +109,8 @@ public class MessageRegistryLoader {
         register(messages, Message.COMMAND_DESC_CREATE_ADMIN, "message.commandDescription.create-admin", "&a/%COMMAND% create <amount> <buy-price> <sell-price> [admin] - Create a shop.");
         register(messages, Message.COMMAND_DESC_REMOVE, "message.commandDescription.remove", "&a/%COMMAND% remove - Remove a shop.");
         register(messages, Message.COMMAND_DESC_INFO, "message.commandDescription.info", "&a/%COMMAND% info - Retrieve shop information.");
-        register(messages, Message.COMMAND_DESC_LIST, "message.commandDescription.list", "&a/%COMMAND% list - Show a list of all Shops.");
+        register(messages, Message.COMMAND_DESC_LIST, "message.commandDescription.list", "&a/%COMMAND% list - Show a list of all your Shops.");
+        register(messages, Message.COMMAND_DESC_EMPTY, "message.commandDescription.empty", "&a/%COMMAND% empty - Show a list of all your empty Shops.");
         register(messages, Message.COMMAND_DESC_REMOVEALL, "message.commandDescription.removeall", "&a/%COMMAND% removeall - Remove all shops of a player.");
         register(messages, Message.COMMAND_DESC_RELOAD, "message.commandDescription.reload", "&a/%COMMAND% reload - Reload shops.");
         register(messages, Message.COMMAND_DESC_UPDATE, "message.commandDescription.update", "&a/%COMMAND% update - Check for Updates.");
@@ -131,6 +132,8 @@ public class MessageRegistryLoader {
         register(messages, Message.PRE_PAGINATION_FILLER, "message.pre-pagination-filler", "&7--- > ");
         register(messages, Message.BETWEEN_PAGINATION_FILLER, "message.between-pagination-filler", " &7| ");
         register(messages, Message.POST_PAGINATION_FILLER, "message.post-pagination-filler", " &7< ---");
+        register(messages, Message.SHOPS_EMPTY_HEADER, "message.lists.headerEmpty", "&6==== &cEmpty shops list &6====");
+        register(messages, Message.SHOPS_EMPTY_FOOTER, "message.lists.footerEmpty", "&6==== &7Page %PAGE%/%TOTAL-PAGES% &6====");
     }
 
     private void register(@NotNull String[] messages, @NotNull Message message, @NotNull String path, @Nullable String defaultValue) {
