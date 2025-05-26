@@ -525,9 +525,6 @@ class ShopCommandExecutor implements CommandExecutor {
 
         plugin.debug(p.getName() + " wants to retrieve information about all shops");
 
-        //Load all shops of the player
-        //Get offline player from the player
-
         plugin.getShopUtils().getShops(p, new Callback<Collection<Shop>>(plugin) {
             @Override
             public void onResult(Collection<Shop> result) {
