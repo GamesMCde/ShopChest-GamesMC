@@ -292,6 +292,11 @@ public class Config {
     public static double shopCreationPriceAdmin;
 
     /**
+     * The amount of shops shown per page in the shop list
+     */
+    public static int shopsPerPage;
+
+    /**
      * The default shop limit for players whose limit is not set via a permission
      **/
     public static int defaultLimit;
@@ -498,6 +503,7 @@ public class Config {
         shopCreationPriceNormal = plugin.getConfig().getDouble("shop-creation-price.normal");
         shopCreationPriceAdmin = plugin.getConfig().getDouble("shop-creation-price.admin");
         defaultLimit = plugin.getConfig().getInt("shop-limits.default");
+        shopsPerPage = plugin.getConfig().getInt("list-shops-per-page");
         mainCommandName = plugin.getConfig().getString("main-command-name");
         languageFile = plugin.getConfig().getString("language-file");
 

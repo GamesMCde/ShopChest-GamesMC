@@ -109,6 +109,7 @@ public class MessageRegistryLoader {
         register(messages, Message.COMMAND_DESC_CREATE_ADMIN, "message.commandDescription.create-admin", "&a/%COMMAND% create <amount> <buy-price> <sell-price> [admin] - Create a shop.");
         register(messages, Message.COMMAND_DESC_REMOVE, "message.commandDescription.remove", "&a/%COMMAND% remove - Remove a shop.");
         register(messages, Message.COMMAND_DESC_INFO, "message.commandDescription.info", "&a/%COMMAND% info - Retrieve shop information.");
+        register(messages, Message.COMMAND_DESC_LIST, "message.commandDescription.list", "&a/%COMMAND% list - Show a list of all Shops.");
         register(messages, Message.COMMAND_DESC_REMOVEALL, "message.commandDescription.removeall", "&a/%COMMAND% removeall - Remove all shops of a player.");
         register(messages, Message.COMMAND_DESC_RELOAD, "message.commandDescription.reload", "&a/%COMMAND% reload - Reload shops.");
         register(messages, Message.COMMAND_DESC_UPDATE, "message.commandDescription.update", "&a/%COMMAND% update - Check for Updates.");
@@ -118,6 +119,18 @@ public class MessageRegistryLoader {
         register(messages, Message.CHANGED_CONFIG_SET, "message.config.set", "&6Changed &a%PROPERTY% &6to &a%VALUE%&6.");
         register(messages, Message.CHANGED_CONFIG_REMOVED, "message.config.removed", "&6Removed &a%VALUE% &6from &a%PROPERTY%&6.");
         register(messages, Message.CHANGED_CONFIG_ADDED, "message.config.added", "&6Added &a%VALUE% &6to &a%PROPERTY%&6.");
+        register(messages, Message.INVALID_PAGE_NUMBER, "message.lists.invalid-page-number", "&cInvalid page number. Please enter a valid page number.");
+        register(messages, Message.SHOPS_LIST_HEADER, "message.lists.header", "&6==== &cShop list &6====");
+        register(messages, Message.SHOPS_LIST_FOOTER, "message.lists.footer", "&6==== &7Page %PAGE%/%TOTAL-PAGES% &6====");
+        register(messages, Message.PREVIOUS_PAGE, "message.lists.previous-page", "&aPrevious Page");
+        register(messages, Message.PREVIOUS_PAGE_HOVER, "message.lists.previous-page-hover", "&aClick to go to the previous page.");
+        register(messages, Message.NEXT_PAGE, "message.lists.next-page", "&aNext Page");
+        register(messages, Message.NEXT_PAGE_HOVER, "message.lists.next-page-hover", "&aClick to go to the next page.");
+        register(messages, Message.SHOP_INFO_SHORT, "message.shopInfoShort", "&7- &e%ITEMNAME% &7(&e%AMOUNT% x&7) &7(%LOCATION%)");
+        register(messages, Message.SHOP_INFO_NO_CONTAINER, "message.shopInfoNoContainer", "&cShop without container! Please report this. &7(%LOCATION%)");
+        register(messages, Message.PRE_PAGINATION_FILLER, "message.pre-pagination-filler", "&7--- > ");
+        register(messages, Message.BETWEEN_PAGINATION_FILLER, "message.between-pagination-filler", " &7| ");
+        register(messages, Message.POST_PAGINATION_FILLER, "message.post-pagination-filler", " &7< ---");
     }
 
     private void register(@NotNull String[] messages, @NotNull Message message, @NotNull String path, @Nullable String defaultValue) {

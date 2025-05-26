@@ -94,6 +94,14 @@ public class ShopCommand {
             }
         });
 
+        addSubCommand(new ShopSubCommand("list", true, executor, tabCompleter) {
+            @Override
+            public String getHelpMessage(CommandSender sender) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                return messageRegistry.getMessage(Message.COMMAND_DESC_LIST, cmdReplacement);
+            }
+        });
+
         addSubCommand(new ShopSubCommand("limits", true, executor, tabCompleter) {
             @Override
             public String getHelpMessage(CommandSender sender) {

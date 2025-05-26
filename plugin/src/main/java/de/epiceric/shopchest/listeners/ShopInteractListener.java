@@ -590,7 +590,7 @@ public class ShopInteractListener implements Listener {
      * @param executor Player, who executed the command and will retrieve the information
      * @param shop Shop from which the information will be retrieved
      */
-    private void info(Player executor, Shop shop) {
+    public void info(Player executor, Shop shop) {
         final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
 
         plugin.debug(executor.getName() + " is retrieving shop info (#" + shop.getID() + ")");

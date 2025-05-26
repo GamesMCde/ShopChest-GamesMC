@@ -13,7 +13,12 @@ import de.epiceric.shopchest.shop.ShopProduct;
 import de.epiceric.shopchest.utils.*;
 import de.epiceric.shopchest.utils.ClickType.CreateClickType;
 import de.epiceric.shopchest.utils.ClickType.SelectClickType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.block.Container;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -125,7 +130,9 @@ class ShopCommandExecutor implements CommandExecutor {
                         remove(p);
                     } else if (subCommand.getName().equalsIgnoreCase("info")) {
                         info(p);
-                    } else if (subCommand.getName().equalsIgnoreCase("limits")) {
+                    } else if (subCommand.getName().equalsIgnoreCase("list")) {
+                        list(p, command.getName(), args);
+                    }  else if (subCommand.getName().equalsIgnoreCase("limits")) {
                         plugin.debug(p.getName() + " is viewing his shop limits: " + shopUtils.getShopAmount(p) + "/" + shopUtils.getShopLimit(p));
                         int limit = shopUtils.getShopLimit(p);
                         p.sendMessage(messageRegistry.getMessage(Message.OCCUPIED_SHOP_SLOTS,
@@ -507,6 +514,171 @@ class ShopCommandExecutor implements CommandExecutor {
         plugin.debug(p.getName() + " can now click a chest");
         p.sendMessage(messageRegistry.getMessage(Message.CLICK_CHEST_INFO));
         ClickType.setPlayerClickType(p, new ClickType(ClickType.EnumClickType.INFO));
+    }
+
+    /**
+     * A given player retrieves information about all shops
+     * @param p The command executor
+     */
+    private void list(final Player p, final String command, final String[] args) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+
+        plugin.debug(p.getName() + " wants to retrieve information about all shops");
+
+        //Load all shops of the player
+        //Get offline player from the player
+
+        plugin.getShopUtils().getShops(p, new Callback<Collection<Shop>>(plugin) {
+            @Override
+            public void onResult(Collection<Shop> result) {
+                List<Shop> shops = new ArrayList<>(result);
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+
+                if(args.length == 1 || args.length == 2){
+                    int page = 1;
+                    if(args.length == 2){
+                        try{
+                            page = Integer.parseInt(args[1]);
+                        }
+                        catch (NumberFormatException e){
+                            // Invalid page number, default to 1
+                        }
+                    }
+                    int totalPages = (int) Math.ceil((double) shops.size() / Config.shopsPerPage);
+                    if (page < 1 || page > totalPages) {
+                        p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
+                        return;
+                    }
+                    int startIndex = (page - 1) * Config.shopsPerPage;
+                    int endIndex = Math.min(startIndex + Config.shopsPerPage, shops.size());
+                    p.sendMessage(messageRegistry.getMessage(Message.SHOPS_LIST_HEADER,
+                            new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shops.size())),
+                            new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                            new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                    ));
+
+                    for (int i = startIndex; i < endIndex; i++) {
+                        p.spigot().sendMessage(getShortShopInfo(shops.get(i)));
+                    }
+
+                    //Send previous and next page buttons if there are more pages and make them clickable with command /shops list page +/- 1
+                    BaseComponent pageButtons = getPageButtons("/" + command + " list", page, page > 1, page < totalPages);
+                    if(pageButtons != null) {
+                        p.spigot().sendMessage(pageButtons);
+                    }
+                    p.sendMessage(messageRegistry.getMessage(Message.SHOPS_LIST_FOOTER,
+                            new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shops.size())),
+                            new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                            new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                    ));
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                        new Replacement(Placeholder.ERROR, "Failed to get shops")));
+            }
+        });
+    }
+
+    private BaseComponent getPageButtons(final String command, final int currentPage, final boolean hasPreviousPage, final boolean hasNextPage) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+        if(!hasPreviousPage && !hasNextPage) {
+            return null; // No buttons to show
+        }
+        BaseComponent pageButtons = new TextComponent(messageRegistry.getMessage(Message.PRE_PAGINATION_FILLER));
+        if (hasPreviousPage) {
+            TextComponent previousPageButtons = new TextComponent();
+            previousPageButtons.setText(messageRegistry.getMessage(Message.PREVIOUS_PAGE));
+            previousPageButtons.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command + " " + (currentPage - 1)));
+            BaseComponent[] hoverText = new BaseComponent[]{
+                    new TextComponent(messageRegistry.getMessage(Message.PREVIOUS_PAGE_HOVER))
+            };
+            previousPageButtons.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText));
+            previousPageButtons.setColor(ChatColor.GREEN.asBungee());
+            pageButtons.addExtra(previousPageButtons);
+        }
+        if (hasNextPage) {
+            if (hasPreviousPage) {
+                pageButtons.addExtra(messageRegistry.getMessage(Message.BETWEEN_PAGINATION_FILLER));
+            }
+            TextComponent nextPageButtons = new TextComponent();
+            nextPageButtons.setText(messageRegistry.getMessage(Message.NEXT_PAGE));
+            nextPageButtons.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command + " " + (currentPage + 1)));
+            BaseComponent[] hoverText = new BaseComponent[]{
+                    new TextComponent(messageRegistry.getMessage(Message.NEXT_PAGE_HOVER))
+            };
+            nextPageButtons.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText));
+            nextPageButtons.setColor(ChatColor.GREEN.asBungee());
+            if (hasPreviousPage) {
+                pageButtons.addExtra(" "); // Add space between previous and next buttons
+            }
+            pageButtons.addExtra(nextPageButtons);
+        }
+        pageButtons.addExtra(new TextComponent(messageRegistry.getMessage(Message.POST_PAGINATION_FILLER)));
+        return pageButtons;
+    }
+
+    private BaseComponent getShortShopInfo(final Shop shop) {
+        // Create a Base Compoenent with just one line of text containing the basic shop information
+        // Show prices, location, current filling, vendor and shop type in hover message
+        // Only show the coordinates and shop product name in the text
+        final String productName = shop.getProduct().getItemStack().getType().name();
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+        final String shopInfoText = messageRegistry.getMessage(Message.SHOP_INFO_SHORT,
+                new Replacement(Placeholder.AMOUNT, shop.getProduct().getAmount()),
+                new Replacement(Placeholder.ITEM_NAME, productName),
+                new Replacement(Placeholder.LOCATION, shop.getLocation().getBlockX() + ", " + shop.getLocation().getBlockY() + ", " + shop.getLocation().getBlockZ()));
+
+        BaseComponent shopInfo = new TextComponent(shopInfoText);
+        shopInfo.setColor(ChatColor.GRAY.asBungee());
+
+        Container c = null;
+        try{
+            c = (Container) shop.getLocation().getBlock().getState();
+        }
+        catch (Exception e){
+            //Invalid shop location, return the shop info without hover event
+            return new TextComponent(messageRegistry.getMessage(Message.SHOP_INFO_NO_CONTAINER,
+                    new Replacement(Placeholder.LOCATION, shop.getLocation().getBlockX() + ", " + shop.getLocation().getBlockY() + ", " + shop.getLocation().getBlockZ())));
+        }
+        ItemStack itemStack = shop.getProduct().getItemStack();
+        int amount = Utils.getAmount(c.getInventory(), itemStack);
+        int space = Utils.getFreeSpaceForItem(c.getInventory(), itemStack);
+
+        String disabled = messageRegistry.getMessage(Message.SHOP_INFO_DISABLED);
+
+        String priceString = messageRegistry.getMessage(Message.SHOP_INFO_PRICE,
+                new Replacement(Placeholder.BUY_PRICE, (shop.getBuyPrice() > 0 ? String.valueOf(shop.getBuyPrice()) : disabled)),
+                new Replacement(Placeholder.SELL_PRICE, (shop.getSellPrice() > 0 ? String.valueOf(shop.getSellPrice()) : disabled)));
+
+        String shopType = messageRegistry.getMessage(shop.getShopType() == ShopType.NORMAL ?
+                Message.SHOP_INFO_NORMAL : Message.SHOP_INFO_ADMIN);
+
+        String stock = messageRegistry.getMessage(Message.SHOP_INFO_STOCK,
+                new Replacement(Placeholder.STOCK, amount));
+
+        String chestSpace = messageRegistry.getMessage(Message.SHOP_INFO_CHEST_SPACE,
+                new Replacement(Placeholder.CHEST_SPACE, space));
+
+        //Add those information in the hover message
+        BaseComponent[] hoverMessage = new BaseComponent[]{
+                new TextComponent(messageRegistry.getMessage(Message.SHOP_INFO_VENDOR, new Replacement(Placeholder.VENDOR, shop.getVendor().getName()))),
+                new TextComponent("\n"),
+                new TextComponent(priceString),
+                new TextComponent("\n"),
+                new TextComponent(shopType),
+                new TextComponent("\n"),
+                new TextComponent(stock),
+                new TextComponent("\n"),
+                new TextComponent(chestSpace)
+        };
+        // Set the hover event to show the hover message
+        shopInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverMessage));
+        return shopInfo;
     }
 
     /**
