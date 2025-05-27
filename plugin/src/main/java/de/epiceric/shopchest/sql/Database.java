@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import de.epiceric.shopchest.utils.Transaction;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -775,6 +776,62 @@ public abstract class Database {
 
                     plugin.getLogger().severe("Failed to get revenue from database");
                     plugin.debug("Failed to get revenue from player \"" + player.getUniqueId().toString() + "\"");
+                    plugin.debug(ex);
+                }
+            }
+        }.runTaskAsynchronously(plugin);
+    }
+
+    /**
+     * Get the transactions per shop within the last x days
+     * The days can be configured in the config
+     *
+     * @param player     Player whose revenue to get
+     * @param daysToCheck Number of days to check for transactions
+     * @param callback   Callback that - if succeeded - returns the transactions of the shops of the player
+     */
+    public void getTransactions(final OfflinePlayer player, final int daysToCheck, final Callback<Collection<Transaction>> callback) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                //Calculate the relevant timestamp for sql from current timestamp
+                long limitTimestamp = System.currentTimeMillis() - (daysToCheck * 24 * 60 * 60 * 1000L);
+
+                try (Connection con = dataSource.getConnection();
+                     PreparedStatement ps = con.prepareStatement("SELECT * FROM " + tableLogs + " WHERE vendor_uuid = ? AND time > ?")) {
+                    ps.setString(1, player.getUniqueId().toString());
+                    ps.setLong(2, limitTimestamp);
+                    ResultSet rs = ps.executeQuery();
+                    Set<Transaction> result = new HashSet<>();
+
+                    while (rs.next()) {
+                        final long timestamp = rs.getLong("time");
+                        final String productName = rs.getString("product_name");
+                        final int amount = rs.getInt("amount");
+                        final double price = rs.getDouble("price");
+                        final ShopBuySellEvent.Type type = ShopBuySellEvent.Type.valueOf(rs.getString("type"));
+                        final int shopId = rs.getInt("shop_id");
+
+                        result.add(new Transaction(
+                                timestamp,
+                                productName,
+                                amount,
+                                price,
+                                type,
+                                shopId
+                        ));
+                    }
+
+                    if (callback != null) {
+                        callback.callSyncResult(result);
+                    }
+                } catch (SQLException ex) {
+                    if (callback != null) {
+                        callback.callSyncError(ex);
+                    }
+
+                    plugin.getLogger().severe("Failed to get transactions from database");
+                    plugin.debug("Failed to get transactions from player \"" + player.getUniqueId().toString() + "\"");
                     plugin.debug(ex);
                 }
             }

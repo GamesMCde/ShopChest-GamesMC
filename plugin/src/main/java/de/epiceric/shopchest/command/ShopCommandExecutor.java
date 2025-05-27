@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -134,6 +135,10 @@ class ShopCommandExecutor implements CommandExecutor {
                         list(p, command.getName(), args);
                     } else if (subCommand.getName().equalsIgnoreCase("empty")) {
                         empty(p, command.getName(), args);
+                    } else if (subCommand.getName().equalsIgnoreCase("log")) {
+                        log(p, command.getName(), args);
+                    } else if (subCommand.getName().equalsIgnoreCase("report")) {
+                        report(p, command.getName(), args);
                     }  else if (subCommand.getName().equalsIgnoreCase("limits")) {
                         plugin.debug(p.getName() + " is viewing his shop limits: " + shopUtils.getShopAmount(p) + "/" + shopUtils.getShopLimit(p));
                         int limit = shopUtils.getShopLimit(p);
@@ -518,8 +523,262 @@ class ShopCommandExecutor implements CommandExecutor {
         ClickType.setPlayerClickType(p, new ClickType(ClickType.EnumClickType.INFO));
     }
 
+    private void loadTransactions(Collection<Transaction> transactions, Player p, final int daysToCheck) {
+        plugin.getShopDatabase().getTransactions(p, daysToCheck, new Callback<Collection<Transaction>>(plugin) {
+            @Override
+            public void onResult(Collection<Transaction> result) {
+                transactions.addAll(result);
+                plugin.debug("Loaded " + result.size() + " transactions for " + p.getName() + " in the last " + daysToCheck + " days");
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                        new Replacement(Placeholder.ERROR, "Failed to get transactions")));
+            }
+        });
+    }
+
+    private void loadShops(Collection<Shop> shops, Player p) {
+
+    }
+
+    private int getDaysToCheck(String[] args){
+        int daysToCheck = Config.transactionsDays;
+        if (args.length >= 2) {
+            try{
+                daysToCheck = Math.min(daysToCheck, Integer.parseInt(args[1]));
+            }
+            catch (NumberFormatException e){
+                //Do not catch the exception, just use the default value
+            }
+        }
+        return daysToCheck;
+    }
+
     /**
      * A given player retrieves information about all shops
+     * @param p The command executor
+     */
+    private void log(final Player p, final String command, final String[] args) {
+        plugin.debug(p.getName() + " wants to retrieve information about shops transactions");
+        int daysToCheck = getDaysToCheck(args);
+        plugin.getShopDatabase().getTransactions(p, daysToCheck, new Callback<Collection<Transaction>>(plugin) {
+            @Override
+            public void onResult(Collection<Transaction> result) {
+                List<Transaction> transactions = new ArrayList<>(result);
+                plugin.debug("Loaded " + result.size() + " transactions for " + p.getName() + " in the last " + daysToCheck + " days");
+
+                int page = 1;
+                if(args.length == 3){
+                    try{
+                        page = Integer.parseInt(args[2]);
+                    }
+                    catch (NumberFormatException e){
+                        // Invalid page number, default to 1
+                    }
+                }
+
+                //Sort transactions by timestamp
+                transactions.sort((t1, t2) -> Long.compare(t2.getTimestamp(), t1.getTimestamp()));
+
+
+                // Print transactions and use pagination
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                if (transactions.isEmpty()) {
+                    p.sendMessage(messageRegistry.getMessage(Message.NO_TRANSACTIONS_FOUND,
+                            new Replacement(Placeholder.LIMIT, daysToCheck)));
+                    return;
+                }
+                int totalPages = (int) Math.ceil((double) transactions.size() / Config.shopsPerPage);
+                if (page < 1 || page > totalPages) {
+                    p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
+                    return;
+                }
+                int startIndex = (page - 1) * Config.shopsPerPage;
+                int endIndex = Math.min(startIndex + Config.shopsPerPage, transactions.size());
+
+                p.sendMessage(messageRegistry.getMessage(Message.SHOPS_LOG_HEADER,
+                        new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(transactions.size())),
+                        new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                        new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                ));
+                for(int i = startIndex; i < endIndex; i++) {
+                    p.spigot().sendMessage(getTransactionMessage(transactions.get(i), p));
+                }
+                //Send previous and next page buttons if there are more pages and make them clickable with command /shops list page +/- 1
+                BaseComponent pageButtons = getPageButtons("/" + command + " log", page, page > 1, page < totalPages);
+                if(pageButtons != null) {
+                    p.spigot().sendMessage(pageButtons);
+                }
+                p.sendMessage(messageRegistry.getMessage(Message.SHOPS_LOG_FOOTER,
+                        new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(transactions.size())),
+                        new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                        new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                ));
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                        new Replacement(Placeholder.ERROR, "Failed to get transactions")));
+            }
+        });
+    }
+
+    private BaseComponent getTransactionMessage(final Transaction transaction, final Player p) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+        Message message = transaction.getType() == ShopBuySellEvent.Type.BUY ? Message.TRANSACTION_BUY : Message.TRANSACTION_SELL;
+
+        return new TextComponent(messageRegistry.getMessage(
+                message,
+                new Replacement(Placeholder.AMOUNT, transaction.getAmount()),
+                new Replacement(Placeholder.ITEM_NAME, transaction.getProductName()),
+                new Replacement(Placeholder.PRICE, transaction.getPrice()),
+                new Replacement(Placeholder.TIME, Utils.formatTimestamp(transaction.getTimestamp()))
+            )
+        );
+    }
+
+    /**
+     * A given player retrieves information about all shops
+     * @param p The command executor
+     */
+    private void report(final Player p, final String command, final String[] args) {
+        plugin.debug(p.getName() + " wants to retrieve report about shops");
+
+        plugin.getShopUtils().getShops(p, new Callback<Collection<Shop>>(plugin) {
+            @Override
+            public void onResult(Collection<Shop> result) {
+                List<Shop> shops = new ArrayList<>(result);
+                plugin.debug("Loaded " + result.size() + " shops");
+
+                int daysToCheck = getDaysToCheck(args);
+                plugin.getShopDatabase().getTransactions(p, daysToCheck, new Callback<Collection<Transaction>>(plugin) {
+                    @Override
+                    public void onResult(Collection<Transaction> result) {
+                        List<Transaction> transactions = new ArrayList<>(result);
+                        plugin.debug("Loaded " + result.size() + " transactions for " + p.getName() + " in the last " + daysToCheck + " days");
+
+                        int page = 1;
+                        if(args.length == 3){
+                            try{
+                                page = Integer.parseInt(args[2]);
+                            }
+                            catch (NumberFormatException e){
+                                // Invalid page number, default to 1
+                            }
+                        }
+                        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                        if (transactions.isEmpty()) {
+                            p.sendMessage(messageRegistry.getMessage(Message.NO_TRANSACTIONS_FOUND,
+                                    new Replacement(Placeholder.LIMIT, daysToCheck)));
+                            return;
+                        }
+                        if(shops.isEmpty()){
+                            p.sendMessage(messageRegistry.getMessage(Message.NO_SHOPS_FOUND));
+                            return;
+                        }
+
+                        ArrayList<ShopReport> shopReports = new ArrayList<>();
+                        for (Shop shop : shops) {
+                            Collection<Transaction> shopTransactions = transactions.stream().filter(t -> t.getShopId() == shop.getID()).toList();
+                            shopReports.add(new ShopReport(shop, shopTransactions));
+                        }
+                        //Sort shop reports by highest sum of buy or sell
+                        shopReports.sort((r1, r2) -> {
+                            double sum1 = Math.max(r1.getSumBuy(), r1.getSumSell());
+                            double sum2 = Math.max(r2.getSumBuy(), r2.getSumSell());
+                            return Double.compare(sum2, sum1);
+                        });
+
+                        // Print shop reports and use pagination
+                        int totalPages = (int) Math.ceil((double) transactions.size() / Config.shopsPerPage);
+                        if (page < 1 || page > totalPages) {
+                            p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
+                            return;
+                        }
+                        int startIndex = (page - 1) * Config.shopsPerPage;
+                        int endIndex = Math.min(startIndex + Config.shopsPerPage, shopReports.size());
+
+                        p.sendMessage(messageRegistry.getMessage(Message.SHOPS_REPORT_HEADER,
+                                new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shopReports.size())),
+                                new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                                new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                        ));
+                        for(int i = startIndex; i < endIndex; i++) {
+                            p.spigot().sendMessage(getShopReportMessage(shopReports.get(i), p));
+                        }
+                        //Send previous and next page buttons if there are more pages and make them clickable with command /shops list page +/- 1
+                        BaseComponent pageButtons = getPageButtons("/" + command + " report", page, page > 1, page < totalPages);
+                        if(pageButtons != null) {
+                            p.spigot().sendMessage(pageButtons);
+                        }
+                        p.sendMessage(messageRegistry.getMessage(Message.SHOPS_REPORT_FOOTER,
+                                new Replacement(Placeholder.TOTAL_SHOPS, String.valueOf(shopReports.size())),
+                                new Replacement(Placeholder.PAGE, String.valueOf(page)),
+                                new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))
+                        ));
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                        p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                                new Replacement(Placeholder.ERROR, "Failed to get transactions")));
+                    }
+                });
+            }
+            @Override
+            public void onError(Throwable throwable) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                p.sendMessage(messageRegistry.getMessage(Message.ERROR_OCCURRED,
+                        new Replacement(Placeholder.ERROR, "Failed to get shops")));
+            }
+        });
+    }
+
+    private BaseComponent getShopReportMessage(final ShopReport shopReport, final Player p) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+        Shop shop = shopReport.getShop();
+        final String shopReportInfo = messageRegistry.getMessage(Message.SHOP_REPORT,
+                new Replacement(Placeholder.AMOUNT, shop.getProduct().getAmount()),
+                new Replacement(Placeholder.ITEM_NAME, shop.getProduct().getLocalizedName()),
+                new Replacement(Placeholder.LOCATION, shop.getLocation().getBlockX() + ", " + shop.getLocation().getBlockY() + ", " + shop.getLocation().getBlockZ())
+        );
+        BaseComponent shopReportComponent = new TextComponent(shopReportInfo);
+
+        final String reportHoverTotalBuy = messageRegistry.getMessage(Message.SHOP_REPORT_HOVER_TOTAL_BUY,
+                new Replacement(Placeholder.SUM_BUY, String.valueOf(shopReport.getSumBuy()))
+        );
+
+        final String reportHoverTotalSell = messageRegistry.getMessage(Message.SHOP_REPORT_HOVER_TOTAL_SELL,
+                new Replacement(Placeholder.SUM_SELL, String.valueOf(shopReport.getSumSell()))
+        );
+
+        final String reportHoverTotalTransactions = messageRegistry.getMessage(Message.SHOP_REPORT_HOVER_TOTAL_TRANSACTIONS,
+                new Replacement(Placeholder.SUM_TRANSACTIONS, String.valueOf(shopReport.getTransactions().size()))
+        );
+
+        //Add those information in the hover message
+        BaseComponent[] hoverMessage = new BaseComponent[]{
+                new TextComponent(messageRegistry.getMessage(Message.SHOP_INFO_VENDOR, new Replacement(Placeholder.VENDOR, shop.getVendor().getName()))),
+                new TextComponent("\n"),
+                new TextComponent(reportHoverTotalBuy),
+                new TextComponent("\n"),
+                new TextComponent(reportHoverTotalSell),
+                new TextComponent("\n"),
+                new TextComponent(reportHoverTotalTransactions)
+        };
+        // Set the hover event to show the hover message
+        shopReportComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverMessage));
+        return shopReportComponent;
+    }
+
+    /**
+     * A given player retrieves information about all empty shops
      * @param p The command executor
      */
     private void empty(final Player p, final String command, final String[] args) {
@@ -529,7 +788,13 @@ class ShopCommandExecutor implements CommandExecutor {
             @Override
             public void onResult(Collection<Shop> result) {
                 List<Shop> shops = new ArrayList<>(result);
+                plugin.debug("Loaded " + result.size() + " shops");
+
                 final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                if(shops.isEmpty()){
+                    p.sendMessage(messageRegistry.getMessage(Message.NO_SHOPS_FOUND));
+                    return;
+                }
 
                 if(args.length == 1 || args.length == 2){
                     int page = 1;
@@ -582,7 +847,6 @@ class ShopCommandExecutor implements CommandExecutor {
 
                 }
             }
-
             @Override
             public void onError(Throwable throwable) {
                 final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
@@ -603,7 +867,12 @@ class ShopCommandExecutor implements CommandExecutor {
             @Override
             public void onResult(Collection<Shop> result) {
                 List<Shop> shops = new ArrayList<>(result);
+                plugin.debug("Loaded " + result.size() + " shops");
                 final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                if(shops.isEmpty()){
+                    p.sendMessage(messageRegistry.getMessage(Message.NO_SHOPS_FOUND));
+                    return;
+                }
 
                 if(args.length == 1 || args.length == 2){
                     int page = 1;
@@ -645,7 +914,6 @@ class ShopCommandExecutor implements CommandExecutor {
 
                 }
             }
-
             @Override
             public void onError(Throwable throwable) {
                 final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
@@ -697,7 +965,7 @@ class ShopCommandExecutor implements CommandExecutor {
         // Create a Base Compoenent with just one line of text containing the basic shop information
         // Show prices, location, current filling, vendor and shop type in hover message
         // Only show the coordinates and shop product name in the text
-        final String productName = shop.getProduct().getItemStack().getType().name();
+        final String productName = shop.getProduct().getLocalizedName();
         final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
         final String shopInfoText = messageRegistry.getMessage(Message.SHOP_INFO_SHORT,
                 new Replacement(Placeholder.AMOUNT, shop.getProduct().getAmount()),

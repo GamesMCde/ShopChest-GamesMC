@@ -404,4 +404,9 @@ public class Utils {
     }
 
 
+    public static Object formatTimestamp(long timestamp) {
+        // Format the timestamp as dd.MM HH:mm
+        Date date = new Date(timestamp);
+        return String.format("%1$td.%1$tm %1$tH:%1$tM", date);
+    }
 }

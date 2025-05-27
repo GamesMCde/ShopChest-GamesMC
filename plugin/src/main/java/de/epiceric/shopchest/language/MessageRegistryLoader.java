@@ -111,6 +111,8 @@ public class MessageRegistryLoader {
         register(messages, Message.COMMAND_DESC_INFO, "message.commandDescription.info", "&a/%COMMAND% info - Retrieve shop information.");
         register(messages, Message.COMMAND_DESC_LIST, "message.commandDescription.list", "&a/%COMMAND% list - Show a list of all your Shops.");
         register(messages, Message.COMMAND_DESC_EMPTY, "message.commandDescription.empty", "&a/%COMMAND% empty - Show a list of all your empty Shops.");
+        register(messages, Message.COMMAND_DESC_LOG, "message.commandDescription.log", "&a/%COMMAND% log <limitDays> - Show a list of all recent transactions in your shops.");
+        register(messages, Message.COMMAND_DESC_REPORT, "message.commandDescription.report", "&a/%COMMAND% report <limitDays> - Create a report of you shops performance.");
         register(messages, Message.COMMAND_DESC_REMOVEALL, "message.commandDescription.removeall", "&a/%COMMAND% removeall - Remove all shops of a player.");
         register(messages, Message.COMMAND_DESC_RELOAD, "message.commandDescription.reload", "&a/%COMMAND% reload - Reload shops.");
         register(messages, Message.COMMAND_DESC_UPDATE, "message.commandDescription.update", "&a/%COMMAND% update - Check for Updates.");
@@ -134,6 +136,18 @@ public class MessageRegistryLoader {
         register(messages, Message.POST_PAGINATION_FILLER, "message.post-pagination-filler", " &7< ---");
         register(messages, Message.SHOPS_EMPTY_HEADER, "message.lists.headerEmpty", "&6==== &cEmpty shops list &6====");
         register(messages, Message.SHOPS_EMPTY_FOOTER, "message.lists.footerEmpty", "&6==== &7Page %PAGE%/%TOTAL-PAGES% &6====");
+        register(messages, Message.NO_TRANSACTIONS_FOUND, "message.no-transactions-found", "&cNo transactions found in the last &6%LIMIT% &cdays.");
+        register(messages, Message.NO_SHOPS_FOUND, "message.no-shops-found", "&cNo shops found.");
+        register(messages, Message.SHOPS_LOG_HEADER, "message.shops-log.header", "&6==== &cShops log &6====");
+        register(messages, Message.SHOPS_LOG_FOOTER, "message.shops-log.footer", "&6==== &7Page %PAGE%/%TOTAL-PAGES% &6====");
+        register(messages, Message.TRANSACTION_BUY, "message.transaction.buy", "&6%AMOUNT% x %ITEMNAME%&a for &a%BUY-PRICE%&a.");
+        register(messages, Message.TRANSACTION_SELL, "message.transaction.sell", "&6%AMOUNT% x %ITEMNAME%&a for &c-%SELL-PRICE%&a.");
+        register(messages, Message.SHOPS_REPORT_HEADER, "message.shops-report.header", "&6==== &cShops report &6====");
+        register(messages, Message.SHOPS_REPORT_FOOTER, "message.shops-report.footer", "&6==== &7Page %PAGE%/%TOTAL-PAGES% &6====");
+        register(messages, Message.SHOP_REPORT, "message.shop-report.reportInfo", "&7- &e%ITEMNAME% &7(&e%AMOUNT% x&7) &7(%LOCATION%)");
+        register(messages, Message.SHOP_REPORT_HOVER_TOTAL_BUY, "message.shop-report.hover.total-buy", "&6Total Buy: &e%SUM-BUY%");
+        register(messages, Message.SHOP_REPORT_HOVER_TOTAL_SELL, "message.shop-report.hover.total-sell", "&6Total Sell: &e%SUM-SELL%");
+        register(messages, Message.SHOP_REPORT_HOVER_TOTAL_TRANSACTIONS, "message.shop-report.hover.total-transactions", "&6Total Transactions: &e%SUM-TRANSACTIONS%");
     }
 
     private void register(@NotNull String[] messages, @NotNull Message message, @NotNull String path, @Nullable String defaultValue) {

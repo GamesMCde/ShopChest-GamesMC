@@ -31,7 +31,12 @@ public enum Placeholder {
     PAGE("%PAGE%"),
     TOTAL_PAGES("%TOTAL-PAGES%"),
     TOTAL_SHOPS("%TOTAL-SHOPS%"),
-    LOCATION("%LOCATION%");
+    LOCATION("%LOCATION%"),
+    PRICE("%PRICE%"),
+    TIME("%TIME%"),
+    SUM_BUY("%SUM-BUY%"),
+    SUM_SELL("%SUM-SELL%"),
+    SUM_TRANSACTIONS("%SUM-TRANSACTIONS%");
 
     private final String name;
 

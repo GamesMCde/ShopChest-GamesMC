@@ -110,6 +110,26 @@ public class ShopCommand {
             }
         });
 
+        addSubCommand(new ShopSubCommand("log", true, executor, tabCompleter) {
+            @Override
+            public String getHelpMessage(CommandSender sender) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                return messageRegistry.getMessage(Message.COMMAND_DESC_LOG,
+                        new Replacement(Placeholder.LIMIT, Config.transactionsDays),
+                        cmdReplacement);
+            }
+        });
+
+        addSubCommand(new ShopSubCommand("report", true, executor, tabCompleter) {
+            @Override
+            public String getHelpMessage(CommandSender sender) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                return messageRegistry.getMessage(Message.COMMAND_DESC_REPORT,
+                        new Replacement(Placeholder.LIMIT, Config.transactionsDays),
+                        cmdReplacement);
+            }
+        });
+
         addSubCommand(new ShopSubCommand("limits", true, executor, tabCompleter) {
             @Override
             public String getHelpMessage(CommandSender sender) {

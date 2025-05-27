@@ -311,6 +311,11 @@ public class Config {
      **/
     public static String languageFile;
 
+    /**
+     * The days to check transactions in the past for log
+     */
+    public static int transactionsDays;
+
     private ShopChest plugin;
 
     public Config(ShopChest plugin) {
@@ -506,6 +511,7 @@ public class Config {
         shopsPerPage = plugin.getConfig().getInt("list-shops-per-page");
         mainCommandName = plugin.getConfig().getString("main-command-name");
         languageFile = plugin.getConfig().getString("language-file");
+        transactionsDays = plugin.getConfig().getInt("transactions-days");
 
         if (langReload) {
             plugin.loadLanguages();
