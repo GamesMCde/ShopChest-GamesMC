@@ -37,24 +37,10 @@ class ShopCommandExecutor implements CommandExecutor {
 
     private ShopChest plugin;
     private ShopUtils shopUtils;
-    private final Enchantment UNBREAKING_ENCHANT;
 
     ShopCommandExecutor(ShopChest plugin) {
         this.plugin = plugin;
         this.shopUtils = plugin.getShopUtils();
-        UNBREAKING_ENCHANT = loadUnbreakingEnchant();
-    }
-
-    private Enchantment loadUnbreakingEnchant() {
-        // The constant name changed in 1.20.5
-        // Doing this ensure compatibility with older version when using older version
-        try {
-            final Field field = Enchantment.class.getDeclaredField("DURABILITY");
-            field.setAccessible(true);
-            return (Enchantment) field.get(null);
-        } catch (ReflectiveOperationException e) {
-            return Enchantment.UNBREAKING;
-        }
     }
 
     @Override
@@ -124,6 +110,12 @@ class ShopCommandExecutor implements CommandExecutor {
                             } else {
                                 return false;
                             }
+                        } else {
+                            return false;
+                        }
+                    } else if (subCommand.getName().equalsIgnoreCase("modify")) {
+                        if(args.length == 4){
+                            modify(args, p);
                         } else {
                             return false;
                         }
@@ -451,7 +443,7 @@ class ShopCommandExecutor implements CommandExecutor {
             }
         }
 
-        if (UNBREAKING_ENCHANT.canEnchantItem(itemStack)) {
+        if (plugin.getUNBREAKING_ENCHANT().canEnchantItem(itemStack)) {
             if (itemStack.getDurability() > 0 && !Config.allowBrokenItems) {
                 p.sendMessage(messageRegistry.getMessage(Message.CANNOT_SELL_BROKEN_ITEM));
                 plugin.debug(p.getName() + "'s item is broken");
@@ -481,6 +473,65 @@ class ShopCommandExecutor implements CommandExecutor {
         }
     }
 
+    /**
+     * A given player wants to modify a shop
+     * @param args Arguments of the entered command
+     * @param p The command executor
+     */
+    private void modify(String[] args, final Player p) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+
+        plugin.debug(p.getName() + " wants to modify a shop");
+
+        int amount;
+        double buyPrice, sellPrice;
+
+        // Check if amount and prices are valid
+        try {
+            amount = Integer.parseInt(args[1]);
+            buyPrice = Double.parseDouble(args[2]);
+            sellPrice = Double.parseDouble(args[3]);
+        } catch (NumberFormatException e) {
+            p.sendMessage(messageRegistry.getMessage(Message.AMOUNT_PRICE_NOT_NUMBER));
+            plugin.debug(p.getName() + " has entered an invalid amount and/or prices");
+            return;
+        }
+
+        //TODO in update
+        if (!Utils.hasPermissionToCreateShop(p, Utils.getPreferredItemInHand(p), buyPrice > 0, sellPrice > 0)) {
+            p.sendMessage(messageRegistry.getMessage(Message.NO_PERMISSION_CREATE));
+            plugin.debug(p.getName() + " is not permitted to create the shop");
+            return;
+        }
+
+        if (amount <= 0) {
+            p.sendMessage(messageRegistry.getMessage(Message.AMOUNT_IS_ZERO));
+            plugin.debug(p.getName() + " has entered an invalid amount");
+            return;
+        }
+
+        if (!Config.allowDecimalsInPrice && (buyPrice != (int) buyPrice || sellPrice != (int) sellPrice)) {
+            p.sendMessage(messageRegistry.getMessage(Message.PRICES_CONTAIN_DECIMALS));
+            plugin.debug(p.getName() + " has entered an invalid price");
+            return;
+        }
+
+        boolean buyEnabled = buyPrice > 0;
+        boolean sellEnabled = sellPrice > 0;
+
+        if (!buyEnabled && !sellEnabled) {
+            p.sendMessage(messageRegistry.getMessage(Message.BUY_SELL_DISABLED));
+            plugin.debug(p.getName() + " has disabled buying and selling");
+            return;
+        }
+
+        SelectClickType ct = new SelectClickType(null, amount, buyPrice, sellPrice, null);
+        ct.setItem(null);
+
+        ClickType.setPlayerClickType(p, new ClickType.ModifyClickType(amount, buyPrice, sellPrice));
+        plugin.debug(p.getName() + " can now click a chest");
+        p.sendMessage(messageRegistry.getMessage(Message.CLICK_CHEST_MODIFY));
+    }
     /**
      * A given player removes a shop
      * @param p The command executor

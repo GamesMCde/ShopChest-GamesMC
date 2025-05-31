@@ -78,6 +78,14 @@ public class ShopCommand {
             }
         });
 
+        addSubCommand(new ShopSubCommand("modify", true, executor, tabCompleter) {
+            @Override
+            public String getHelpMessage(CommandSender sender) {
+                final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+                return messageRegistry.getMessage(Message.COMMAND_DESC_MODIFY, cmdReplacement);
+            }
+        });
+
         addSubCommand(new ShopSubCommand("remove", true, executor, tabCompleter) {
             @Override
             public String getHelpMessage(CommandSender sender) {

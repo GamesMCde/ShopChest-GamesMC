@@ -119,6 +119,7 @@ public class MessageRegistryLoader {
         register(messages, Message.COMMAND_DESC_LIMITS, "message.commandDescription.limits", "&a/%COMMAND% limits - View shop limits.");
         register(messages, Message.COMMAND_DESC_OPEN, "message.commandDescription.open", "&a/%COMMAND% open - Open a shop.");
         register(messages, Message.COMMAND_DESC_CONFIG, "message.commandDescription.config", "&a/%COMMAND% config <set|add|remove> <property> <value> - Change configuration values.");
+        register(messages, Message.COMMAND_DESC_MODIFY, "message.commandDescription.modify", "&a/%COMMAND% modify - Modify a shop.");
         register(messages, Message.CHANGED_CONFIG_SET, "message.config.set", "&6Changed &a%PROPERTY% &6to &a%VALUE%&6.");
         register(messages, Message.CHANGED_CONFIG_REMOVED, "message.config.removed", "&6Removed &a%VALUE% &6from &a%PROPERTY%&6.");
         register(messages, Message.CHANGED_CONFIG_ADDED, "message.config.added", "&6Added &a%VALUE% &6to &a%PROPERTY%&6.");
@@ -148,6 +149,10 @@ public class MessageRegistryLoader {
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_BUY, "message.shop-report.hover.total-buy", "&6Total Buy: &e%SUM-BUY%");
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_SELL, "message.shop-report.hover.total-sell", "&6Total Sell: &e%SUM-SELL%");
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_TRANSACTIONS, "message.shop-report.hover.total-transactions", "&6Total Transactions: &e%SUM-TRANSACTIONS%");
+        register(messages, Message.SHOP_MODIFIED, "message.shop-modified", "&6The shop has been modified.");
+        register(messages, Message.SHOP_MODIFY_NOT_ENOUGH_MONEY, "message.shop-modify-not-enough-money", "&cNot enough money. You need &6%MODIFY-PRICE% &cto modify this shop.");
+        register(messages, Message.CLICK_CHEST_MODIFY, "message.click-chest-to-modify-shop", "&aClick a shop within 15 seconds to modify it.");
+        register(messages, Message.NO_PERMISSION_MODIFY, "message.noPermission.modify", "&cYou don't have permission to modify this shop.");
     }
 
     private void register(@NotNull String[] messages, @NotNull Message message, @NotNull String path, @Nullable String defaultValue) {

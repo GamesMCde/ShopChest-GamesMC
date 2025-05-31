@@ -105,7 +105,7 @@ public class ClickType {
     }
 
     public enum EnumClickType {
-        CREATE, REMOVE, INFO, OPEN, SELECT_ITEM
+        CREATE, REMOVE, INFO, OPEN, SELECT_ITEM, MODIFY
     }
 
     public static class CreateClickType extends ClickType {
@@ -150,6 +150,31 @@ public class ClickType {
             return shopType;
         }
     }
+
+    public static class ModifyClickType extends ClickType {
+        private int amount;
+        private double buyPrice;
+        private double sellPrice;
+
+        public ModifyClickType(int amount, double buyPrice, double sellPrice) {
+            super(EnumClickType.MODIFY);
+            this.amount = amount;
+            this.sellPrice = sellPrice;
+            this.buyPrice = buyPrice;
+        }
+        public int getAmount() {
+            return amount;
+        }
+        
+        public double getBuyPrice() {
+            return buyPrice;
+        }
+
+        public double getSellPrice() {
+            return sellPrice;
+        }
+
+        }
 
     public static class SelectClickType extends ClickType {
         private ItemStack itemStack;

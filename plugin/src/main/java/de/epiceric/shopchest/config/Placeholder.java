@@ -6,6 +6,7 @@ public enum Placeholder {
     AMOUNT("%AMOUNT%"),
     ITEM_NAME("%ITEMNAME%"),
     CREATION_PRICE("%CREATION-PRICE%"),
+    MODIFY_PRICE("%MODIFY-PRICE%"),
     ERROR("%ERROR%"),
     ENCHANTMENT("%ENCHANTMENT%"),
     MIN_PRICE("%MIN-PRICE%"),

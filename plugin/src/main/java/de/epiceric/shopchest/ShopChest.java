@@ -36,6 +36,7 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -50,6 +51,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -88,6 +90,8 @@ public class ShopChest extends JavaPlugin {
     private BentoBox bentoBox;
     private ShopUpdater updater;
     private ExecutorService shopCreationThreadPool;
+
+    private Enchantment UNBREAKING_ENCHANT;
 
     /**
      * @return An instance of ShopChest
@@ -183,6 +187,9 @@ public class ShopChest extends JavaPlugin {
         shopCommand = new ShopCommand(this);
         shopCreationThreadPool = new ThreadPoolExecutor(0, 8,
                 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
+
+        UNBREAKING_ENCHANT = loadUnbreakingEnchant();
         
         loadExternalPlugins();
         loadMetrics();
@@ -726,5 +733,21 @@ public class ShopChest extends JavaPlugin {
      */
     public Config getShopChestConfig() {
         return config;
+    }
+
+    private Enchantment loadUnbreakingEnchant() {
+        // The constant name changed in 1.20.5
+        // Doing this ensure compatibility with older version when using older version
+        try {
+            final Field field = Enchantment.class.getDeclaredField("DURABILITY");
+            field.setAccessible(true);
+            return (Enchantment) field.get(null);
+        } catch (ReflectiveOperationException e) {
+            return Enchantment.UNBREAKING;
+        }
+    }
+
+    public Enchantment getUNBREAKING_ENCHANT() {
+        return UNBREAKING_ENCHANT;
     }
 }

@@ -99,6 +99,26 @@ public class ShopInteractListener implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
 
+        if(ClickType.getPlayerClickType(p) instanceof ClickType.ModifyClickType){
+            if (!shopUtils.isShop(b.getLocation())) {
+                p.sendMessage(messageRegistry.getMessage(Message.CHEST_ALREADY_SHOP));
+                plugin.debug("Chest is not a shop");
+            }else
+            {
+                Shop shop = shopUtils.getShop(b.getLocation());
+                if(!p.getUniqueId().equals(shop.getVendor().getUniqueId()))
+                {
+                    p.sendMessage(messageRegistry.getMessage(Message.NO_PERMISSION_MODIFY));
+                    plugin.debug(p.getName() + " is not allowed to modify the shop");
+                } else {
+                    performModify(p, (ClickType.ModifyClickType) ClickType.getPlayerClickType(p), shop);
+                }
+            }
+            e.setCancelled(true);
+            ClickType.removePlayerClickType(p);
+            return;
+        }
+
         if (!(ClickType.getPlayerClickType(p) instanceof CreateClickType))
             return;
 
@@ -161,6 +181,7 @@ public class ShopInteractListener implements Listener {
             switch (clickType.getClickType()) {
                 case CREATE:
                 case SELECT_ITEM:
+                case MODIFY:
                     break;
                 default: 
                     if (shop == null) {
@@ -1153,5 +1174,153 @@ public class ShopInteractListener implements Listener {
             return (shop.getSellPrice() / shop.getProduct().getAmount()) * shop.getProduct().getItemStack().getMaxStackSize();
         else
             return shop.getSellPrice();
+    }
+
+    protected void performModify(final Player p, final ClickType.ModifyClickType modifyClickType, final Shop shop) {
+        final MessageRegistry messageRegistry = plugin.getLanguageManager().getMessageRegistry();
+
+        ItemStack itemStack = shop.getProduct().getItemStack();
+        int amount = modifyClickType.getAmount();
+        double buyPrice = modifyClickType.getBuyPrice();
+        double sellPrice = modifyClickType.getSellPrice();
+        boolean buyEnabled = buyPrice > 0;
+        boolean sellEnabled = sellPrice > 0;
+        ShopType shopType = shop.getShopType();
+
+        // Check if item on blacklist
+        for (String item :Config.blacklist) {
+            ItemStack is = ItemUtils.getItemStack(item);
+
+            if (is == null) {
+                plugin.getLogger().warning("Invalid item found in blacklist: " + item);
+                plugin.debug("Invalid item in blacklist: " + item);
+                continue;
+            }
+
+            if (is.getType().equals(itemStack.getType()) && is.getDurability() == itemStack.getDurability()) {
+                p.sendMessage(messageRegistry.getMessage(Message.CANNOT_SELL_ITEM));
+                plugin.debug(p.getName() + "'s item is on the blacklist");
+                return;
+            }
+        }
+
+        // Check if prices lower than minimum price
+        for (String key :Config.minimumPrices) {
+            ItemStack is = ItemUtils.getItemStack(key);
+            double minPrice = plugin.getConfig().getDouble("minimum-prices." + key);
+
+            if (is == null) {
+                plugin.getLogger().warning("Invalid item found in minimum-prices: " + key);
+                plugin.debug("Invalid item in minimum-prices: " + key);
+                continue;
+            }
+
+            if (is.getType().equals(itemStack.getType()) && is.getDurability() == itemStack.getDurability()) {
+                if (buyEnabled) {
+                    if ((buyPrice < amount * minPrice) && (buyPrice > 0)) {
+                        p.sendMessage(messageRegistry.getMessage(Message.BUY_PRICE_TOO_LOW, new Replacement(Placeholder.MIN_PRICE, String.valueOf(amount * minPrice))));
+                        plugin.debug(p.getName() + "'s buy price is lower than the minimum");
+                        return;
+                    }
+                }
+
+                if (sellEnabled) {
+                    if ((sellPrice < amount * minPrice) && (sellPrice > 0)) {
+                        p.sendMessage(messageRegistry.getMessage(Message.SELL_PRICE_TOO_LOW, new Replacement(Placeholder.MIN_PRICE, String.valueOf(amount * minPrice))));
+                        plugin.debug(p.getName() + "'s sell price is lower than the minimum");
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Check if prices higher than maximum price
+        for (String key :Config.maximumPrices) {
+            ItemStack is = ItemUtils.getItemStack(key);
+            double maxPrice = plugin.getConfig().getDouble("maximum-prices." + key);
+
+            if (is == null) {
+                plugin.getLogger().warning("Invalid item found in maximum-prices: " + key);
+                plugin.debug("Invalid item in maximum-prices: " + key);
+                continue;
+            }
+
+            if (is.getType().equals(itemStack.getType()) && is.getDurability() == itemStack.getDurability()) {
+                if (buyEnabled) {
+                    if ((buyPrice > amount * maxPrice) && (buyPrice > 0)) {
+                        p.sendMessage(messageRegistry.getMessage(Message.BUY_PRICE_TOO_HIGH, new Replacement(Placeholder.MAX_PRICE, String.valueOf(amount * maxPrice))));
+                        plugin.debug(p.getName() + "'s buy price is higher than the maximum");
+                        return;
+                    }
+                }
+
+                if (sellEnabled) {
+                    if ((sellPrice > amount * maxPrice) && (sellPrice > 0)) {
+                        p.sendMessage(messageRegistry.getMessage(Message.SELL_PRICE_TOO_HIGH, new Replacement(Placeholder.MAX_PRICE, String.valueOf(amount * maxPrice))));
+                        plugin.debug(p.getName() + "'s sell price is higher than the maximum");
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        if (sellEnabled && buyEnabled) {
+            if (Config.buyGreaterOrEqualSell) {
+                if (buyPrice < sellPrice) {
+                    p.sendMessage(messageRegistry.getMessage(Message.BUY_PRICE_TOO_LOW, new Replacement(Placeholder.MIN_PRICE, String.valueOf(sellPrice))));
+                    plugin.debug(p.getName() + "'s buy price is lower than the sell price");
+                    return;
+                }
+            }
+        }
+
+        if (plugin.getUNBREAKING_ENCHANT().canEnchantItem(itemStack)) {
+            if (itemStack.getDurability() > 0 && !Config.allowBrokenItems) {
+                p.sendMessage(messageRegistry.getMessage(Message.CANNOT_SELL_BROKEN_ITEM));
+                plugin.debug(p.getName() + "'s item is broken");
+                return;
+            }
+        }
+
+        double modifyPrice = (shopType == Shop.ShopType.NORMAL) ?Config.shopModifyPriceNormal :Config.shopModifyPriceAdmin;
+        if (modifyPrice > 0) {
+            if (plugin.getEconomy().getBalance(p, p.getWorld().getName()) < modifyPrice) {
+                p.sendMessage(messageRegistry.getMessage(Message.SHOP_MODIFY_NOT_ENOUGH_MONEY, new Replacement(Placeholder.MODIFY_PRICE, String.valueOf(modifyPrice))));
+                plugin.debug(p.getName() + " can not pay the creation price");
+                return;
+            }
+        }
+
+        ShopProduct product = new ShopProduct(itemStack, amount);
+        ShopModifyEvent event = new ShopModifyEvent(p, new Shop(plugin, p, product, shop.getLocation(), buyPrice, sellPrice, shopType));
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (!event.isCancelled()) {
+            final Shop newShop = new Shop(
+                    shop.getID(),
+                    plugin,
+                    shop.getVendor(),
+                    product,
+                    shop.getLocation(),
+                    buyPrice,
+                    sellPrice,
+                    shop.getShopType()
+            );
+            plugin.getShopUtils().removeShop(shop, false, null);
+            newShop.create(true);
+            plugin.getShopUtils().modifyShop(newShop,
+                    true,
+                    null
+            );
+
+            EconomyResponse r = plugin.getEconomy().withdrawPlayer(p, shop.getLocation().getWorld().getName(), modifyPrice);
+            p.sendMessage(messageRegistry.getMessage(Message.SHOP_MODIFIED));
+
+            plugin.debug(p.getName() + " can not pay the creation price");
+
+        } else {
+            plugin.debug("Shop modify event cancelled");
+        }
     }
 }

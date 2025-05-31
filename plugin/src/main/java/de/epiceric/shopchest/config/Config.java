@@ -292,6 +292,16 @@ public class Config {
     public static double shopCreationPriceAdmin;
 
     /**
+     * The price a player has to pay in order to modify a normal shop
+     **/
+    public static double shopModifyPriceNormal;
+
+    /**
+     * The price a player has to pay in order to modify an admin shop
+     **/
+    public static double shopModifyPriceAdmin;
+
+    /**
      * The amount of shops shown per page in the shop list
      */
     public static int shopsPerPage;
@@ -507,6 +517,8 @@ public class Config {
         maximalItemDistance = plugin.getConfig().getDouble("maximal-item-distance");
         shopCreationPriceNormal = plugin.getConfig().getDouble("shop-creation-price.normal");
         shopCreationPriceAdmin = plugin.getConfig().getDouble("shop-creation-price.admin");
+        shopModifyPriceNormal = plugin.getConfig().getDouble("shop-modify-price.normal");
+        shopModifyPriceAdmin = plugin.getConfig().getDouble("shop-modify-price.admin");
         defaultLimit = plugin.getConfig().getInt("shop-limits.default");
         shopsPerPage = plugin.getConfig().getInt("list-shops-per-page");
         mainCommandName = plugin.getConfig().getString("main-command-name");

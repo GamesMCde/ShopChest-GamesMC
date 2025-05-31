@@ -121,6 +121,39 @@ public class ShopUtils {
     }
 
     /**
+     * Modify a shop
+     * @param shop Shop to modify
+     * @param addToDatabase Whether the shop should also be added to the database
+     * @param callback Callback that - if succeeded - returns the ID the shop had or was given (as {@code int})
+     */
+    public void modifyShop(Shop shop, boolean addToDatabase, Callback<Integer> callback) {
+        InventoryHolder ih = shop.getInventoryHolder();
+        plugin.debug("Modifying shop... (#" + shop.getID() + ")");
+
+        if (ih instanceof DoubleChest) {
+            DoubleChest dc = (DoubleChest) ih;
+            Chest r = (Chest) dc.getRightSide();
+            Chest l = (Chest) dc.getLeftSide();
+
+            plugin.debug("Added shop as double chest. (#" + shop.getID() + ")");
+
+            shopLocation.put(r.getLocation(), shop);
+            shopLocation.put(l.getLocation(), shop);
+        } else {
+            plugin.debug("Added shop as single (supported) container. (#" + shop.getID() + ")");
+
+            shopLocation.put(shop.getLocation(), shop);
+        }
+
+        if (addToDatabase) {
+            plugin.getShopDatabase().addShop(shop, callback);
+        } else {
+            if (callback != null) callback.callSyncResult(shop.getID());
+        }
+
+    }
+
+    /**
      * Add a shop
      * @param shop Shop to add
      * @param addToDatabase Whether the shop should also be added to the database
