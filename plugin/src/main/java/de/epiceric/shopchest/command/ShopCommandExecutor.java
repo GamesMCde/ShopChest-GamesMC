@@ -643,6 +643,10 @@ class ShopCommandExecutor implements CommandExecutor {
                     return;
                 }
                 int totalPages = (int) Math.ceil((double) transactions.size() / Config.shopsPerPage);
+                if(totalPages == 0){
+                    p.sendMessage(messageRegistry.getMessage(Message.LIST_EMPTY));
+                    return;
+                }
                 if (page < 1 || page > totalPages) {
                     p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
                     return;
@@ -747,6 +751,10 @@ class ShopCommandExecutor implements CommandExecutor {
 
                         // Print shop reports and use pagination
                         int totalPages = (int) Math.ceil((double) transactions.size() / Config.shopsPerPage);
+                        if(totalPages == 0){
+                            p.sendMessage(messageRegistry.getMessage(Message.LIST_EMPTY));
+                            return;
+                        }
                         if (page < 1 || page > totalPages) {
                             p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
                             return;
@@ -869,6 +877,10 @@ class ShopCommandExecutor implements CommandExecutor {
                     }).toList();
 
                     int totalPages = (int) Math.ceil((double) shops.size() / Config.shopsPerPage);
+                    if(totalPages == 0){
+                        p.sendMessage(messageRegistry.getMessage(Message.NO_SHOP_EMPTY));
+                        return;
+                    }
                     if (page < 1 || page > totalPages) {
                         p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
                         return;
@@ -936,6 +948,10 @@ class ShopCommandExecutor implements CommandExecutor {
                         }
                     }
                     int totalPages = (int) Math.ceil((double) shops.size() / Config.shopsPerPage);
+                    if(totalPages == 0){
+                        p.sendMessage(messageRegistry.getMessage(Message.LIST_EMPTY));
+                        return;
+                    }
                     if (page < 1 || page > totalPages) {
                         p.sendMessage(messageRegistry.getMessage(Message.INVALID_PAGE_NUMBER, new Replacement(Placeholder.PAGE, String.valueOf(page)), new Replacement(Placeholder.TOTAL_PAGES, String.valueOf(totalPages))));
                         return;

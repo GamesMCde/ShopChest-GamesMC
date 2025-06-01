@@ -153,6 +153,8 @@ public class MessageRegistryLoader {
         register(messages, Message.SHOP_MODIFY_NOT_ENOUGH_MONEY, "message.shop-modify-not-enough-money", "&cNot enough money. You need &6%MODIFY-PRICE% &cto modify this shop.");
         register(messages, Message.CLICK_CHEST_MODIFY, "message.click-chest-to-modify-shop", "&aClick a shop within 15 seconds to modify it.");
         register(messages, Message.NO_PERMISSION_MODIFY, "message.noPermission.modify", "&cYou don't have permission to modify this shop.");
+        register(messages, Message.LIST_EMPTY, "message.lists.empty", "&cThere is nothing that can be shown here.");
+        register(messages, Message.NO_SHOP_EMPTY, "message.no-shop-empty", "&cYou do not have any empty shops.");
     }
 
     private void register(@NotNull String[] messages, @NotNull Message message, @NotNull String path, @Nullable String defaultValue) {
