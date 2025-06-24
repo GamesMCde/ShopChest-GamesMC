@@ -149,7 +149,7 @@ public class MessageRegistryLoader {
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_BUY, "message.shop-report.hover.total-buy", "&6Total Buy: &e%SUM-BUY%");
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_SELL, "message.shop-report.hover.total-sell", "&6Total Sell: &e%SUM-SELL%");
         register(messages, Message.SHOP_REPORT_HOVER_TOTAL_TRANSACTIONS, "message.shop-report.hover.total-transactions", "&6Total Transactions: &e%SUM-TRANSACTIONS%");
-        register(messages, Message.SHOP_MODIFIED, "message.shop-modified", "&6The shop has been modified.");
+        register(messages, Message.SHOP_MODIFIED, "message.shop-modified", "&6The shop has been modified. You paid %MODIFY-PRICE%.");
         register(messages, Message.SHOP_MODIFY_NOT_ENOUGH_MONEY, "message.shop-modify-not-enough-money", "&cNot enough money. You need &6%MODIFY-PRICE% &cto modify this shop.");
         register(messages, Message.CLICK_CHEST_MODIFY, "message.click-chest-to-modify-shop", "&aClick a shop within 15 seconds to modify it.");
         register(messages, Message.NO_PERMISSION_MODIFY, "message.noPermission.modify", "&cYou don't have permission to modify this shop.");

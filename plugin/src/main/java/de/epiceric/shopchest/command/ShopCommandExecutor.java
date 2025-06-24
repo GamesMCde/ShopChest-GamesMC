@@ -530,7 +530,10 @@ class ShopCommandExecutor implements CommandExecutor {
 
         ClickType.setPlayerClickType(p, new ClickType.ModifyClickType(amount, buyPrice, sellPrice));
         plugin.debug(p.getName() + " can now click a chest");
-        p.sendMessage(messageRegistry.getMessage(Message.CLICK_CHEST_MODIFY));
+        //Just assume the normal price for information purposes.
+        //An admin shop will probably not be modified by a normal player, so the price is not important here.
+        double modifyPrice = Config.shopModifyPriceNormal;
+        p.sendMessage(messageRegistry.getMessage(Message.CLICK_CHEST_MODIFY, new Replacement(Placeholder.MODIFY_PRICE, String.valueOf(modifyPrice))));
     }
     /**
      * A given player removes a shop

@@ -1315,7 +1315,7 @@ public class ShopInteractListener implements Listener {
             );
 
             EconomyResponse r = plugin.getEconomy().withdrawPlayer(p, shop.getLocation().getWorld().getName(), modifyPrice);
-            p.sendMessage(messageRegistry.getMessage(Message.SHOP_MODIFIED));
+            p.sendMessage(messageRegistry.getMessage(Message.SHOP_MODIFIED, new Replacement(Placeholder.MODIFY_PRICE, String.valueOf(modifyPrice))));
 
             plugin.debug(p.getName() + " can not pay the creation price");
 
